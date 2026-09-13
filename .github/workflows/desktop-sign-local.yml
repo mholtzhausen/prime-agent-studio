@@ -1,0 +1,63 @@
+name: Sign locally built Windows installer
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Draft release tag matching package.json
+        required: true
+        type: string
+      sha256:
+        description: SHA-256 of the locally built installer uploaded to the draft
+        required: true
+        type: string
+permissions:
+  contents: write
+concurrency:
+  group: desktop-release-${{ inputs.tag }}
+  cancel-in-progress: false
+jobs:
+  sign:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      RELEASE_TAG: ${{ inputs.tag }}
+      EXPECTED_SHA256: ${{ inputs.sha256 }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ inputs.tag }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24.21.0'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Download and verify the local build
+        run: |
+          node --input-type=module <<'JS'
+          import { readFile } from 'node:fs/promises';
+          const { version } = JSON.parse(await readFile('package.json', 'utf8'));
+          if (!/^\d+\.\d+\.\d+$/.test(version) || process.env.RELEASE_TAG !== `v${version}` || !/^[a-f0-9]{64}$/.test(process.env.EXPECTED_SHA256)) throw new Error('Invalid release inputs');
+          JS
+          test "$(gh release view "$RELEASE_TAG" --json isDraft --jq .isDraft)" = true
+          mkdir -p .local/signing
+          gh release download "$RELEASE_TAG" --pattern "Prime-Agent-Studio_${RELEASE_TAG#v}_x64-setup.exe" --dir .local/signing
+          printf '%s  %s\n' "$EXPECTED_SHA256" ".local/signing/Prime-Agent-Studio_${RELEASE_TAG#v}_x64-setup.exe" | sha256sum --check
+          gh release view "$RELEASE_TAG" --json body --jq .body > .local/signing/notes.md
+      - name: Sign the unchanged installer
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: node node_modules/@tauri-apps/cli/tauri.js signer sign ".local/signing/Prime-Agent-Studio_${RELEASE_TAG#v}_x64-setup.exe"
+      - name: Prepare updater metadata and upload signatures
+        run: |
+          node --input-type=module <<'JS'
+          import { readFile, writeFile } from 'node:fs/promises';
+          import { updateManifest } from './scripts/desktop-update-manifest.mjs';
+          const version = process.env.RELEASE_TAG.slice(1);
+          const signature = await readFile(`.local/signing/Prime-Agent-Studio_${version}_x64-setup.exe.sig`, 'utf8');
+          const notes = await readFile('.local/signing/notes.md', 'utf8');
+          await writeFile('.local/signing/latest.json', JSON.stringify(updateManifest({version, signature, notes}), null, 2) + '\n');
+          JS
+          gh release upload "$RELEASE_TAG" ".local/signing/Prime-Agent-Studio_${RELEASE_TAG#v}_x64-setup.exe.sig" .local/signing/latest.json --clobber
