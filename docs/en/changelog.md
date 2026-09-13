@@ -4,6 +4,11 @@
 
 Changes by version. See [GitHub releases](https://github.com/zerr0o/prime-agent-studio/releases) for installers and source archives.
 
+## 3.3.2
+
+- **Compact components**: status and versions fit on one or two lines. The Details button reveals paths, download sources and advanced options; this area is collapsed by default.
+- **Contextual actions**: the installation button disappears once everything is ready. Progress and errors remain visible.
+
 ## 3.3.1
 
 - **Guided setup fixed**: Prime Agent dependencies install from the engine directory regardless of where Studio was launched. Fixes preparation failures in the installed Windows application. Previously validated components are reused.

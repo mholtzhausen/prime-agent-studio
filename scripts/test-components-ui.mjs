@@ -27,7 +27,11 @@ const browser = await chromium.launch({
 await mkdir('.local/components-ui', { recursive: true });
 try {
   for (const locale of ['fr-FR', 'en-US']) {
-    const context = await browser.newContext({ locale, viewport: { width: 660, height: 850 } });
+    const context = await browser.newContext({
+      locale,
+      colorScheme: locale.startsWith('fr') ? 'dark' : 'light',
+      viewport: { width: 660, height: 850 },
+    });
     await context.addInitScript(() => {
       window.calls = [];
       window.__TAURI__ = {
@@ -107,9 +111,39 @@ try {
       locale.startsWith('fr') ? 'différée' : 'deferred',
     );
     assert.equal(await page.evaluate(() => window.calls.some((c) => c.name === 'desktop_start')), false);
+    await expect(page.locator('#components-details')).toBeHidden();
+    await expect(page.locator('#components-install')).toBeHidden();
+    await page.locator('#components-toggle').click();
+    await expect(page.locator('#components-details')).toBeVisible();
+    await expect(page.locator('#components-detail-list')).toContainText('C:\\Données Studio\\engine\\cli.js');
+    await expect(page.locator('#components-toggle')).toHaveAttribute('aria-expanded', 'true');
+    await page.screenshot({ path: `.local/components-ui/details-${locale}.png`, fullPage: true });
+    await page.locator('#components-toggle').click();
     await page.screenshot({ path: `.local/components-ui/${locale}.png`, fullPage: true });
     await page.goto(url + '/?settings');
     await expect(page.locator('#components')).toBeVisible();
+    await page.evaluate(() =>
+      renderComponents({
+        ready: true,
+        components: {
+          engine: {
+            status: 'ready',
+            version: '0.9.4',
+            path: 'C:\\Données Studio\\engine\\prime-agent\\0.9.4-12345678\\dist\\bundle\\cli.js',
+          },
+          node: { status: 'ready', version: '24.21.0' },
+          python: { status: 'ready', path: 'C:\\Données Studio\\.local\\kernel-venv\\python.exe' },
+          uv: { status: 'ready', version: '0.8.22' },
+          bash: { status: 'ready' },
+        },
+      }),
+    );
+    await expect(page.locator('#components-details')).toBeHidden();
+    assert.ok((await page.locator('#components').boundingBox()).height < 190);
+    await page.screenshot({ path: `.local/components-ui/settings-${locale}.png`, fullPage: true });
+    await page.setViewportSize({ width: 390, height: 850 });
+    await page.locator('#components-toggle').click();
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
     await page.goto(url + '/?background');
     await expect
       .poll(() => page.evaluate(() => window.calls.some((c) => c.name === 'desktop_start')))

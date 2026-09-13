@@ -4,6 +4,11 @@
 
 Les changements par version. Retrouvez les installateurs et les archives du code source dans les [releases GitHub](https://github.com/zerr0o/prime-agent-studio/releases).
 
+## 3.3.2
+
+- **Composants plus compacts** : état et versions sur une ou deux lignes. Le bouton Détails affiche les chemins, les sources de téléchargement et les options avancées ; cette zone est fermée par défaut.
+- **Actions adaptées** : le bouton d’installation disparaît lorsque tout est prêt. La progression et les erreurs restent visibles.
+
 ## 3.3.1
 
 - **Installation guidée corrigée** : les dépendances de Prime Agent sont installées depuis le dossier du moteur, quel que soit le dossier de lancement de Studio. Corrige l’échec de préparation dans l’application Windows installée. Les composants déjà validés sont réutilisés.

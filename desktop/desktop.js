@@ -1,6 +1,8 @@
 const messages = {
   fr: {
     componentsHeading: 'Composants du Studio',
+    componentsDetails: 'Détails',
+    componentsHideDetails: 'Masquer les détails',
     componentsNote:
       'Cette version de Studio utilise Prime Agent 0.9.4. Le bouton télécharge les composants manquants ou la version requise du moteur, npm privé, uv et Python 3.11 si nécessaire. Une connexion Internet est nécessaire. Git Bash doit être installé séparément pour les commandes shell.',
     componentsInstall: 'Installer les composants manquants',
@@ -9,8 +11,7 @@ const messages = {
     componentsExistingNote:
       'Sélectionnez la racine du paquet Prime Agent (avec package.json), uv.exe ou python.exe. Les chemins définis dans les variables d’environnement restent prioritaires.',
     componentsLater: 'Plus tard — ouvrir le Studio',
-    componentsReady:
-      'Composants validés. Ouvrez le Studio puis Connexions si aucun fournisseur n’est configuré.',
+    componentsReady: 'Tous les composants sont prêts.',
     componentsDeferred:
       'Préparation enregistrée. Activation différée : attendez la fin des agents puis utilisez Redémarrer le serveur. Un serveur externe doit être arrêté depuis son lanceur.',
     componentsBusy: 'Une préparation est déjà en cours. Réessayez après sa fin.',
@@ -106,6 +107,8 @@ const messages = {
   },
   en: {
     componentsHeading: 'Studio components',
+    componentsDetails: 'Details',
+    componentsHideDetails: 'Hide details',
     componentsNote:
       'This Studio version uses Prime Agent 0.9.4. The button downloads missing components or the required engine version, private npm, uv and Python 3.11 when needed. An Internet connection is required. Git Bash must be installed separately for shell commands.',
     componentsInstall: 'Install missing components',
@@ -114,7 +117,7 @@ const messages = {
     componentsExistingNote:
       'Select the Prime Agent package root (with package.json), uv.exe or python.exe. Environment variable paths take precedence.',
     componentsLater: 'Later — open Studio',
-    componentsReady: 'Components validated. Open Studio, then Connections if no provider is configured.',
+    componentsReady: 'All components are ready.',
     componentsDeferred:
       'Preparation saved. Activation deferred: wait for agents to finish, then use Restart server. Stop an external server through its own launcher.',
     componentsBusy: 'Another preparation is in progress. Try again when it finishes.',
@@ -278,7 +281,16 @@ function renderComponents(result) {
   }
   latestComponents = result;
   $('components-list').replaceChildren();
+  $('components-detail-list').replaceChildren();
   for (const [key, info] of Object.entries(result.components || {})) {
+    const stateLabel = t.componentStates[info.status] || info.status;
+    const chip = document.createElement('li');
+    chip.className = 'component-chip';
+    chip.dataset.state = info.status;
+    chip.textContent = `${componentNames[key] || key}${info.version ? ` ${info.version}` : ''}${info.status !== 'ready' ? ` · ${stateLabel}` : ''}`;
+    chip.title = stateLabel;
+    chip.setAttribute('aria-label', `${chip.textContent} — ${stateLabel}`);
+    $('components-list').append(chip);
     const row = document.createElement('li');
     row.textContent = `${componentNames[key] || key} — ${t.componentStates[info.status] || info.status}${info.version ? ` · ${info.version}` : ''}`;
     if (info.path) {
@@ -296,12 +308,31 @@ function renderComponents(result) {
       error.textContent = componentError(info.explicit ? 'explicit_invalid' : info.error);
       row.append(error);
     }
-    $('components-list').append(row);
+    $('components-detail-list').append(row);
   }
   $('components-status').textContent =
-    result.activation === 'deferred' ? t.componentsDeferred : result.ready ? t.componentsReady : '';
+    result.activation === 'deferred'
+      ? t.componentsDeferred
+      : result.ready
+        ? t.componentsReady
+        : Object.entries(result.components || {})
+            .filter(([, info]) => info.error && info.error !== 'missing')
+            .map(
+              ([key, info]) =>
+                `${componentNames[key] || key} : ${componentError(info.explicit ? 'explicit_invalid' : info.error)}`,
+            )
+            .join(' ');
+  $('components-install').hidden = result.ready;
+  $('components-actions').hidden = result.ready;
   $('start').textContent = result.ready ? t.start : t.componentsLater;
 }
+$('components-toggle').textContent = t.componentsDetails;
+$('components-toggle').onclick = () => {
+  const expanded = $('components-details').hidden;
+  $('components-details').hidden = !expanded;
+  $('components-toggle').setAttribute('aria-expanded', String(expanded));
+  $('components-toggle').textContent = expanded ? t.componentsHideDetails : t.componentsDetails;
+};
 async function componentsAction(action, component) {
   if (componentsBusy) return;
   componentsBusy = true;
