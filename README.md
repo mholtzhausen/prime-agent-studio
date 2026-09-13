@@ -44,7 +44,7 @@
 
 Prime Agent Studio brings your **local Prime Agent sessions** together in a Windows application and a browser interface. Follow streaming responses, find your projects and continue a conversation without opening a terminal. On Windows, agents and their tools run in the background, without unexpected PowerShell windows.
 
-**Version 3.2.7** · [Download the Windows x64 installer](https://github.com/zerr0o/prime-agent-studio/releases/download/v3.2.7/Prime-Agent-Studio_3.2.7_x64-setup.exe) · [Release history](docs/en/changelog.md).
+**Version 3.3.0** · [Download the Windows x64 installer](https://github.com/zerr0o/prime-agent-studio/releases/download/v3.3.0/Prime-Agent-Studio_3.3.0_x64-setup.exe) · [Release history](docs/en/changelog.md).
 
 ## Images and questions in the conversation
 
@@ -84,7 +84,7 @@ Translations live in **one table**, with French and English side by side for eac
 | **Intervene live**          | Steer the agent or queue a follow-up message without stopping its work.                                                  |
 | **Attach images and files** | Select a photo or document, drop it into the conversation or paste it from the clipboard.                                |
 | **See project images**      | View images in agent responses, enlarge them and keep their original files as the source.                                |
-| **Answer agent questions**  | Enable native questions per conversation, with described choices, free text or Skip.                                    |
+| **Answer agent questions**  | Enable native questions per conversation, with described choices, free text or Skip.                                     |
 | **Find your models**        | Search by name or provider, manage favorites and choose a reasoning level.                                               |
 | **Configure subagents**     | Set the model and reasoning for future delegations, globally or per project, before the first message.                   |
 | **Connect MCP tools**       | Manage HTTP and stdio servers, OAuth, variables, allowed tools and connection tests.                                     |
@@ -135,15 +135,15 @@ Connection tests discover tools without executing them. New settings apply to ne
 
 ### Windows application
 
-Download the [Windows x64 installer](https://github.com/zerr0o/prime-agent-studio/releases/latest), install it, then open **Prime Agent Studio** from your desktop or Start menu. Node.js is included; **Prime Agent and uv** must be installed, with a configured provider. If you used the VBS launcher, select **Use an existing installation** before the first startup. [Full guide](docs/en/desktop.md).
+Download the [Windows x64 installer](https://github.com/zerr0o/prime-agent-studio/releases/latest), install it, then open **Prime Agent Studio** from your desktop or Start menu. Node.js is included. Builds with guided setup offer **Install missing components** at first launch and in application settings: Prime Agent **0.9.4**, private npm, uv and Python download on demand after your click. Compatible external installations are reused; Git Bash is detected separately for shell commands. Configure your provider afterward. Previously published installers are unchanged. If you used the VBS launcher, select **Use an existing installation**. [Full guide](docs/en/desktop.md).
 
 Updates are signed for Tauri; the installer does not yet carry a Windows Authenticode signature.
 
-**After updating:** the application can keep using the previous server while agents finish. Once they have finished, use **Preferences → Updates → Restart server** in the Windows application to activate 3.2.7. [Update guide](docs/en/desktop.md).
+**After updating:** the application can keep using the previous server while agents finish. Once they have finished, use **Preferences → Updates → Restart server** in the Windows application to activate 3.3.0. [Update guide](docs/en/desktop.md).
 
 ### From source
 
-**Requirements:** Windows, **Node.js 22.8 or later**, **uv**, and **Prime Agent** installed. Configure a provider before the first message, through the CLI or Studio’s desktop **Providers** panel. Subagent settings integration has been verified with **Prime Agent 0.9.2**.
+**Requirements:** Windows, **Node.js 22.8 or later**, **uv**, and **Prime Agent** installed. Configure a provider before the first message, through the CLI or Studio’s desktop **Providers** panel. Subagent settings integration has been verified with **Prime Agent 0.9.4**.
 
 Download **Source code (zip)** from the [latest release](https://github.com/zerr0o/prime-agent-studio/releases/latest) and extract it, or clone this repository. Open a terminal in the extracted folder:
 
@@ -232,7 +232,7 @@ Find a model by **name, provider or ID**. Favorites stay at the top of the selec
 
 On the PC, **Preferences → Models & agents → Configure** lets you choose and save the default main model using the same selector, search and favorites as conversations. This panel also manages custom model definitions. **New session** and **Ctrl+N** use this default model, independently of the last model selected in a conversation.
 
-With Prime Agent **0.9.2**, the **Subagents** area in preferences sets global defaults. For a specific project, select **This project** at the top of a conversation’s **Agents** tab, even before the first message, to show its selectors: changes save immediately. **Global** hides the selectors and restores shared defaults. Model selection uses the same catalog, integrated search and favorites as conversations. Each value can inherit from the parent. Studio adds these choices to the instructions and fills omitted arguments in future delegations; explicit choices and already-created subagents are preserved.
+With Prime Agent **0.9.4**, the **Subagents** area in preferences sets global defaults. For a specific project, select **This project** at the top of a conversation’s **Agents** tab, even before the first message, to show its selectors: changes save immediately. **Global** hides the selectors and restores shared defaults. Model selection uses the same catalog, integrated search and favorites as conversations. Each value can inherit from the parent. Studio adds these choices to the instructions and fills omitted arguments in future delegations; explicit choices and already-created subagents are preserved.
 
 In **Preferences → Agent reasoning**, choose **Hidden**, **Preview** or **Expanded**. Preview shows the **last two lines** of the latest reflection in the activity block, with Markdown formatting and automatic tracking during generation. The **Agents** tab also shows the reasoning level actually used.
 

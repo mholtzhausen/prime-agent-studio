@@ -110,6 +110,26 @@ test('fresh setup installs runtime and local skills together, then validates imp
   assert.equal(localKernelPython(f.root), python);
 });
 
+test('diagnosis never creates a kernel, and a skipped desktop setup never installs implicitly', async (t) => {
+  const f = await fixture(t);
+  assert.equal(await ensureLocalKernel({ ...f.options, readOnly: true }, f.deps), null);
+  assert.equal(f.calls.length, 0);
+  await assert.rejects(readFile(join(f.root, '.local/kernel-ready.json')), { code: 'ENOENT' });
+  await assert.rejects(
+    ensureLocalKernel(
+      { ...f.options, env: { ...f.options.env, PRIME_STUDIO_COMPONENTS_REQUIRED: '1' } },
+      f.deps,
+    ),
+    /Finish component setup/,
+  );
+  assert.equal(f.calls.length, 0);
+  const python = await f.prepare();
+  const before = await readFile(join(f.root, '.local/kernel-ready.json'), 'utf8');
+  assert.equal(await ensureLocalKernel({ ...f.options, readOnly: true }, f.deps), python);
+  assert.equal(await readFile(join(f.root, '.local/kernel-ready.json'), 'utf8'), before);
+  assert.equal(f.calls.filter((c) => c.args[0] === 'pip').length, 1);
+});
+
 test('legacy ready marker and a damaged generation are repaired without mutating either Python', async (t) => {
   const f = await fixture(t),
     legacy = localKernelPython(f.root);

@@ -5,6 +5,18 @@ export const languages = [
   { id: 'en', label: 'English' },
 ];
 export const messages = {
+  'configuration.connect': { fr: 'Configurer un fournisseur', en: 'Configure a provider' },
+  'configuration.choose': { fr: 'Choisir un modèle', en: 'Choose a model' },
+  'configuration.providerMissing': { fr: 'Aucun fournisseur configuré.', en: 'No provider configured.' },
+  'configuration.modelMissing': { fr: 'Aucun modèle sélectionné.', en: 'No model selected.' },
+  'configuration.bothMissing': {
+    fr: 'Aucun fournisseur configuré et aucun modèle sélectionné.',
+    en: 'No provider configured and no model selected.',
+  },
+  'roadmap.toolbarProgress': {
+    fr: 'Roadmap du projet : {percent} % terminés',
+    en: 'Project roadmap: {percent}% complete',
+  },
   'questions.defaultLabel': { fr: 'Autoriser les questions par défaut', en: 'Allow questions by default' },
   'questions.defaultNote': {
     fr: 'Nouvelles conversations sur ce PC. Le choix de chaque conversation reste indépendant.',
@@ -437,7 +449,10 @@ export const messages = {
     fr: 'Cet accès distant est en lecture seule : la mise à jour demande un accès complet.',
     en: 'This remote access is read-only: updating requires full access.',
   },
-  'updates.request_install': { fr: 'Installer cette version sur le PC', en: 'Install this version on the PC' },
+  'updates.request_install': {
+    fr: 'Installer cette version sur le PC',
+    en: 'Install this version on the PC',
+  },
   'updates.request_confirm_title': {
     fr: 'Installer la mise à jour sur le PC ?',
     en: 'Install the update on the PC?',
@@ -584,6 +599,12 @@ export const messages = {
     fr: 'Pour cette application · Apparence et conversation',
     en: 'This application · Appearance and conversation',
   },
+  'settings.components': { fr: 'Composants du Studio', en: 'Studio components' },
+  'settings.components_note': {
+    fr: 'Vérifier ou préparer Prime Agent, uv et Python dans les réglages de l’application Windows.',
+    en: 'Check or prepare Prime Agent, uv and Python in the Windows application settings.',
+  },
+  'settings.components_open': { fr: 'Configurer', en: 'Set up' },
   'settings.scope_agent': {
     fr: 'Prime Agent sur ce PC · Configuration partagée',
     en: 'Prime Agent on this PC · Shared configuration',
@@ -5226,21 +5247,48 @@ export const messages = {
     fr: 'Valeur invalide.',
     en: 'Invalid value.',
   },
-  'passkeys.title': { fr: "Connexion avec une clé d’accès", en: "Passkey sign-in" },
-  'passkeys.intro': { fr: "Optionnel : Face ID, empreinte ou code du téléphone. Le code d’accès reste disponible.", en: "Optional: Face ID, fingerprint or device PIN. Your access code remains available." },
-  'passkeys.desktop': { fr: "Créez une clé depuis votre appareil mobile en HTTPS. Gérez ici les clés enregistrées.", en: "Create a passkey from your mobile device over HTTPS. Manage registered keys here." },
-  'passkeys.https': { fr: "Ouvrez la PWA depuis son adresse HTTPS Tailscale pour utiliser les clés d’accès.", en: "Open the PWA using its Tailscale HTTPS address to use passkeys." },
-  'passkeys.add': { fr: "Créer une clé d’accès", en: "Create a passkey" },
-  'passkeys.login': { fr: "Se connecter avec une clé d’accès", en: "Sign in with a passkey" },
-  'passkeys.failed': { fr: "La vérification de la clé d’accès a échoué. Réessayez ou utilisez votre code.", en: "Passkey verification failed. Try again or use your access code." },
-  'passkeys.retry': { fr: "Trop de tentatives. Patientez avant de réessayer.", en: "Too many attempts. Please wait before trying again." },
-  'passkeys.none': { fr: "Aucune clé d’accès enregistrée.", en: "No passkeys registered." },
-  'passkeys.waiting': { fr: "Validez sur votre appareil…", en: "Confirm on your device…" },
-  'passkeys.cancelled': { fr: "Opération annulée. Vous pouvez réessayer ou utiliser le code.", en: "Cancelled. You can try again or use your code." },
-  'passkeys.revoke': { fr: "Révoquer", en: "Revoke" },
-  'passkeys.revokeNote': { fr: "Révoquer « {name} » et fermer ses connexions ? Le code d’accès restera utilisable.", en: "Revoke “{name}” and close its connections? The access code will remain available." },
-  'passkeys.registerNote': { fr: "Confirmez votre code d’accès actuel, puis validez sur votre téléphone. Une clé peut être synchronisée par votre gestionnaire de mots de passe.", en: "Confirm your current access code, then approve on your phone. Your password manager may sync the passkey." },
-  'passkeys.name': { fr: "Nom de la clé d’accès", en: "Passkey name" },
-  'passkeys.cancel': { fr: "Annuler", en: "Cancel" },
-  'passkeys.pendingQuestions': { fr: "{count} conversation(s) attendent une réponse", en: "{count} conversation(s) need an answer" },
+  'passkeys.title': { fr: 'Connexion avec une clé d’accès', en: 'Passkey sign-in' },
+  'passkeys.intro': {
+    fr: 'Optionnel : Face ID, empreinte ou code du téléphone. Le code d’accès reste disponible.',
+    en: 'Optional: Face ID, fingerprint or device PIN. Your access code remains available.',
+  },
+  'passkeys.desktop': {
+    fr: 'Créez une clé depuis votre appareil mobile en HTTPS. Gérez ici les clés enregistrées.',
+    en: 'Create a passkey from your mobile device over HTTPS. Manage registered keys here.',
+  },
+  'passkeys.https': {
+    fr: 'Ouvrez la PWA depuis son adresse HTTPS Tailscale pour utiliser les clés d’accès.',
+    en: 'Open the PWA using its Tailscale HTTPS address to use passkeys.',
+  },
+  'passkeys.add': { fr: 'Créer une clé d’accès', en: 'Create a passkey' },
+  'passkeys.login': { fr: 'Se connecter avec une clé d’accès', en: 'Sign in with a passkey' },
+  'passkeys.failed': {
+    fr: 'La vérification de la clé d’accès a échoué. Réessayez ou utilisez votre code.',
+    en: 'Passkey verification failed. Try again or use your access code.',
+  },
+  'passkeys.retry': {
+    fr: 'Trop de tentatives. Patientez avant de réessayer.',
+    en: 'Too many attempts. Please wait before trying again.',
+  },
+  'passkeys.none': { fr: 'Aucune clé d’accès enregistrée.', en: 'No passkeys registered.' },
+  'passkeys.waiting': { fr: 'Validez sur votre appareil…', en: 'Confirm on your device…' },
+  'passkeys.cancelled': {
+    fr: 'Opération annulée. Vous pouvez réessayer ou utiliser le code.',
+    en: 'Cancelled. You can try again or use your code.',
+  },
+  'passkeys.revoke': { fr: 'Révoquer', en: 'Revoke' },
+  'passkeys.revokeNote': {
+    fr: 'Révoquer « {name} » et fermer ses connexions ? Le code d’accès restera utilisable.',
+    en: 'Revoke “{name}” and close its connections? The access code will remain available.',
+  },
+  'passkeys.registerNote': {
+    fr: 'Confirmez votre code d’accès actuel, puis validez sur votre téléphone. Une clé peut être synchronisée par votre gestionnaire de mots de passe.',
+    en: 'Confirm your current access code, then approve on your phone. Your password manager may sync the passkey.',
+  },
+  'passkeys.name': { fr: 'Nom de la clé d’accès', en: 'Passkey name' },
+  'passkeys.cancel': { fr: 'Annuler', en: 'Cancel' },
+  'passkeys.pendingQuestions': {
+    fr: '{count} conversation(s) attendent une réponse',
+    en: '{count} conversation(s) need an answer',
+  },
 };

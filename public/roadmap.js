@@ -22,7 +22,15 @@ const failureMessage = (error) =>
     : error.message;
 
 /** A document view only: polling never starts or resumes an agent. */
-export function createRoadmap({ api, getContext, onOpenSession, onWork, onKnowledge, toast }) {
+export function createRoadmap({
+  api,
+  getContext,
+  onOpenSession,
+  onWork,
+  onKnowledge,
+  toast,
+  onSummary = () => {},
+}) {
   const css = node('link');
   css.rel = 'stylesheet';
   css.href = '/public/roadmap.css';
@@ -63,6 +71,7 @@ export function createRoadmap({ api, getContext, onOpenSession, onWork, onKnowle
     refreshPending = false,
     enlarged = false;
   let requestSequence = 0,
+    lastSummaryRefresh = 0,
     appliedSequence = 0,
     activityEpoch = '',
     activityRevision = -1;
@@ -103,12 +112,15 @@ export function createRoadmap({ api, getContext, onOpenSession, onWork, onKnowle
     appliedSequence = sequence;
     const changed = JSON.stringify(next) !== JSON.stringify(doc);
     doc = next;
+    onSummary(doc);
     const backlogNumbers = new Set([...next.backlog.items, ...next.backlog.notes].map((item) => item.number));
     for (const number of selected) if (!backlogNumbers.has(number)) selected.delete(number);
     if (changed && !pending) render();
   }
   async function refresh() {
-    if (!opened || refreshPending || pending || document.hidden) return;
+    if (!cwd || getContext().online === false || refreshPending || pending || document.hidden) return;
+    if (!opened && Date.now() - lastSummaryRefresh < 10000) return;
+    lastSummaryRefresh = Date.now();
     const version = generation,
       sequence = ++requestSequence;
     refreshPending = true;
@@ -122,6 +134,7 @@ export function createRoadmap({ api, getContext, onOpenSession, onWork, onKnowle
     } catch (e) {
       if (version === generation) {
         error = failureMessage(e);
+        onSummary(null);
         renderStatus();
       }
     } finally {
@@ -1376,11 +1389,30 @@ export function createRoadmap({ api, getContext, onOpenSession, onWork, onKnowle
       if (!menu.contains(event.target)) menu.open = false;
   });
   function update() {
-    if (!opened) return;
     const context = getContext();
     if (context.cwd !== cwd) {
       editorState?.persist();
-      hide();
+      if (opened) hide();
+      if (editorState?.busy()) return;
+      cwd = context.cwd || '';
+      doc = null;
+      generation++;
+      appliedSequence = 0;
+      activityEpoch = '';
+      activityRevision = -1;
+      lastSummaryRefresh = 0;
+      expanded.clear();
+      selected.clear();
+      foldedMilestones.clear();
+      foldedSteps.clear();
+      foldedGroups.clear();
+      visibleDescriptions.clear();
+      expandedActivities.clear();
+      error = '';
+      onSummary(null);
+    }
+    if (!opened) {
+      void refresh();
       return;
     }
     const access = `${context.readOnly}:${context.online}`;

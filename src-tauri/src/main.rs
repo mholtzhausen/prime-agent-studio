@@ -1,6 +1,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod directory_picker;
+mod components;
 mod notifications;
 #[cfg(test)]
 mod update_tests;
@@ -397,9 +398,13 @@ fn main() {
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_notification::init())
         .manage(directory_picker::DirectoryPicker::default())
+        .manage(components::Components::default())
         .manage(updates::Updates::default())
         .invoke_handler(tauri::generate_handler![
             desktop_state,
+            components::desktop_components,
+            components::desktop_components_cancel,
+            components::desktop_components_open,
             desktop_autostart,
             desktop_choose_legacy,
             desktop_logs,
@@ -434,6 +439,7 @@ fn main() {
                     .window("main")
                     .remote(format!("http://127.0.0.1:{port}/*"))
                     .permission("allow-desktop-update-status")
+                    .permission("allow-desktop-components-open")
                     .permission("allow-desktop-server-restart")
                     .permission("allow-desktop-pick-directory")
                     .permission("allow-desktop-notification-preferences")

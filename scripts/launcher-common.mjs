@@ -118,7 +118,7 @@ export async function acquireLock(paths, { timeout = 22000 } = {}) {
         }
       }
       // An incomplete lock may still be being written. Allow a short grace period.
-      if ((!alive && owner) || (owner?.createdAt && Date.now() - owner.createdAt > 60000)) {
+      if (!alive && owner) {
         await unlink(paths.lock).catch(() => {});
       } else if (!owner) {
         const { stat } = await import('node:fs/promises');

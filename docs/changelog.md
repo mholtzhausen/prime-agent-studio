@@ -4,6 +4,14 @@
 
 Les changements par version. Retrouvez les installateurs et les archives du code source dans les [releases GitHub](https://github.com/zerr0o/prime-agent-studio/releases).
 
+## 3.3.0
+
+- **Installation guidée** : préparation de Prime Agent, uv et Python au premier lancement ou depuis les réglages, après un clic explicite. Réutilisation des installations compatibles, progression, annulation et reprise après échec.
+- **Compatibilité du moteur** : Studio 3.3.0 cible Prime Agent 0.9.4. Une future version de Studio pourra demander sa mise à niveau ; aucun téléchargement automatique en arrière-plan.
+- **Roadmap visible** : bouton complet dans la barre supérieure avec le pourcentage d’avancement du projet, actualisé même lorsque le panneau est fermé.
+- **Configuration plus claire** : avertissement si aucun fournisseur n’est configuré ou aucun modèle n’est sélectionné ; correction de l’alignement et de la couleur du sélecteur de réflexion des sous-agents.
+- **Après installation** : redémarrez le serveur depuis les préférences une fois les agents terminés.
+
 ## 3.2.7
 
 - **Connexion optionnelle par clé d’accès** : enregistrement depuis Préférences → Accès distant sur l’adresse HTTPS Tailscale du téléphone. Validation par biométrie ou code de déverrouillage ; le code Studio reste disponible. Gestion et révocation des clés depuis le PC. Changer le code Studio invalide les clés existantes.

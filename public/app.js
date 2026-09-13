@@ -349,7 +349,27 @@ function setSelectedModel(value, persist = false, render = true) {
   );
   if (persist) void saveGenerationSettings({ model: id });
   if (render && $('model-dialog').open) renderModelList();
+  renderConfigurationWarning();
 }
+function renderConfigurationWarning() {
+  const providerMissing = Array.isArray(state.configuredProviders) && state.configuredProviders.length === 0;
+  const modelMissing = !($('model-select').value || state.modelCatalogDefault);
+  const visible =
+    state.initialized &&
+    state.online &&
+    state.version?.available !== false &&
+    (providerMissing || modelMissing);
+  $('configuration-warning').hidden = !visible;
+  if (!visible) return;
+  const key =
+    providerMissing && modelMissing ? 'bothMissing' : providerMissing ? 'providerMissing' : 'modelMissing';
+  bindText($('configuration-warning-text'), () => tr(`configuration.${key}`));
+  $('configuration-provider-action').hidden =
+    !providerMissing || state.remote || !state.providersAvailable || state.readOnly;
+  $('configuration-model-action').hidden = !modelMissing || state.readOnly;
+}
+$('configuration-provider-action').onclick = () => $('open-provider-settings').click();
+$('configuration-model-action').onclick = () => $('model-picker-button').click();
 function modelRow(model, favorite = false) {
   const id = model.id || '',
     defaultChoice = !id,
@@ -742,6 +762,7 @@ function resizeComposer() {
   updateComposer();
 }
 function updateComposer() {
+  renderConfigurationWarning();
   imageComposer?.update();
   commandsUI?.update();
   const running = isRunning(activeRun());
@@ -798,9 +819,16 @@ function updateComposer() {
 function renderProjects() {
   const pendingQuestionRuns = [...state.runs.values()].filter(hasPendingQuestion);
   $('workspace-question-alert').hidden = !pendingQuestionRuns.length;
-  bindAttribute($('workspace-question-alert'), 'aria-label', () => tr('passkeys.pendingQuestions', { count: pendingQuestionRuns.length }));
-  bindAttribute($('workspace-question-alert'), 'title', () => tr('passkeys.pendingQuestions', { count: pendingQuestionRuns.length }));
-  $('workspace-question-alert').onclick = () => { const run = pendingQuestionRuns[0]; if (run?.sessionId) void selectSession(run.sessionId, run.cwd); };
+  bindAttribute($('workspace-question-alert'), 'aria-label', () =>
+    tr('passkeys.pendingQuestions', { count: pendingQuestionRuns.length }),
+  );
+  bindAttribute($('workspace-question-alert'), 'title', () =>
+    tr('passkeys.pendingQuestions', { count: pendingQuestionRuns.length }),
+  );
+  $('workspace-question-alert').onclick = () => {
+    const run = pendingQuestionRuns[0];
+    if (run?.sessionId) void selectSession(run.sessionId, run.cwd);
+  };
   if (projectSorting?.active || !projectNavigation) return;
   const query = $('session-search').value.trim();
   bindText($('session-list-label'), () =>
@@ -2174,6 +2202,9 @@ function populateModels(catalog, { preserveSelection = false } = {}) {
   const selected = $('model-select').value,
     thinking = $('thinking-select').value;
   state.models = Array.isArray(catalog?.models) ? catalog.models : [];
+  state.configuredProviders = Array.isArray(catalog?.configuredProviders)
+    ? catalog.configuredProviders
+    : null;
   state.modelCatalogDefault = typeof catalog?.default?.model === 'string' ? catalog.default.model : '';
   state.modelCatalogThinking = catalog?.default?.thinking || '';
   state.modelCatalogRefreshing = catalog?.refreshing === true;
@@ -2648,6 +2679,20 @@ inspectorUI = createInspector({
   },
 });
 roadmapUI = createRoadmap({
+  onSummary: (doc) => {
+    const percent =
+      doc?.initialized && Number.isFinite(doc?.progress?.percent)
+        ? Math.max(0, Math.min(100, Math.round(doc.progress.percent)))
+        : null;
+    $('roadmap-progress').hidden = percent === null;
+    $('roadmap-progress').textContent = percent === null ? '' : `${percent} %`;
+    bindAttribute($('open-roadmap'), 'aria-label', () =>
+      percent === null ? tr('roadmap.open') : tr('roadmap.toolbarProgress', { percent }),
+    );
+    bindAttribute($('open-roadmap'), 'title', () =>
+      percent === null ? tr('roadmap.open') : tr('roadmap.toolbarProgress', { percent }),
+    );
+  },
   api,
   toast,
   getContext: () => ({

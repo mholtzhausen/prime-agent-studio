@@ -29,6 +29,26 @@
           <p id="source" hidden></p>
         </div>
       </section>
+      <section id="components" class="updates" aria-labelledby="components-heading" hidden>
+        <h2 id="components-heading"></h2>
+        <p id="components-note"></p>
+        <ul id="components-list"></ul>
+        <p id="components-status" role="status" aria-live="polite"></p>
+        <div class="update-actions">
+          <button id="components-install" class="primary"></button>
+          <button id="components-diagnose" class="text-button"></button>
+          <button id="components-cancel" class="text-button" hidden></button>
+        </div>
+        <details>
+          <summary id="components-existing"></summary>
+          <p id="components-existing-note"></p>
+          <div class="update-actions">
+            <button id="components-engine" class="text-button">Prime Agent</button>
+            <button id="components-uv" class="text-button">uv</button>
+            <button id="components-python" class="text-button">Python</button>
+          </div>
+        </details>
+      </section>
       <section id="updates" class="updates" aria-labelledby="update-heading" hidden>
         <div class="update-heading">
           <h2 id="update-heading"></h2>

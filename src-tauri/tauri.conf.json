@@ -20,6 +20,9 @@
           "permissions": [
             "core:default",
             "allow-desktop-state",
+            "allow-desktop-components",
+            "allow-desktop-components-cancel",
+            "allow-desktop-components-open",
             "allow-desktop-autostart",
             "allow-desktop-choose-legacy",
             "allow-desktop-logs",

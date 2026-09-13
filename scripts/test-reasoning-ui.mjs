@@ -215,6 +215,19 @@ try {
 
   await page.locator('#open-model-config').click();
   await expect(page.locator('#save-subagent-defaults')).toBeEnabled();
+  const controlStyle = await page.evaluate(() => {
+    const model = document.querySelector('#default-subagent-model');
+    const thinking = document.querySelector('#default-subagent-thinking');
+    return {
+      modelY: model.getBoundingClientRect().top,
+      thinkingY: thinking.getBoundingClientRect().top,
+      modelColor: getComputedStyle(model).backgroundColor,
+      thinkingColor: getComputedStyle(thinking).backgroundColor,
+    };
+  });
+  expect(Math.abs(controlStyle.modelY - controlStyle.thinkingY)).toBeLessThanOrEqual(1);
+  expect(controlStyle.thinkingColor).toBe(controlStyle.modelColor);
+  await page.screenshot({ path: 'test-results/model-settings-alignment.png' });
   await expect(page.locator('#subagent-model-search, #subagent-scope')).toHaveCount(0);
   const mainModel = await page.locator('#model-select').inputValue();
   await page.locator('#default-subagent-model').click();

@@ -6,15 +6,31 @@ The **Prime Agent Studio** application, built with Tauri 2, opens Studio in a de
 
 ## Installation and first launch
 
-Run [Prime-Agent-Studio_3.1.4_x64-setup.exe](https://github.com/zerr0o/prime-agent-studio/releases/download/v3.1.4/Prime-Agent-Studio_3.1.4_x64-setup.exe). Installation is limited to your Windows user and offers Start menu and desktop shortcuts. Node.js is included. The installer installs WebView2 when needed; this component may require an Internet connection.
+Run [Prime-Agent-Studio_3.3.0_x64-setup.exe](https://github.com/zerr0o/prime-agent-studio/releases/download/v3.3.0/Prime-Agent-Studio_3.3.0_x64-setup.exe). Installation is limited to your Windows user and offers Start menu and desktop shortcuts. Node.js is included. The installer installs WebView2 when needed; this component may require an Internet connection.
 
-**Prime Agent and uv are still required on the PC**, with a configured provider. The installer does not reinstall or replace the Prime Agent engine, accounts or sessions. Studio prepares the Python kernel when needed for runs, as the browser version does.
+Builds containing guided setup download **Prime Agent, private npm, uv and Python** on demand. These components are not bundled in the installer. No previous Node, npm or Python installation, PATH changes or terminal commands are needed. An initial network connection is required. **Git Bash remains a separate prerequisite** for engine shell commands; its absence is reported. This source feature does not change previously published installers.
 
-On first launch, choose **Open Studio**. If you previously used the checkout with the VBS launcher, first select **Use an existing installation** and choose its folder containing `server.mjs` and `.local`.
+On first launch, review component states, then choose **Install missing components**, **Choose an existing installation** or **Later — open Studio**. Downloads require an explicit click on the install button. “Later” preserves access to settings and history; engine actions ask you to finish setup. After validation, configure a provider in **Connections**: preparation neither signs into an account nor sends a paid prompt. If you previously used the checkout with the VBS launcher, select **Use an existing installation** and choose its folder containing `server.mjs` and `.local`.
 
 Migration copies projects, subagent defaults, attachments and remote access settings, including the PIN. The original installation remains intact. If its server is running, the application connects immediately and postpones copying until the first launch when that server is stopped. It interrupts no runs. Prime Agent sessions remain in their usual location. After migration, use the application to open Studio; the old launcher retains its own copy of the settings.
 
 Browser appearance preferences and drafts are not copied: the Tauri window has its own persistent storage.
+
+## Preparation, repair and compatibility
+
+**Preferences → System → Studio components → Set up**, or **App settings** from the tray icon, opens the same diagnostics. Existing installation selection accepts the Prime Agent package root, `uv.exe` or `python.exe`. `PRIME_AGENT_CLI`, `PRIME_GUI_UV` and `PRIME_AGENT_KERNEL_PYTHON` take precedence, followed by saved selections, the managed installation, then customary external locations. Invalid explicit paths must be corrected; they are never silently replaced. A valid external Python is only validated, without installing into it or requiring uv.
+
+The versioned policy in `lib/desktop-components.mjs` pairs Studio 3.3.0 with **Prime Agent 0.9.4**, **npm 10.9.4** and **uv 0.8.22**, using Python 3.11. Packaging accepts Windows x64 with Node 22 ≥ 22.16 or Node 24; the engine requires ≥ 22.8. A later Studio version may require another exact engine: the button then installs that version after explicit consent. There is no periodic monitoring, blind “stable” selection or automatic update of external installations.
+
+Preparation reads the origin contract from the [official installer](https://app.primeintellect.ai/prime-agent/install.sh), without executing that script. The engine archive and its three Prime packages are checked against `releases/v<version>/SHA256SUMS`. npm comes from the [versioned official registry](https://registry.npmjs.org/npm/10.9.4), verified using its SHA-512 integrity before extraction; Studio Node executes its `npm-cli.js`. The [uv Windows x64 archive](https://github.com/astral-sh/uv/releases/tag/0.8.22) is checked against its `.sha256` file. These HTTPS references from the same origin provide transfer integrity, not an independent signature.
+
+npm scripts are disabled (`--ignore-scripts`). Prime's postinstall only prepares optional tools and its own kernel when requested; Studio uses `ensureLocalKernel`. Installation retains complete resources and dependencies, checks native provider, model, command, MCP and Photon imports before validation. npm retains its lockfile to diagnose resolved transitive dependencies. uv downloads managed Python when needed (`UV_PYTHON_DOWNLOADS=automatic`, `UV_PYTHON_PREFERENCE=only-managed`). Existing code validates Python imports, kernel protocol and essential skills. Optional tools, including fd/rg and account integrations, are not all installed by this preparation.
+
+Components live in `engine/prime-agent/<version-id>`, `engine/uv/<version-id>`, `engine/npm/<version-id>` and `engine/python`, under the data directory. `engine/prepared.json` retains validated components for retries; `engine/installation.json` atomically selects paths, versions, provenance and digests after Python validation. `engine/selection.json` stores explicit selections. Kernels remain in `.local`. Archives use fresh staging, size limits and rejection of traversal, links and ambiguous Windows names. Previous versions and external installations are never deleted.
+
+Progress shows actual stages and received bytes, without an invented overall percentage. Cancellation or failure allows retrying without losing validated components. A lock prevents simultaneous preparations and recovers a stopped owner. `engine/logs/components.log` contains only stages, codes and bytes. Downloads never start merely by opening a remote page or signing into Windows.
+
+Completed preparation restarts only a server whose ownership and inactivity Studio verifies. If agents are working or another launcher owns the server, activation remains deferred until an appropriate restart. No global Node process is stopped. Engine and kernel generations remain available for existing processes.
 
 ## Window and background work
 
@@ -59,6 +75,10 @@ A network error, missing catalog or invalid signature is never reported as “up
 Updates carry a Tauri cryptographic signature. Installers do not yet carry a Windows Authenticode signature, which requires a separate Windows certificate.
 
 ## Build and verify
+
+`npm run test:components` checks resolution, local-server download fixtures, digests, hostile archives, locks and the FR/EN flow in Edge without real installation. `npm run test:components:download` requires `.desktop-build` resources: it launches bundled Node in an isolated temporary directory with a reduced local PATH, downloads real components, prepares Python, checks `/api/version` and rejects any download during a second preparation. It retains its diagnostics directory without hiding or deleting user tools. It uses no account or paid model. To validate sessions with a simulated provider, run `scripts/test-commands-native.mjs` with `PRIME_AGENT_CLI` and `PRIME_AGENT_KERNEL_PYTHON` from this isolated manifest.
+
+These checks do not replace testing the new wizard in a packaged Tauri binary, in FR/EN, on a clean Windows x64 VM. That step requires Rust/MSVC and WebView2. In particular, check absent Git Bash, cancellation on application exit, insufficient disk space and deferred restart during an active session.
 
 On Windows, install Rust/MSVC and the [Tauri 2 development prerequisites](https://v2.tauri.app/start/prerequisites/), then run:
 

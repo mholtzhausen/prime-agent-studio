@@ -75,7 +75,9 @@
           >
         </div>
         <div class="sidebar-section-heading workspace-heading">
-          <button id="workspace-question-alert" type="button" class="workspace-question-alert" hidden>?</button><span id="session-list-label" data-i18n="ui.espace_de_travail_2">ESPACE DE TRAVAIL</span>
+          <button id="workspace-question-alert" type="button" class="workspace-question-alert" hidden>
+            ?</button
+          ><span id="session-list-label" data-i18n="ui.espace_de_travail_2">ESPACE DE TRAVAIL</span>
           <div class="workspace-heading-actions">
             <button
               id="show-archived"
@@ -148,15 +150,17 @@
           <div class="header-actions">
             <button
               id="open-roadmap"
-              class="icon-button"
+              class="roadmap-button"
               aria-label="Roadmap du projet"
               title="Roadmap du projet"
               data-i18n-aria-label="roadmap.open"
               data-i18n-title="roadmap.open"
               aria-controls="roadmap-panel"
-              data-icon="map"
               disabled
-            ></button>
+            >
+              <span data-icon="map" aria-hidden="true"></span><span>Roadmap</span
+              ><span id="roadmap-progress" class="roadmap-progress" hidden></span>
+            </button>
             <span id="session-state" class="session-state" hidden></span
             ><button
               id="session-menu-button"
@@ -181,6 +185,13 @@
             ></button>
           </div>
         </header>
+        <div id="configuration-warning" class="configuration-warning" role="status" hidden>
+          <span id="configuration-warning-text"></span>
+          <button id="configuration-provider-action" data-i18n="configuration.connect">
+            Configurer un fournisseur
+          </button>
+          <button id="configuration-model-action" data-i18n="configuration.choose">Choisir un modèle</button>
+        </div>
         <div id="remote-view-banner" class="remote-view-banner" role="status" hidden>
           <span data-icon="monitor"></span>
           <span
@@ -1342,10 +1353,20 @@
                 </div>
               </div>
             </div>
-          <section class="passkey-settings" aria-labelledby="passkey-heading">
-<h4 id="passkey-heading" data-i18n="passkeys.title"></h4><p id="passkey-hint" class="settings-footnote"></p>
-<button id="passkey-add" class="secondary-button" type="button" data-i18n="passkeys.add" hidden></button>
-<div id="passkey-list"></div><p id="passkey-status" class="settings-footnote" role="status"></p></section></section>
+            <section class="passkey-settings" aria-labelledby="passkey-heading">
+              <h4 id="passkey-heading" data-i18n="passkeys.title"></h4>
+              <p id="passkey-hint" class="settings-footnote"></p>
+              <button
+                id="passkey-add"
+                class="secondary-button"
+                type="button"
+                data-i18n="passkeys.add"
+                hidden
+              ></button>
+              <div id="passkey-list"></div>
+              <p id="passkey-status" class="settings-footnote" role="status"></p>
+            </section>
+          </section>
           <section
             id="settings-panel-system"
             class="settings-panel"
@@ -1368,6 +1389,15 @@
               </div>
             </div>
             <dl id="settings-system-info" class="settings-system-info"></dl>
+            <div class="settings-row" id="settings-components-row" hidden>
+              <div>
+                <label data-i18n="settings.components">Composants du Studio</label>
+                <p data-i18n="settings.components_note"></p>
+              </div>
+              <button id="settings-components" class="secondary-button" data-i18n="settings.components_open">
+                Configurer
+              </button>
+            </div>
             <p id="settings-system-error" class="form-error" role="alert" hidden></p>
             <div class="settings-row">
               <div>
@@ -1422,7 +1452,11 @@
                   data-i18n="updates.request_install"
                   hidden
                 ></button>
-                <button id="studio-update-remote-check" class="secondary-button" data-i18n="updates.check"></button>
+                <button
+                  id="studio-update-remote-check"
+                  class="secondary-button"
+                  data-i18n="updates.check"
+                ></button>
               </div>
               <p id="studio-update-remote-hint" class="settings-footnote"></p>
             </div>
@@ -1797,5 +1831,37 @@
     <div id="toasts" class="toasts" aria-live="polite" aria-atomic="false"></div>
     <script type="module" src="/public/app.js"></script>
     <script type="module" src="/public/pwa.js"></script>
-  <dialog id="passkey-dialog" class="modal" aria-labelledby="passkey-title"><form id="passkey-form" class="passkey-form"><h2 id="passkey-title"></h2><p id="passkey-note"></p><fieldset id="passkey-fields"><label for="passkey-name" data-i18n="passkeys.name"></label><input id="passkey-name" maxlength="80" required autocomplete="off"><label for="passkey-code" data-i18n="login.code"></label><input id="passkey-code" type="password" inputmode="numeric" pattern="[0-9]{8}" maxlength="8" required autocomplete="one-time-code"></fieldset><p id="passkey-error" role="alert" class="form-error"></p><div class="passkey-actions"><button id="passkey-cancel" type="button" class="secondary-button" data-i18n="passkeys.cancel"></button><button id="passkey-submit" class="primary-button" type="submit"></button></div></form></dialog></body>
+    <dialog id="passkey-dialog" class="modal" aria-labelledby="passkey-title">
+      <form id="passkey-form" class="passkey-form">
+        <h2 id="passkey-title"></h2>
+        <p id="passkey-note"></p>
+        <fieldset id="passkey-fields">
+          <label for="passkey-name" data-i18n="passkeys.name"></label
+          ><input id="passkey-name" maxlength="80" required autocomplete="off" /><label
+            for="passkey-code"
+            data-i18n="login.code"
+          ></label
+          ><input
+            id="passkey-code"
+            type="password"
+            inputmode="numeric"
+            pattern="[0-9]{8}"
+            maxlength="8"
+            required
+            autocomplete="one-time-code"
+          />
+        </fieldset>
+        <p id="passkey-error" role="alert" class="form-error"></p>
+        <div class="passkey-actions">
+          <button
+            id="passkey-cancel"
+            type="button"
+            class="secondary-button"
+            data-i18n="passkeys.cancel"
+          ></button
+          ><button id="passkey-submit" class="primary-button" type="submit"></button>
+        </div>
+      </form>
+    </dialog>
+  </body>
 </html>

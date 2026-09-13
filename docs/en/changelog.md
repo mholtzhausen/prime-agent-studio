@@ -4,6 +4,14 @@
 
 Changes by version. See [GitHub releases](https://github.com/zerr0o/prime-agent-studio/releases) for installers and source archives.
 
+## 3.3.0
+
+- **Guided setup**: prepare Prime Agent, uv and Python on first launch or from settings after an explicit click. Reuse compatible installations, track progress, cancel and retry failed setup.
+- **Engine compatibility**: Studio 3.3.0 targets Prime Agent 0.9.4. A future Studio version may request an engine upgrade; no automatic background downloads.
+- **Visible roadmap**: a full button in the top bar shows project completion, refreshed even when the panel is closed.
+- **Clearer configuration**: a warning appears when no provider is configured or no model is selected; sub-agent thinking selectors have consistent alignment and color.
+- **After installation**: restart the server from preferences once your agents have finished.
+
 ## 3.2.7
 
 - **Optional passkey sign-in**: register a passkey from Preferences → Remote access on the mobile Tailscale HTTPS address. Confirm with your device biometrics or unlock PIN; the Studio access code remains available. Manage and revoke keys from the PC. Changing the Studio access code invalidates existing keys.

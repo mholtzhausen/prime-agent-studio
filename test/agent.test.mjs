@@ -105,9 +105,21 @@ test('model catalogue returns a positive allowlist and never credential-bearing 
   );
   const catalog = await runtime.getModels();
   assert.equal(catalog.models.length, 1);
+  assert.deepEqual(catalog.configuredProviders, ['custom']);
   assert.equal(catalog.default.model, 'custom/test-model');
   assert.equal(catalog.models[0].contextWindow, 8192);
   assert.equal(JSON.stringify(catalog).includes(secret), false);
+});
+
+test('a remembered model does not imply a configured provider', async (t) => {
+  const { runtime } = await setup(t);
+  await writeFile(
+    join(runtime.agentHome, 'settings.json'),
+    JSON.stringify({ defaultProvider: 'past', defaultModel: 'remembered', recentModels: ['previous/model'] }),
+  );
+  const catalog = await runtime.getModels();
+  assert.equal(catalog.default.model, 'past/remembered');
+  assert.deepEqual(catalog.configuredProviders, []);
 });
 
 test('model picker uses native available models, keeps missing recent/default choices unavailable and projects safe fields', async (t) => {

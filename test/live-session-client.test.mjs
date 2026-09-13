@@ -196,7 +196,7 @@ test('inspector observes sub-agents without attaching or exposing private metada
   assert.ok(!JSON.stringify(snapshot).includes('secret'));
   assert.deepEqual(
     f.calls.map((call) => call.type),
-    ['get_state', 'get_session_header', 'get_rlm_children'],
+    ['get_state', 'get_session_header', 'get_rlm_children', 'get_connection_state'],
   );
   assert.ok(f.instances.every((instance) => instance.closed));
 });

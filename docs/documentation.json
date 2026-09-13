@@ -1,6 +1,9 @@
 {
   "version": 1,
-  "languages": ["fr", "en"],
+  "languages": [
+    "fr",
+    "en"
+  ],
   "pages": [
     {
       "id": "roadmap",
@@ -16,8 +19,8 @@
       "fr": "docs/desktop.md",
       "en": "docs/en/desktop.md",
       "reviewed": {
-        "fr": "199f227274ff81b8162a93cc99064d38cd5a1f22102e7979d91bdd3066302e66",
-        "en": "c05c64c1c6f6aa9a4fb59432e074bf3897312bdb5b3f36ac7fc9d078f91f4084"
+        "fr": "42aab9ae6a5d511c4ee660f36a63c883b22c61c3b936241534494eb4469fb781",
+        "en": "850aaaf0e17ebc9a4ea8bbfb1560faf9029b00d6c2ce52d6d98a1fff56c7c7ca"
       }
     },
     {
@@ -25,8 +28,8 @@
       "fr": "README.fr.md",
       "en": "README.md",
       "reviewed": {
-        "fr": "255fc56ce92fa957d608f984fb1d000c1d6d3afdd8176716c21a2e0d40e40417",
-        "en": "2fe31d2638e1af8759a07bfcaa80dbc8ecece9ce49a9fd9a6087da1a6548bd79"
+        "fr": "b0d66ac8148997ef5d0db874c092939b065ae8b7150b9efa4c292467b5117e3a",
+        "en": "eec7911141d1ee1eae843f97f90dae74c01e88742c8e036c84293aa75cb6fc2b"
       }
     },
     {
@@ -34,8 +37,8 @@
       "fr": "docs/changelog.md",
       "en": "docs/en/changelog.md",
       "reviewed": {
-        "fr": "4adaa7a5dcfe42aa2159301bee3ccc11d3664d512b03bee9f3e13d21eb42e1ae",
-        "en": "7f6cb1b1aa288b10417ddbf10641103b72689b936765f1dfac057a61bdbdd4b6"
+        "fr": "2f58c6d60d67ff5321df9117f5e426c82af0e9b61d54f82ea7af901803ae9d50",
+        "en": "a0276ca7aa1bc975dfcf6c761242686467415315bce87041cd559f6a8746ccf8"
       }
     },
     {

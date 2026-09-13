@@ -44,7 +44,7 @@
 
 Prime Agent Studio réunit les sessions de votre **Prime Agent local** dans une application Windows et une interface accessible depuis le navigateur. Suivez les réponses en direct, retrouvez vos projets et continuez une conversation sans ouvrir de terminal. Sous Windows, les agents et leurs outils démarrent en arrière-plan, sans fenêtres PowerShell intempestives.
 
-**Version 3.2.7** · [Télécharger l’installateur Windows x64](https://github.com/zerr0o/prime-agent-studio/releases/download/v3.2.7/Prime-Agent-Studio_3.2.7_x64-setup.exe) · [Historique des versions](docs/changelog.md).
+**Version 3.3.0** · [Télécharger l’installateur Windows x64](https://github.com/zerr0o/prime-agent-studio/releases/download/v3.3.0/Prime-Agent-Studio_3.3.0_x64-setup.exe) · [Historique des versions](docs/changelog.md).
 
 ## Images et questions dans la conversation
 
@@ -74,24 +74,24 @@ Le Studio et ses agents partagent la même Roadmap. Lancez un travail depuis un 
 
 Les traductions sont réunies dans **une table unique**, avec le français et l’anglais côte à côte pour chaque texte. Une traduction manquante utilise le français, et la vérification du projet détecte les cases absentes et les paramètres incohérents. [Ajouter une langue ou une traduction](docs/translations.md).
 
-| Fonction                           | Dans le Studio                                                                                                                               |
-| ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Organiser vos projets**          | Ouvrir leurs dossiers sur le PC, les épingler ou les retirer du Studio avec confirmation ; organiser et reprendre leurs sessions.            |
-| **Retrouver les travaux passés**   | Rechercher dans l’historique du projet, les mémoires et les refinements natifs, puis lire leurs sources ou les faire consulter par un agent. |
-| **Suivre le travail**              | Lire les réponses en streaming et déplier une activité regroupant les outils et le raisonnement.                                             |
-| **Inspecter une session**          | Consulter son état et sa consommation, suivre les sous-agents et ouvrir leurs échanges sans changer de session.                              |
-| **Consulter les fichiers**         | Parcourir le projet, lire les changements Git, prévisualiser et ouvrir les fichiers sur PC ou mobile.                                        |
-| **Intervenir en direct**           | Réorienter l’agent ou préparer un message à la suite, sans arrêter son travail.                                                              |
-| **Joindre des images et fichiers** | Choisir une photo ou un document, les déposer dans la conversation ou les coller depuis le presse-papiers.                                   |
-| **Voir les images du projet** | Afficher les images dans les réponses de l’agent, les agrandir et conserver leur fichier d’origine comme source. |
-| **Répondre aux questions de l’agent** | Autoriser les questions natives par conversation, avec des choix décrits, une réponse libre ou Passer. |
-| **Retrouver vos modèles**          | Rechercher par nom ou fournisseur, gérer vos favoris et choisir le niveau de réflexion.                                                      |
-| **Régler les sous-agents**         | Définir le modèle et la réflexion des prochaines délégations, globalement ou par projet, avant le premier message.                           |
-| **Connecter des outils MCP**       | Gérer les serveurs HTTP et stdio, OAuth, les variables, les outils autorisés et les tests de connexion.                                      |
-| **Gérer les fournisseurs**         | Sur le PC, connecter un compte, enregistrer une clé API et retirer des identifiants avec confirmation.                                       |
-| **Travailler en parallèle**        | Lancer des exécutions dans plusieurs sessions et passer de l’une à l’autre.                                                                  |
-| **Retrouver le Studio sur mobile** | Piloter le PC depuis un téléphone en Wi-Fi ou via Tailscale, avec un code d’accès.                                                           |
-| **Installer le Studio**            | Installer l’application Windows avec ses raccourcis, ou ajouter la PWA mobile à l’écran d’accueil via HTTPS.                                 |
+| Fonction                              | Dans le Studio                                                                                                                               |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Organiser vos projets**             | Ouvrir leurs dossiers sur le PC, les épingler ou les retirer du Studio avec confirmation ; organiser et reprendre leurs sessions.            |
+| **Retrouver les travaux passés**      | Rechercher dans l’historique du projet, les mémoires et les refinements natifs, puis lire leurs sources ou les faire consulter par un agent. |
+| **Suivre le travail**                 | Lire les réponses en streaming et déplier une activité regroupant les outils et le raisonnement.                                             |
+| **Inspecter une session**             | Consulter son état et sa consommation, suivre les sous-agents et ouvrir leurs échanges sans changer de session.                              |
+| **Consulter les fichiers**            | Parcourir le projet, lire les changements Git, prévisualiser et ouvrir les fichiers sur PC ou mobile.                                        |
+| **Intervenir en direct**              | Réorienter l’agent ou préparer un message à la suite, sans arrêter son travail.                                                              |
+| **Joindre des images et fichiers**    | Choisir une photo ou un document, les déposer dans la conversation ou les coller depuis le presse-papiers.                                   |
+| **Voir les images du projet**         | Afficher les images dans les réponses de l’agent, les agrandir et conserver leur fichier d’origine comme source.                             |
+| **Répondre aux questions de l’agent** | Autoriser les questions natives par conversation, avec des choix décrits, une réponse libre ou Passer.                                       |
+| **Retrouver vos modèles**             | Rechercher par nom ou fournisseur, gérer vos favoris et choisir le niveau de réflexion.                                                      |
+| **Régler les sous-agents**            | Définir le modèle et la réflexion des prochaines délégations, globalement ou par projet, avant le premier message.                           |
+| **Connecter des outils MCP**          | Gérer les serveurs HTTP et stdio, OAuth, les variables, les outils autorisés et les tests de connexion.                                      |
+| **Gérer les fournisseurs**            | Sur le PC, connecter un compte, enregistrer une clé API et retirer des identifiants avec confirmation.                                       |
+| **Travailler en parallèle**           | Lancer des exécutions dans plusieurs sessions et passer de l’une à l’autre.                                                                  |
+| **Retrouver le Studio sur mobile**    | Piloter le PC depuis un téléphone en Wi-Fi ou via Tailscale, avec un code d’accès.                                                           |
+| **Installer le Studio**               | Installer l’application Windows avec ses raccourcis, ou ajouter la PWA mobile à l’écran d’accueil via HTTPS.                                 |
 
 Les exécutions continuent lorsque vous changez de session, rechargez la page ou fermez l’onglet. Le serveur doit rester en marche.
 
@@ -135,15 +135,15 @@ Les tests découvrent les outils sans en exécuter. Les nouveaux réglages s’a
 
 ### Application Windows
 
-Téléchargez l’[installateur Windows x64](https://github.com/zerr0o/prime-agent-studio/releases/latest), installez-le, puis ouvrez **Prime Agent Studio** depuis le Bureau ou le menu Démarrer. Node.js est inclus ; **Prime Agent et uv** doivent être installés, avec un fournisseur configuré. Si vous utilisiez le VBS, choisissez **Reprendre une installation existante** avant le premier démarrage. [Guide complet](docs/desktop.md).
+Téléchargez l’[installateur Windows x64](https://github.com/zerr0o/prime-agent-studio/releases/latest), installez-le, puis ouvrez **Prime Agent Studio** depuis le Bureau ou le menu Démarrer. Node.js est inclus. Les builds avec préparation guidée proposent **Installer les composants manquants** au premier lancement et dans les réglages de l’application : Prime Agent **0.9.4**, npm privé, uv et Python sont téléchargés à la demande après votre clic. Les installations externes compatibles sont réutilisées ; Git Bash est détecté séparément pour les commandes shell. Configurez ensuite votre fournisseur. Les installateurs déjà publiés restent inchangés. Si vous utilisiez le VBS, choisissez **Reprendre une installation existante**. [Guide complet](docs/desktop.md).
 
 Les mises à jour sont signées pour Tauri ; l’installateur ne possède pas encore de signature Windows Authenticode.
 
-**Après la mise à jour :** l’application peut continuer à utiliser l’ancien serveur pendant que les agents terminent leur travail. Une fois leurs exécutions terminées, utilisez **Préférences → Mise à jour → Redémarrer le serveur** dans l’application Windows pour activer la version 3.2.7. [Guide de mise à jour](docs/desktop.md).
+**Après la mise à jour :** l’application peut continuer à utiliser l’ancien serveur pendant que les agents terminent leur travail. Une fois leurs exécutions terminées, utilisez **Préférences → Mise à jour → Redémarrer le serveur** dans l’application Windows pour activer la version 3.3.0. [Guide de mise à jour](docs/desktop.md).
 
 ### Depuis le code source
 
-**Prérequis :** Windows, **Node.js 22.8 ou ultérieur**, **uv** et **Prime Agent** installé. Un fournisseur doit être configuré avant le premier message, depuis le CLI ou le panneau **Fournisseurs** du Studio sur le PC. L’intégration des réglages des sous-agents a été vérifiée avec **Prime Agent 0.9.2**.
+**Prérequis :** Windows, **Node.js 22.8 ou ultérieur**, **uv** et **Prime Agent** installé. Un fournisseur doit être configuré avant le premier message, depuis le CLI ou le panneau **Fournisseurs** du Studio sur le PC. L’intégration des réglages des sous-agents a été vérifiée avec **Prime Agent 0.9.4**.
 
 Téléchargez **Source code (zip)** depuis la [dernière release](https://github.com/zerr0o/prime-agent-studio/releases/latest) et extrayez l’archive, ou clonez ce dépôt. Ouvrez ensuite un terminal dans le dossier extrait :
 
@@ -232,7 +232,7 @@ Recherchez un modèle par son **nom, son fournisseur ou son identifiant**. Les f
 
 Sur le PC, **Préférences → Modèles et agents → Configurer** permet de choisir le modèle principal par défaut avec le même sélecteur, la recherche et les favoris que les conversations, puis de l’enregistrer. Ce panneau permet aussi de gérer les définitions de modèles personnalisés. **Nouvelle session** et **Ctrl+N** reprennent ce modèle par défaut, indépendamment du dernier modèle choisi dans une conversation.
 
-Avec Prime Agent **0.9.2**, la zone **Sous-agents** des préférences définit les valeurs globales. Pour un projet précis, choisissez **Ce projet** en haut de l’onglet **Agents** d’une conversation, même avant le premier message, pour afficher ses sélecteurs : les choix sont enregistrés immédiatement. **Globaux** masque les sélecteurs et rétablit les valeurs communes. Le modèle se choisit avec le même catalogue, la recherche intégrée et les favoris que dans les conversations. Chaque valeur peut hériter du parent. Le Studio ajoute ces choix aux instructions et les applique aux arguments omis lors des prochaines délégations ; les choix explicites et les sous-agents déjà créés sont conservés.
+Avec Prime Agent **0.9.4**, la zone **Sous-agents** des préférences définit les valeurs globales. Pour un projet précis, choisissez **Ce projet** en haut de l’onglet **Agents** d’une conversation, même avant le premier message, pour afficher ses sélecteurs : les choix sont enregistrés immédiatement. **Globaux** masque les sélecteurs et rétablit les valeurs communes. Le modèle se choisit avec le même catalogue, la recherche intégrée et les favoris que dans les conversations. Chaque valeur peut hériter du parent. Le Studio ajoute ces choix aux instructions et les applique aux arguments omis lors des prochaines délégations ; les choix explicites et les sous-agents déjà créés sont conservés.
 
 Dans **Préférences → Raisonnement de l’agent**, choisissez **Masqué**, **Aperçu** ou **Détaillé**. L’aperçu affiche les **deux dernières lignes** de la dernière réflexion du bloc d’activité, avec le formatage Markdown et un suivi automatique pendant la génération. L’onglet **Agents** indique aussi le niveau de réflexion réellement utilisé.
 

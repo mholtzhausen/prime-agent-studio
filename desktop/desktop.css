@@ -448,3 +448,21 @@ footer svg {
     accent-color: #62588f;
   }
 }
+/* Component states remain readable with long Windows paths and at narrow sizes. */
+#components-list {
+  padding-left: 1.25rem;
+}
+#components-list li {
+  margin: 0.65rem 0;
+  overflow-wrap: anywhere;
+}
+#components-list small {
+  display: block;
+  opacity: 0.75;
+}
+#components details {
+  margin-top: 1rem;
+}
+#components-status {
+  overflow-wrap: anywhere;
+}

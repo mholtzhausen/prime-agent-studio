@@ -4,6 +4,9 @@ import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { desktopRuntimeScripts, verifyDesktopRuntimeResources } from './desktop-runtime-resources.mjs';
+import { checkNode } from '../lib/desktop-components.mjs';
+
+checkNode();
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const output = join(root, '.desktop-build'),
@@ -31,7 +34,7 @@ await mkdir(join(studio, 'scripts'));
 for (const name of desktopRuntimeScripts)
   await cp(join(root, 'scripts', name), join(studio, 'scripts', name));
 await verifyDesktopRuntimeResources(studio);
-const npmCli = join(dirname(process.execPath), 'node_modules/npm/bin/npm-cli.js');
+const npmCli = process.env.npm_execpath || join(dirname(process.execPath), 'node_modules/npm/bin/npm-cli.js');
 execFileSync(process.execPath, [npmCli, 'ci', '--omit=dev', '--ignore-scripts', '--no-audit', '--no-fund'], {
   cwd: studio,
   windowsHide: true,

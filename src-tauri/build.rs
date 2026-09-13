@@ -2,6 +2,9 @@ fn main() {
     tauri_build::try_build(tauri_build::Attributes::new().app_manifest(
         tauri_build::AppManifest::new().commands(&[
             "desktop_state",
+            "desktop_components",
+            "desktop_components_cancel",
+            "desktop_components_open",
             "desktop_autostart",
             "desktop_choose_legacy",
             "desktop_pick_directory",

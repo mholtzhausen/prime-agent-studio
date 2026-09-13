@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { startServer } from './start-server.mjs';
 import { acquireLock, probeHealth, parsePort, isDirectInvocation } from './launcher-common.mjs';
 import { repairDesktop280Resources } from './desktop-runtime-resources.mjs';
+import { selectedEnvironment } from '../lib/desktop-components.mjs';
 
 const resources = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const importedFiles = ['workspace.json', 'subagent-defaults.json', 'lan-access.json', 'attachments'];
@@ -89,7 +90,7 @@ export async function startDesktop(
     const dataDir = join(dataRoot, 'data');
     if (!existsSync(dataDir) && legacyRoot) await importLegacyData(resolve(legacyRoot), dataDir);
     const childEnv = {
-      ...env,
+      ...(await selectedEnvironment(dataRoot, env)),
       PRIME_AGENT_GUI_DATA_DIR: dataDir,
       PRIME_AGENT_GUI_KERNEL_ROOT: dataRoot,
       PRIME_AGENT_GUI_INITIAL_CWD: homedir(),
