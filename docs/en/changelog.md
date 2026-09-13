@@ -4,6 +4,11 @@
 
 Changes by version. See [GitHub releases](https://github.com/zerr0o/prime-agent-studio/releases) for installers and source archives.
 
+## 3.3.1
+
+- **Guided setup fixed**: Prime Agent dependencies install from the engine directory regardless of where Studio was launched. Fixes preparation failures in the installed Windows application. Previously validated components are reused.
+- **Validation**: complete installation tested with bundled Node from a directory without `package.json`, matching the installed application.
+
 ## 3.3.0
 
 - **Guided setup**: prepare Prime Agent, uv and Python on first launch or from settings after an explicit click. Reuse compatible installations, track progress, cancel and retry failed setup.

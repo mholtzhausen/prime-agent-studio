@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { pathToFileURL, fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
-const resources = resolve('.desktop-build');
+const resources = fileURLToPath(new URL('../.desktop-build/', import.meta.url));
 if (process.argv[2] !== '--worker') {
   assert.equal(
     process.argv[2],
@@ -31,6 +31,9 @@ if (process.argv[2] !== '--worker') {
   await mkdir(env.TEMP);
   console.log(`Isolated test data retained at ${root}`);
   const child = spawn(join(resources, 'node.exe'), [fileURLToPath(import.meta.url), '--worker', root], {
+    // The native launcher runs from backend/, which has no package.json.
+    // Running this test from the repository used to hide npm's implicit cwd input.
+    cwd: resources,
     env,
     windowsHide: true,
     shell: false,
@@ -64,6 +67,8 @@ if (process.argv[2] !== '--worker') {
   assert.equal(prepared.components.engine.source, 'managed');
   assert.equal(prepared.components.uv.source, 'managed');
   const first = JSON.parse(await readFile(join(root, 'engine/installation.json')));
+  const enginePackage = JSON.parse(await readFile(join(first.components.engine.packageDir, 'package.json')));
+  assert.equal(enginePackage.dependencies?.['prime-agent-studio'], undefined);
   const again = await prepareComponents(
     { dataRoot: root },
     {
