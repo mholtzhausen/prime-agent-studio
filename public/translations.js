@@ -7,6 +7,11 @@ export const languages = [
 export const messages = {
   'configuration.connect': { fr: 'Configurer un fournisseur', en: 'Configure a provider' },
   'configuration.choose': { fr: 'Choisir un modèle', en: 'Choose a model' },
+  'configuration.components': { fr: 'Configurer les composants', en: 'Set up components' },
+  'configuration.components_hint': {
+    fr: 'Ouvrir les réglages de l’application pour préparer Prime Agent, uv et Python (aucune installation automatique)',
+    en: 'Open the application settings to prepare Prime Agent, uv and Python (no automatic install)',
+  },
   'configuration.providerMissing': { fr: 'Aucun fournisseur configuré.', en: 'No provider configured.' },
   'configuration.modelMissing': { fr: 'Aucun modèle sélectionné.', en: 'No model selected.' },
   'configuration.bothMissing': {

@@ -14,11 +14,13 @@ concurrency:
 jobs:
   windows:
     runs-on: windows-latest
-    env:
-      # Use the runner's canonical workspace temp path rather than a DOS 8.3 user alias.
-      TEMP: ${{ runner.temp }}
-      TMP: ${{ runner.temp }}
     steps:
+      - name: Use canonical temp directory
+        # runner context is unavailable in jobs.<id>.env; export via GITHUB_ENV here where it is allowed.
+        # Keeps the canonical workspace temp path rather than a DOS 8.3 user alias.
+        run: |
+          Add-Content $env:GITHUB_ENV "TEMP=${{ runner.temp }}"
+          Add-Content $env:GITHUB_ENV "TMP=${{ runner.temp }}"
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           ref: ${{ inputs.tag }}

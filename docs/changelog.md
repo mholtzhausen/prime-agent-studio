@@ -4,6 +4,11 @@
 
 Les changements par version. Retrouvez les installateurs et les archives du code source dans les [releases GitHub](https://github.com/zerr0o/prime-agent-studio/releases).
 
+## 3.3.3
+
+- **Composants durcis** : hôtes de téléchargement fixes sans héritage de `NODE_OPTIONS`, reprise avec reçu vérifié, moteurs externes non exécutés sans sélection explicite, état du lanceur préservé après annulation, avertissement catalogue affiché après interruption.
+- **Signature sécurisée** : les workflows ne signent jamais un installateur téléversé ; ils reconstruisent l’installateur depuis le tag avant signature.
+
 ## 3.3.2
 
 - **Composants plus compacts** : état et versions sur une ou deux lignes. Le bouton Détails affiche les chemins, les sources de téléchargement et les options avancées ; cette zone est fermée par défaut.

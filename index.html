@@ -191,6 +191,18 @@
             Configurer un fournisseur
           </button>
           <button id="configuration-model-action" data-i18n="configuration.choose">Choisir un modèle</button>
+          <button
+            id="configuration-components-action"
+            type="button"
+            data-i18n="configuration.components"
+            data-i18n-aria-label="configuration.components_hint"
+            data-i18n-title="configuration.components_hint"
+            aria-label="Ouvrir les réglages de l’application pour préparer Prime Agent, uv et Python (aucune installation automatique)"
+            title="Ouvrir les réglages de l’application pour préparer Prime Agent, uv et Python (aucune installation automatique)"
+            hidden
+          >
+            Configurer les composants
+          </button>
         </div>
         <div id="remote-view-banner" class="remote-view-banner" role="status" hidden>
           <span data-icon="monitor"></span>
@@ -201,7 +213,21 @@
             ></span
           >
         </div>
-        <div id="global-banner" class="global-banner" role="status" hidden></div>
+        <div id="global-banner" class="global-banner" role="status" hidden>
+          <span id="global-banner-text"></span
+          ><button
+            id="global-banner-components"
+            type="button"
+            data-i18n="configuration.components"
+            data-i18n-aria-label="configuration.components_hint"
+            data-i18n-title="configuration.components_hint"
+            aria-label="Ouvrir les réglages de l’application pour préparer Prime Agent, uv et Python (aucune installation automatique)"
+            title="Ouvrir les réglages de l’application pour préparer Prime Agent, uv et Python (aucune installation automatique)"
+            hidden
+          >
+            Configurer les composants
+          </button>
+        </div>
         <div class="workspace-body">
           <section class="conversation-column" aria-label="Conversation">
             <div id="conversation-scroll" class="conversation-scroll" tabindex="-1">

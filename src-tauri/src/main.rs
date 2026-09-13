@@ -69,9 +69,15 @@ fn is_studio_url(url: &tauri::Url, port: u16) -> bool {
 }
 fn update_window_only(window: &WebviewWindow, app: &tauri::AppHandle) -> Result<(), String> {
     let url = window.url().map_err(|e| e.to_string())?;
-    if is_launcher_url(&url)
-        || (window.label() == "main" && is_studio_url(&url, app.state::<Desktop>().port))
-    {
+    if is_launcher_url(&url) {
+        return Ok(());
+    }
+    // Never panic on missing state inside the WebView IPC handler: deny closed.
+    let port = app
+        .try_state::<Desktop>()
+        .map(|state| state.port)
+        .ok_or_else(|| "This action is reserved for the Studio desktop application.".to_string())?;
+    if window.label() == "main" && is_studio_url(&url, port) {
         Ok(())
     } else {
         Err("This action is reserved for the Studio desktop application.".into())
@@ -95,34 +101,63 @@ fn show_main(app: &tauri::AppHandle) {
         let _ = window.set_focus();
     }
 }
-fn show_settings(app: &tauri::AppHandle) {
+fn show_settings(app: &tauri::AppHandle) -> Result<(), String> {
     if let Some(window) = app.get_webview_window("desktop-settings") {
+        let _ = window.unminimize();
         let _ = window.show();
         let _ = window.set_focus();
-    } else {
-        let links_app = app.clone();
-        let navigation_app = app.clone();
-        let _ = WebviewWindowBuilder::new(
-            app,
-            "desktop-settings",
-            WebviewUrl::App("index.html?settings".into()),
-        )
-        .data_directory(app.state::<Desktop>().root.join("webview"))
-        .title("Prime Agent Studio · Application")
-        .inner_size(660.0, 760.0)
-        .min_inner_size(560.0, 600.0)
-        .on_new_window(move |url, _| {
-            open_external_link(&links_app, &url);
-            tauri::webview::NewWindowResponse::Deny
-        })
-        .on_navigation(move |url| {
-            if is_launcher_url(url) {
-                return true;
+        return Ok(());
+    }
+    // Never panic on missing state inside an IPC handler: report instead.
+    let data_directory = app
+        .try_state::<Desktop>()
+        .map(|state| state.root.join("webview"))
+        .ok_or_else(|| "settings_unavailable".to_string())?;
+    let links_app = app.clone();
+    let navigation_app = app.clone();
+    let built = WebviewWindowBuilder::new(
+        app,
+        "desktop-settings",
+        WebviewUrl::App("index.html?settings".into()),
+    )
+    .data_directory(data_directory)
+    .title("Prime Agent Studio · Application")
+    .inner_size(660.0, 760.0)
+    .min_inner_size(560.0, 600.0)
+    .on_new_window(move |url, _| {
+        open_external_link(&links_app, &url);
+        tauri::webview::NewWindowResponse::Deny
+    })
+    .on_navigation(move |url| {
+        if is_launcher_url(url) {
+            return true;
+        }
+        open_external_link(&navigation_app, url);
+        false
+    })
+    .build();
+    match built {
+        Ok(window) => {
+            let _ = window.show();
+            let _ = window.set_focus();
+            Ok(())
+        }
+        Err(error) => {
+            // Concurrent double-click can race check-then-build on one label.
+            // Reuse the winner instead of leaving a dead button.
+            if let Some(window) = app.get_webview_window("desktop-settings") {
+                let _ = window.unminimize();
+                let _ = window.show();
+                let _ = window.set_focus();
+                return Ok(());
             }
-            open_external_link(&navigation_app, url);
-            false
-        })
-        .build();
+            // Persist only the non-secret build error kind for diagnostics.
+            if let Some(root) = app.try_state::<Desktop>().map(|state| state.root.clone()) {
+                let _ = fs::create_dir_all(&root);
+                let _ = fs::write(root.join("desktop-settings-error.log"), error.to_string());
+            }
+            Err("settings_unavailable".into())
+        }
     }
 }
 fn save_preferences(state: &Desktop, prefs: &Preferences) -> Result<(), String> {
@@ -276,7 +311,7 @@ async fn desktop_start(
             // An older running server may not yet contain the new Preferences UI.
             // Keep the bundled restart controls reachable immediately after updating.
             if result["showUpdates"] == true {
-                show_settings(&app);
+                let _ = show_settings(&app);
             }
             Ok(result)
         }
@@ -378,7 +413,7 @@ fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, args, _| {
             if args.iter().any(|arg| arg == "--settings") {
-                show_settings(app);
+                let _ = show_settings(app);
             } else if !args.iter().any(|arg| arg == "--background") {
                 show_main(app);
             }
@@ -542,7 +577,9 @@ fn main() {
                 .show_menu_on_left_click(false)
                 .on_menu_event(move |app, event| match event.id.as_ref() {
                     "open" => show_main(app),
-                    "settings" => show_settings(app),
+                    "settings" => {
+                        let _ = show_settings(app);
+                    }
                     "quit" => app.exit(0),
                     _ => (),
                 })
@@ -560,7 +597,7 @@ fn main() {
                 })
                 .build(app)?;
             if std::env::args().any(|arg| arg == "--settings") {
-                show_settings(app.handle());
+                let _ = show_settings(app.handle());
             }
             notifications::start(app.handle().clone(), port);
             updates::start_update_intent_poller(app.handle().clone());

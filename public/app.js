@@ -32,6 +32,10 @@ import { bindInlineImages } from './inline-images.js';
 import { createPasskeySettings } from './passkeys.js';
 import { createQuestions } from './questions.js';
 import { createPushSettings } from './push.js';
+import {
+  isDesktopComponentsAvailable,
+  openDesktopComponents,
+} from './desktop-components-action.js';
 let questionsUI;
 let imageComposer;
 let projectSorting;
@@ -364,12 +368,24 @@ function renderConfigurationWarning() {
   const key =
     providerMissing && modelMissing ? 'bothMissing' : providerMissing ? 'providerMissing' : 'modelMissing';
   bindText($('configuration-warning-text'), () => tr(`configuration.${key}`));
+  // Missing provider keeps its direct target (provider config). Engine
+  // components use the separate app-settings target below.
   $('configuration-provider-action').hidden =
     !providerMissing || state.remote || !state.providersAvailable || state.readOnly;
   $('configuration-model-action').hidden = !modelMissing || state.readOnly;
+  // Desktop-only shortcut to the app component settings. Browser/mobile stays
+  // hidden: no broken invoke. Opening never auto-installs.
+  const componentsAction = $('configuration-components-action');
+  if (componentsAction)
+    componentsAction.hidden =
+      state.remote || state.readOnly || !isDesktopComponentsAvailable();
 }
 $('configuration-provider-action').onclick = () => $('open-provider-settings').click();
 $('configuration-model-action').onclick = () => $('model-picker-button').click();
+if ($('configuration-components-action'))
+  $('configuration-components-action').onclick = () => void openDesktopComponents({ toast });
+if ($('global-banner-components'))
+  $('global-banner-components').onclick = () => void openDesktopComponents({ toast });
 function modelRow(model, favorite = false) {
   const id = model.id || '',
     defaultChoice = !id,
@@ -536,6 +552,7 @@ async function refreshModelCatalog({ force = false, manual = false, poll = false
       state.modelCatalogRefreshing = false;
       state.modelCatalogNotice = 'model.refreshInterrupted';
       modelCatalogPollsRemaining = 0;
+      renderConfigurationWarning();
       if (manual) toast(() => tr('model.refreshFailed', { value1: translateKnown(error.message) }), true);
     })
     .finally(() => {
@@ -595,9 +612,24 @@ function toast(message, error = false) {
   setTimeout(() => n.remove(), error ? 6500 : 3200);
 }
 function banner(message, error = false) {
-  bindText($('global-banner'), () => translateKnown(message || ''));
+  const text = $('global-banner-text') || $('global-banner');
+  bindText(text, () => translateKnown(message || ''));
   $('global-banner').hidden = !message;
   $('global-banner').classList.toggle('error', error);
+  renderEngineComponentsAction();
+}
+function renderEngineComponentsAction() {
+  const action = $('global-banner-components');
+  if (!action) return;
+  // Engine components target: desktop native only. Browser/mobile stays
+  // explanatory with no broken invoke. Opening never auto-installs.
+  const engineMissing = state.version?.available === false;
+  action.hidden =
+    $('global-banner').hidden ||
+    !engineMissing ||
+    state.remote ||
+    state.readOnly ||
+    !isDesktopComponentsAvailable();
 }
 async function api(path, { method = 'GET', body, signal } = {}) {
   const pushWrite = path === '/api/push/subscriptions' || path === '/api/push/focus';
@@ -2232,6 +2264,7 @@ function populateModels(catalog, { preserveSelection = false } = {}) {
   if (preserveSelection) $('thinking-select').value = thinking;
   if ($('model-dialog').open) renderModelList({ preserveFocus: true });
   renderModelRefresh();
+  renderConfigurationWarning();
 }
 function selectNewConversationModel() {
   restoreGenerationSettings(null, null);

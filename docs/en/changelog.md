@@ -4,6 +4,11 @@
 
 Changes by version. See [GitHub releases](https://github.com/zerr0o/prime-agent-studio/releases) for installers and source archives.
 
+## 3.3.3
+
+- **Hardened components**: fixed download hosts with no inherited `NODE_OPTIONS`, verified-receipt resume, external engines never executed without explicit selection, launcher state preserved after cancellation, catalog warning shown after interruption.
+- **Secure signing**: workflows never sign an uploaded installer; they always rebuild the installer from the tag before signing.
+
 ## 3.3.2
 
 - **Compact components**: status and versions fit on one or two lines. The Details button reveals paths, download sources and advanced options; this area is collapsed by default.

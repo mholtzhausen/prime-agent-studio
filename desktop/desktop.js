@@ -250,6 +250,7 @@ for (const [id, key] of Object.entries({
 const invoke = window.__TAURI__?.core?.invoke;
 let componentsBusy = false;
 let latestComponents;
+let serverAlreadyRunning = false;
 const componentNames = {
   engine: 'Prime Agent',
   uv: 'uv',
@@ -273,8 +274,12 @@ function componentError(code) {
   return t.componentsFailed;
 }
 function renderComponents(result) {
-  if (result.cancelled) return;
+  if (!result || result.cancelled) {
+    latestComponents = undefined;
+    return;
+  }
   if (result.failure) {
+    latestComponents = undefined;
     $('components-status').textContent =
       `${componentNames[result.failure.component] || ''} : ${componentError(result.failure.error)}`;
     return;
@@ -348,6 +353,7 @@ async function componentsAction(action, component) {
     if (action === 'install' && result.ready && result.activation === 'active') await start();
     return result;
   } catch (error) {
+    latestComponents = undefined;
     $('components-status').textContent = componentError(String(error));
   } finally {
     componentsBusy = false;
@@ -577,7 +583,8 @@ async function start() {
   $('import').disabled = true;
   $('progress').hidden = false;
   try {
-    if (latestComponents?.ready) await invoke('desktop_components', { action: 'activate', component: null });
+    if (latestComponents?.ready && !serverAlreadyRunning)
+      await invoke('desktop_components', { action: 'activate', component: null });
     await invoke('desktop_start');
     if (settings) {
       $('progress').hidden = true;
@@ -655,9 +662,10 @@ $('import').onclick = async () => {
       $('source').hidden = false;
       $('source').textContent = t.selected + state.legacyRoot;
     }
+    serverAlreadyRunning = Boolean(state.started);
     const background = new URLSearchParams(location.search).has('background');
-    const components = background ? null : await componentsAction('diagnose');
-    if ((background || (state.started && components?.ready)) && !settings) {
+    if (!background) await componentsAction('diagnose');
+    if ((background || serverAlreadyRunning) && !settings) {
       $('title').textContent = t.connectingTitle;
       $('description').textContent = t.connectingNote;
       await start();

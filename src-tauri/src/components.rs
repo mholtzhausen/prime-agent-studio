@@ -7,10 +7,15 @@ pub struct Components {
     input: Mutex<Option<ChildStdin>>,
 }
 
+// Async (thread-pool) on purpose: opening/focusing the settings window from inside
+// the Studio WebView IPC callback must not run re-entrantly on the WebView2 thread.
+// The tray opener runs outside that callback, which is why it stayed working.
+// This only opens the launcher settings window; it never navigates main and never
+// touches the server, so agents keep running.
 #[tauri::command]
-pub fn desktop_components_open(window: WebviewWindow, app: tauri::AppHandle) -> Result<(), String> {
+pub async fn desktop_components_open(window: WebviewWindow, app: tauri::AppHandle) -> Result<(), String> {
     super::update_window_only(&window, &app)?;
-    super::show_settings(&app);
+    super::show_settings(&app)?;
     Ok(())
 }
 

@@ -1,6 +1,7 @@
 import { t as tr, translateKnown, translateDOM, onLanguageChange, bindText } from './i18n.js';
 import { createDesktopUpdates } from './desktop-updates.js';
 import { createInteractionSettings } from './interaction-settings.js';
+import { isDesktopComponentsAvailable, openDesktopComponents } from './desktop-components-action.js';
 
 export function createSettings({
   api,
@@ -13,15 +14,9 @@ export function createSettings({
   const updates = createDesktopUpdates({ api, getContext });
   const interactions = createInteractionSettings({ api, getContext, onStudioPreferences });
   const $ = (id) => document.getElementById(id);
-  if (window.__PRIME_STUDIO_DESKTOP__ === true && window.__TAURI__?.core?.invoke) {
+  if (isDesktopComponentsAvailable()) {
     $('settings-components-row').hidden = false;
-    $('settings-components').onclick = async () => {
-      try {
-        await window.__TAURI__.core.invoke('desktop_components_open');
-      } catch {
-        toast(tr('settings.components_note'));
-      }
-    };
+    $('settings-components').onclick = () => void openDesktopComponents({ toast });
   }
   const dialog = $('settings-dialog'),
     tabs = [...dialog.querySelectorAll('[data-settings-tab]')];

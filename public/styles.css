@@ -1407,12 +1407,28 @@ kbd {
   letter-spacing: 1px;
 }
 .global-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
   font-size: 11px;
   background: var(--accent-bg);
   color: var(--accent-text);
   padding: 11px 27px;
   border-bottom: 1px solid var(--line);
   line-height: 1.6;
+}
+.global-banner > span {
+  flex: 1 1 240px;
+}
+.global-banner button {
+  padding: 5px 9px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--text);
+  background: var(--surface);
+  font: inherit;
+  font-size: 12px;
 }
 .global-banner.error {
   background: #bc656512;
