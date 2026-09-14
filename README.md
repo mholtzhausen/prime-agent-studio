@@ -153,6 +153,17 @@ npm run setup:runtime
 npm run start:silent
 ```
 
+**Developer bootstrap** (Linux/macOS/Windows; Make targets wrap the same npm scripts):
+
+```sh
+make init            # npm ci
+make setup-runtime   # optional; needs Prime Agent + uv
+make dev             # foreground server → http://127.0.0.1:3088
+make check && make test
+```
+
+See [AGENTS.md](AGENTS.md) for coding-agent conventions and [ARCHITECTURE.md](ARCHITECTURE.md) for the system map. `make help` lists all targets.
+
 The browser opens at **[127.0.0.1:3088](http://127.0.0.1:3088)**. Afterward, double-click **`Lancer Prime Agent.vbs`**: the launcher reuses the server if it is already running.
 
 1. Add a project folder with **+** in the workspace.
@@ -276,6 +287,8 @@ The PWA keeps the website’s commands and attachments. If connectivity is lost,
 
 | Guide                                                 | Contents                                                                    |
 | ----------------------------------------------------- | --------------------------------------------------------------------------- |
+| [AGENTS.md](AGENTS.md)                                | Conventions and workflows for coding agents.                                |
+| [ARCHITECTURE.md](ARCHITECTURE.md)                    | Stack, process model, trust boundaries and module map.                      |
 | [Configuration and data](docs/en/configuration.md)    | Models, defaults, storage and environment variables.                        |
 | [Projects and conversations](docs/en/navigation.md)   | Collapsible projects, search, archives, menus and reordering.               |
 | [Project knowledge](docs/en/knowledge.md)             | Past work, native memories, refinements and history tools for agents.       |

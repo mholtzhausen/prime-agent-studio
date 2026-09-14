@@ -3,11 +3,16 @@ node_modules/
 .backup/
 .codex-remote-attachments/
 test-results/
+coverage/
 *.log
 __pycache__/
+.venv/
+venv/
 .env
 .env.*
 !.env.example
+.DS_Store
+Thumbs.db
 /nul
 /.desktop-build/
 /src-tauri/target/

@@ -153,6 +153,17 @@ npm run setup:runtime
 npm run start:silent
 ```
 
+**Amorçage développeur** (Linux/macOS/Windows ; les cibles Make encapsulent les mêmes scripts npm) :
+
+```sh
+make init            # npm ci
+make setup-runtime   # optionnel ; nécessite Prime Agent + uv
+make dev             # serveur au premier plan → http://127.0.0.1:3088
+make check && make test
+```
+
+Voir [AGENTS.md](AGENTS.md) pour les conventions des agents de code et [ARCHITECTURE.md](ARCHITECTURE.md) pour la carte système. `make help` liste toutes les cibles.
+
 Le navigateur s’ouvre sur **[127.0.0.1:3088](http://127.0.0.1:3088)**. Ensuite, un double-clic sur **`Lancer Prime Agent.vbs`** suffit : le lanceur réutilise le serveur s’il est déjà ouvert.
 
 1. Ajoutez le dossier d’un projet avec **+** dans l’espace de travail.
@@ -276,6 +287,8 @@ La PWA conserve les commandes et pièces jointes du site. En cas de coupure, un 
 
 | Guide                                             | Contenu                                                                             |
 | ------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| [AGENTS.md](AGENTS.md)                            | Conventions et flux de travail pour les agents de code.                             |
+| [ARCHITECTURE.md](ARCHITECTURE.md)                | Stack, modèle de processus, frontières de confiance et carte des modules.           |
 | [Configuration et données](docs/configuration.md) | Modèles, valeurs par défaut, stockage et variables d’environnement.                 |
 | [Projets et conversations](docs/navigation.md)    | Projets dépliables, recherche, archives, menus et réorganisation.                   |
 | [Connaissances du projet](docs/knowledge.md)      | Travaux passés, mémoires natives, refinements et outils d’historique des agents.    |
