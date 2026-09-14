@@ -4,6 +4,15 @@
 
 Changes by version. See [GitHub releases](https://github.com/zerr0o/prime-agent-studio/releases) for installers and source archives.
 
+## 3.4.0
+
+- **.pastudio archives v1 (local-only)**: export a full project then import it into another existing project, on this device only. Transferred content: complete conversations with subagents plus the project Roadmap. Project files, settings, provider keys, memories and the engine are never included.
+- **Additive import without overwrite**: existing sessions and Roadmap are kept; local vision stays unchanged (source vision as a backlog note). Reimporting the same archive is detected and skipped by digest; if the source changed, new copies are created into the new folder, never merged.
+- **Explicit resume**: history stays readable, but the next run of an imported session requires an explicitly chosen available model; no historical model is reapplied.
+- **Secrets and recovery**: histories may contain secrets — review before sharing a file. An interrupted import stays pending and retries without duplication.
+- **Validation limits**: source review ACCEPT and isolated fixtures passed; physical two-PC validation and live resume not claimed.
+- **After installation**: restart the server from preferences once your agents have finished.
+
 ## 3.3.3
 
 - **Hardened components**: fixed download hosts with no inherited `NODE_OPTIONS`, verified-receipt resume, external engines never executed without explicit selection, launcher state preserved after cancellation, catalog warning shown after interruption.

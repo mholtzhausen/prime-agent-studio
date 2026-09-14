@@ -213,6 +213,15 @@
             ></span
           >
         </div>
+        <div id="imported-session-banner" class="configuration-warning" role="status" hidden>
+          <span id="imported-session-banner-text" data-i18n="archives.imported_needs_model"
+            >Session importée — choisissez un modèle disponible pour la prochaine exécution.
+            L’historique reste lisible.</span
+          >
+          <button id="imported-session-choose-model" type="button" data-i18n="archives.choose_model">
+            Choisir un modèle
+          </button>
+        </div>
         <div id="global-banner" class="global-banner" role="status" hidden>
           <span id="global-banner-text"></span
           ><button
@@ -788,11 +797,96 @@
       <button role="menuitem" data-project-action="down">
         <span data-icon="arrow-down"></span><span data-i18n="projects.move_down">Descendre le projet</span>
       </button>
+      <button role="menuitem" data-project-action="archive-export">
+        <span data-icon="download"></span><span data-i18n="archives.export">Exporter .pastudio</span>
+      </button>
+      <button role="menuitem" data-project-action="archive-import">
+        <span data-icon="upload"></span><span data-i18n="archives.import">Importer .pastudio</span>
+      </button>
       <div class="menu-divider"></div>
       <button role="menuitem" class="danger-text" data-project-action="remove">
         <span data-icon="x"></span><span data-i18n="ui.supprimer_du_studio">Supprimer du Studio </span>
       </button>
     </div>
+    <dialog id="project-archive-dialog" class="modal" aria-labelledby="project-archive-title">
+      <form id="project-archive-form">
+        <div class="modal-heading">
+          <span class="modal-icon" data-icon="archive"></span
+          ><button
+            class="icon-button"
+            type="button"
+            data-close-dialog
+            aria-label="Fermer"
+            data-i18n-aria-label="ui.fermer"
+            data-icon="x"
+          ></button>
+        </div>
+        <h2 id="project-archive-title" data-i18n="archives.export_title">Archive du projet</h2>
+        <p id="project-archive-description"></p>
+        <p id="project-archive-project" class="archive-project"></p>
+        <div id="project-archive-file-wrap">
+          <label for="project-archive-file"
+            ><span data-i18n="archives.file_label">Fichier .pastudio</span
+            ><span data-i18n="archives.file_hint">binaire .pastudio, 64 Mo maximum</span></label
+          ><input
+            id="project-archive-file"
+            name="file"
+            type="file"
+            accept=".pastudio,application/octet-stream"
+          />
+        </div>
+        <div id="project-archive-preview" hidden>
+          <p id="project-archive-source" class="archive-project"></p>
+          <dl id="project-archive-counts" class="archive-counts"></dl>
+          <p id="project-archive-duplicate" class="archive-note" data-i18n="archives.duplicate_note" hidden>
+            Cette archive est déjà importée dans ce projet. Confirmer ne dupliquera rien.
+          </p>
+          <ul class="archive-warnings">
+            <li data-i18n="archives.warn_additive">Import additif : rien n’est écrasé.</li>
+            <li data-i18n="archives.warn_no_overwrite">Les sessions et la Roadmap existantes sont conservées.</li>
+            <li data-i18n="archives.warn_secret">
+              L’historique peut contenir des secrets : vérifiez avant de partager ce fichier.
+            </li>
+            <li data-i18n="archives.warn_needs_model">
+              Prochaine exécution : choisissez un modèle disponible, l’historique reste lisible.
+            </li>
+          </ul>
+        </div>
+        <p
+          id="project-archive-pending"
+          class="archive-note"
+          data-i18n="archives.pending_notice"
+          hidden
+        >
+          Finalisation en attente : la reprise est sûre et sans doublon. Relancez l’aperçu si
+          besoin, sans choisir un nouveau fichier.
+        </p>
+        <p
+          id="project-archive-destination-note"
+          class="archive-note"
+          data-i18n="archives.import_destination_note"
+          hidden
+        >
+          Pour importer vers un nouveau projet, créez d’abord le projet puis rouvrez ce menu.
+        </p>
+        <p
+          id="project-archive-remote"
+          class="archive-note"
+          data-i18n="archives.remote_unavailable"
+          hidden
+        >
+          Archives disponibles uniquement sur le Studio local.
+        </p>
+        <div id="project-archive-error" class="form-error" role="alert" hidden></div>
+        <div class="modal-actions">
+          <button class="secondary-button" type="button" data-close-dialog>
+            <span data-i18n="ui.annuler">Annuler</span></button
+          ><button id="project-archive-confirm" class="primary-button" type="submit">
+            <span data-icon="check"></span><span id="project-archive-confirm-label" data-i18n="archives.export_action">Exporter</span>
+          </button>
+        </div>
+      </form>
+    </dialog>
     <dialog id="remove-project-dialog" class="modal">
       <form id="remove-project-form">
         <h2 data-i18n="ui.supprimer_ce_projet_du_studio">Supprimer ce projet du Studio ?</h2>

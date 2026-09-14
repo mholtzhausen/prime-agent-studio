@@ -27,6 +27,7 @@ import { parseAgentEnvelope } from './agent-messages.js';
 import { createProjectSorting } from './project-sorting.js';
 import { createProjectNavigation, hasPendingQuestion } from './project-navigation.js';
 import { createKnowledgeBrowser } from './knowledge.js';
+import { createProjectArchives } from './project-archives.js';
 import { createRoadmap } from './roadmap.js';
 import { bindInlineImages } from './inline-images.js';
 import { createPasskeySettings } from './passkeys.js';
@@ -44,6 +45,7 @@ let liveMessagesUI;
 let commandsUI;
 let inspectorUI;
 let roadmapUI;
+let archivesUI;
 let roadmapNavigationSequence = 0;
 let modelPickerTarget = null;
 let modelCatalogRequest = null;
@@ -76,6 +78,7 @@ const icons = {
   shield: 'M12 3 3 7v5c0 5 9 9 9 9s9-4 9-9V7l-9-4Zm-4 9 3 3 5-6',
   copy: 'M9 9h12v12H9V9ZM5 15H3V3h12v2',
   download: 'M12 3v12m-5-5 5 5 5-5M3 16v5h18v-5',
+  upload: 'M12 21V9m-5 5 5-5 5 5M3 16v5h18v-5',
   terminal: 'm4 5 6 6-6 6m8 0h8',
   pencil: 'm16 3 5 5L8 21H3v-5L16 3Zm-2 2 5 5',
   pin: 'm9 3 12 12-3 3-5-2-4 4-5-5 4-4-2-5 3-3Zm-3 15-4 4',
@@ -1163,6 +1166,7 @@ function renderNavigation() {
   renderSessions();
   renderProjectOverview();
   renderDetails();
+  archivesUI?.update();
   updateComposer();
   if ($('open-roadmap')) $('open-roadmap').disabled = !state.projectCwd;
   if ($('detail-project-roadmap')) $('detail-project-roadmap').hidden = !state.projectCwd;
@@ -2466,6 +2470,8 @@ async function projectMenuAction(action) {
   closeProjectMenu();
   if (!p) return;
   if (action === 'knowledge') return knowledgeUI.open(p, projectMenuAnchor);
+  if (action === 'archive-export') return archivesUI?.openExport(p);
+  if (action === 'archive-import') return archivesUI?.openImport(p);
   if (state.readOnly) return;
   try {
     if (action === 'open') {
@@ -2770,6 +2776,19 @@ roadmapUI = createRoadmap({
 });
 for (const id of ['open-roadmap', 'project-roadmap', 'detail-project-roadmap'])
   $(id).onclick = (event) => roadmapUI.open(event.currentTarget);
+archivesUI = createProjectArchives({
+  toast,
+  getContext: () => ({
+    remote: state.remote,
+    readOnly: state.readOnly,
+    online: state.online,
+    sessionId: state.sessionId,
+    session: session(),
+    projects: state.projects,
+  }),
+  refreshOverview,
+  openModelPicker: () => openModelDialog(),
+});
 imageComposer = createImageComposer({
   getContext: () => ({
     key: draftKey(),

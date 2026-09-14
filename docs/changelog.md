@@ -4,6 +4,15 @@
 
 Les changements par version. Retrouvez les installateurs et les archives du code source dans les [releases GitHub](https://github.com/zerr0o/prime-agent-studio/releases).
 
+## 3.4.0
+
+- **Archives .pastudio v1 (local uniquement)** : exportez un projet complet puis importez-le dans un autre projet existant, sur cet appareil uniquement. Contenu transféré : conversations complètes avec sous-agents et Roadmap du projet. Les fichiers du projet, les réglages, les clés des fournisseurs, les mémoires et le moteur ne sont jamais inclus.
+- **Import additif sans écrasement** : sessions et Roadmap existantes conservées ; vision locale inchangée (vision source en note de backlog). Réimporter la même archive est détecté et ignoré par empreinte ; si la source a changé, de nouvelles copies sont créées vers le nouveau dossier, jamais de fusion.
+- **Reprise explicite** : l’historique reste lisible, mais la prochaine exécution d’une session importée exige un modèle disponible choisi explicitement ; aucun modèle historique n’est réappliqué.
+- **Secrets et reprise** : les historiques peuvent contenir des secrets — vérifiez avant de partager un fichier. Un import interrompu reste en attente et se relance sans doublon.
+- **Limites validées** : revue source ACCEPT et fixtures isolées OK ; validation physique à deux PC et reprise live non revendiquées.
+- **Après installation** : redémarrez le serveur depuis les préférences une fois les agents terminés.
+
 ## 3.3.3
 
 - **Composants durcis** : hôtes de téléchargement fixes sans héritage de `NODE_OPTIONS`, reprise avec reçu vérifié, moteurs externes non exécutés sans sélection explicite, état du lanceur préservé après annulation, avertissement catalogue affiché après interruption.

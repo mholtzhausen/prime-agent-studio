@@ -37,6 +37,7 @@ import { createRoadmapService } from './lib/roadmap.mjs';
 import { createRoadmapBridge, createRoadmapCallerResolver } from './lib/roadmap-bridge.mjs';
 import { createRoadmapRoutes } from './lib/roadmap-routes.mjs';
 import { createRoadmapSessionResolver } from './lib/roadmap-session.mjs';
+import { createProjectArchives } from './lib/project-archives.mjs';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const VERSION = JSON.parse(await readFile(new URL('./package.json', import.meta.url), 'utf8')).version;
@@ -157,6 +158,28 @@ export function createApp(options = {}) {
     sessionDir,
     readEdges: options.readInspectorEdges,
   });
+  // .pastudio portable archives (v1, local-only; never added to the LAN gateway allowlist).
+  const projectArchives =
+    options.projectArchives ||
+    createProjectArchives({ store, roadmap, sessionDir, dataDir, agentHome });
+  async function readRawArchive(req) {
+    const type = String(req.headers['content-type'] || '');
+    if (!/^application\/octet-stream(?:\s*;|$)/i.test(type))
+      throw new HttpError(415, tr('server.un_corps_json_est_requis'));
+    const declared = Number(req.headers['content-length']);
+    if (Number.isFinite(declared) && declared > 64 * 1024 * 1024)
+      throw new HttpError(413, tr('server.la_demande_depasse_la_taille_autorisee'));
+    const chunks = [];
+    let length = 0;
+    for await (const chunk of req) {
+      length += chunk.length;
+      if (length > 64 * 1024 * 1024 + 1)
+        throw new HttpError(413, tr('server.la_demande_depasse_la_taille_autorisee'));
+      chunks.push(chunk);
+    }
+    if (!length) throw new HttpError(400, tr('server.la_demande_json_est_invalide'));
+    return Buffer.concat(chunks);
+  }
   const runtime =
     options.runtime ||
     createAgentRuntime({
@@ -417,6 +440,14 @@ export function createApp(options = {}) {
       body.allowQuestions ?? settings?.allowQuestions ?? (await studioPreferences()).allowQuestionsByDefault;
     if (catalog.models?.find((model) => model.id === selectedModel)?.availability === 'unavailable')
       throw new HttpError(409, tr('model.unavailableSelection'));
+    // .pastudio gate: imported sessions need an EXPLICIT available model choice (never restored provider).
+    // The explicit choice is persisted BEFORE spawn so a spawn failure cannot lose it;
+    // the flag is consumed only AFTER runtime.start resolves (see below).
+    let pastudioGated = false;
+    if (existing?.id) {
+      await projectArchives.recoverPending().catch(() => {});
+      pastudioGated = (await projectArchives.checkPastudioModelGate(existing.id, body.model, catalog)).gated;
+    }
     // Check after awaited validation so simultaneous HTTP requests cannot race the lock.
     if (activeRuns().length >= 8)
       throw new HttpError(429, tr('server.huit_sessions_tournent_deja_arretez_en_une_avant_de_continuer'));
@@ -443,6 +474,8 @@ export function createApp(options = {}) {
     runs.set(run.id, run);
     try {
       run.prompt = appendFileMessage(run.prompt, await fileStore.save(files));
+      if (pastudioGated && existing?.id && typeof body.model === 'string' && body.model)
+        await store.setConversationSettings(existing.id, { model: body.model });
       run.handle = await runtime.start({
         cwd,
         message: run.prompt,
@@ -454,6 +487,7 @@ export function createApp(options = {}) {
         allowQuestions,
         onEvent: (event) => pushEvent(run, event),
       });
+      if (existing?.id) await store.consumePastudioModelGate?.(existing.id).catch(() => {});
       if (run.status === 'stopping') void run.handle.cancel();
       Promise.resolve(run.handle.done).then(
         (result) => {
@@ -859,6 +893,42 @@ export function createApp(options = {}) {
         res.end(markdown);
         return;
       }
+      // .pastudio portable archives v1 (local-only; absent from the LAN gateway allowlist).
+      // State-changing import is POST only, never GET. Raw octet-stream uploads only.
+      if (method === 'GET' && path === '/api/project-archives/export') {
+        const result = await projectArchives.exportArchive(url.searchParams.get('cwd'));
+        const safeName = String(result.manifest?.sourceProject?.name || 'projet')
+          .normalize('NFKD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-|-$/g, '')
+          .slice(0, 60) || 'projet';
+        const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+        res.writeHead(200, {
+          'Content-Type': 'application/octet-stream',
+          'Content-Length': result.buffer.length,
+          'Content-Disposition': `attachment; filename="${safeName}-${stamp}.pastudio"`,
+          'X-Pastudio-Archive-Id': result.archiveId,
+          'X-Pastudio-Digest': result.payloadDigest,
+          'X-Pastudio-Warning': 'histories-may-contain-secrets',
+          'Cache-Control': 'no-store',
+        });
+        res.end(result.buffer);
+        return;
+      }
+      if (method === 'POST' && path === '/api/project-archives/preview') {
+        const raw = await readRawArchive(req);
+        return json(res, 200, await projectArchives.previewArchive(raw, url.searchParams.get('cwd')));
+      }
+      if (method === 'POST' && path === '/api/project-archives/import') {
+        const raw = await readRawArchive(req);
+        return json(
+          res,
+          200,
+          await projectArchives.importArchive(raw, url.searchParams.get('cwd'), url.searchParams.get('token')),
+        );
+      }
       if (method === 'GET' && path === '/api/knowledge')
         return json(
           res,
@@ -1014,7 +1084,29 @@ export function createApp(options = {}) {
       json(res, error.status || 500, {
         ...(tailscaleSetupUrl(error.setupUrl) ? { setupUrl: tailscaleSetupUrl(error.setupUrl) } : {}),
         error: error.status ? error.message : tr('server.une_erreur_interne_est_survenue') + error.message,
-        ...(typeof error.code === 'string' && error.code.startsWith('roadmap_') ? { code: error.code } : {}),
+        ...(typeof error.code === 'string' &&
+        (error.code.startsWith('roadmap_') || error.code.startsWith('pastudio_'))
+          ? {
+              code: error.code,
+              // Allowlisted .pastudio pending-contract fields only (server-generated, no secrets).
+              ...Object.fromEntries(
+                [
+                  'recoverable',
+                  'pending',
+                  'pendingFinalization',
+                  'marksPending',
+                  'lineagePending',
+                  'duplicate',
+                  'archiveId',
+                  'payloadDigest',
+                  'destinationCwd',
+                  'destCwd',
+                ]
+                  .filter((key) => error[key] !== undefined)
+                  .map((key) => [key, error[key]]),
+              ),
+            }
+          : {}),
         ...(Number.isSafeInteger(error.currentRevision) ? { currentRevision: error.currentRevision } : {}),
       });
     }
@@ -1047,6 +1139,7 @@ export function createApp(options = {}) {
     remoteNetwork,
     roadmap,
     roadmapBridge,
+    projectArchives,
     runs,
     pushService,
     close,
@@ -1081,6 +1174,8 @@ if (isDirectInvocation(import.meta.url)) {
     );
     process.exitCode = 1;
   });
+  // B2: replay-or-rollback pending .pastudio imports before accepting traffic.
+  await app.projectArchives.recoverPending().catch(() => {});
   app.server.listen(port, '127.0.0.1', () => {
     console.log(`Prime Agent Studio ${VERSION} — http://127.0.0.1:${port}`);
     void startNetwork();

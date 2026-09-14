@@ -26,3 +26,15 @@ L’ordre est enregistré sur le serveur et partagé entre appareils. Chaque pro
 Le menu **⋯** du projet, également accessible par clic droit, donne accès aux [connaissances du projet](knowledge.md). Les actions de modification sont masquées en accès distant en consultation.
 
 Chaque conversation dispose aussi d’un menu **⋯** pour la renommer, l’épingler ou la désépingler, l’archiver ou la restaurer et l’exporter en Markdown. Sur ordinateur, un clic droit sur sa ligne ouvre ce même menu. Ce menu est masqué en accès distant en consultation.
+
+## Importer et exporter des conversations (.pastudio)
+
+Le format `.pastudio` (v1) transfère des conversations complètes vers un autre projet existant, sur cet appareil uniquement.
+
+- Contenu transféré : conversations complètes avec leurs sous-agents, ainsi que la Roadmap du projet. Les fichiers du projet, les réglages, les clés des fournisseurs, les mémoires et le moteur ne sont jamais inclus.
+- Import additif : les conversations importées s'ajoutent au projet cible sans rien effacer. Réimporter la même archive est détecté et ignoré ; si la source a changé depuis, de nouvelles copies sont créées, jamais de fusion.
+- À la reprise d'une conversation importée, choisissez explicitement un modèle disponible : l'historique conserve la trace des modèles d'origine, sans appliquer leurs réglages.
+- Les historiques peuvent contenir des secrets (clés collées, sorties d'outils) : vérifiez le contenu avant de partager une archive.
+- Les chemins externes cités dans un historique sont conservés tels quels comme témoignage ; seules les nouvelles exécutions utilisent le dossier du projet de destination.
+- Aucun processus en cours n'est migré : seuls les historiques sont transférés.
+- Un import interrompu reste en attente : prévisualisez-le et relancez-le sans rien réinstaller.

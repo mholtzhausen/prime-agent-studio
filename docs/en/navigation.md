@@ -26,3 +26,15 @@ The order is saved on the server and shared across devices. Each project stays i
 The project’s **⋯** menu, also available through right-click, opens [project knowledge](knowledge.md). Editing actions are hidden in read-only remote access.
 
 Each conversation also has a **⋯** menu to rename, pin or unpin it, archive or restore it, and export it as Markdown. On desktop, right-click its row to open the same menu. This menu is hidden in read-only remote access.
+
+## Import and export conversations (.pastudio)
+
+The `.pastudio` format (v1) transfers complete conversations into another existing project, on this device only.
+
+- Transferred content: complete conversations with their subagents, plus the project Roadmap. Project files, settings, provider keys, memories and the engine are never included.
+- Additive import: imported conversations join the target project without deleting anything. Reimporting the same archive is detected and skipped; if the source changed since, new copies are created, never merged.
+- When resuming an imported conversation, explicitly pick an available model: history keeps track of the original models without applying their settings.
+- Histories may contain secrets (pasted keys, tool output): review the content before sharing an archive.
+- External paths quoted in a history are preserved as-is as a record; only new runs use the destination project folder.
+- No running process is migrated: only histories are transferred.
+- An interrupted import stays pending: preview it and retry without reinstalling anything.
