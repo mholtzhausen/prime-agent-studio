@@ -29,7 +29,7 @@ Each conversation also has a **⋯** menu to rename, pin or unpin it, archive or
 
 ## Import and export conversations (.pastudio)
 
-The `.pastudio` format (v1) transfers complete conversations into another existing project, on this device only.
+The `.pastudio` format (v1) transfers complete conversations into another existing project. Transferable file to another PC; export and import from Studio opened on that PC, not from a remote browser (LAN/Tailscale/PWA).
 
 - Transferred content: complete conversations with their subagents, plus the project Roadmap. Project files, settings, provider keys, memories and the engine are never included.
 - Additive import: imported conversations join the target project without deleting anything. Reimporting the same archive is detected and skipped; if the source changed since, new copies are created, never merged.
@@ -38,3 +38,4 @@ The `.pastudio` format (v1) transfers complete conversations into another existi
 - External paths quoted in a history are preserved as-is as a record; only new runs use the destination project folder.
 - No running process is migrated: only histories are transferred.
 - An interrupted import stays pending: preview it and retry without reinstalling anything.
+- Archive limit: 128 MB compressed matched on server and UI (256 MB total uncompressed, 128 MB per entry); an archive over 64 MB needs 3.4.1 on both sides.

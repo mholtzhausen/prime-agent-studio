@@ -167,13 +167,13 @@ export function createApp(options = {}) {
     if (!/^application\/octet-stream(?:\s*;|$)/i.test(type))
       throw new HttpError(415, tr('server.un_corps_json_est_requis'));
     const declared = Number(req.headers['content-length']);
-    if (Number.isFinite(declared) && declared > 64 * 1024 * 1024)
+    if (Number.isFinite(declared) && declared > 128 * 1024 * 1024)
       throw new HttpError(413, tr('server.la_demande_depasse_la_taille_autorisee'));
     const chunks = [];
     let length = 0;
     for await (const chunk of req) {
       length += chunk.length;
-      if (length > 64 * 1024 * 1024 + 1)
+      if (length > 128 * 1024 * 1024 + 1)
         throw new HttpError(413, tr('server.la_demande_depasse_la_taille_autorisee'));
       chunks.push(chunk);
     }

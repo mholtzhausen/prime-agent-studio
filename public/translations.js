@@ -5321,7 +5321,7 @@ export const messages = {
     en: 'To import into a new project, create the project first, then reopen this menu.',
   },
   'archives.file_label': { fr: 'Fichier .pastudio', en: '.pastudio file' },
-  'archives.file_hint': { fr: 'binaire .pastudio, 64 Mo maximum', en: '.pastudio binary, 64 MB maximum' },
+  'archives.file_hint': { fr: 'binaire .pastudio, 128 Mo maximum', en: '.pastudio binary, 128 MB maximum' },
   'archives.duplicate_note': {
     fr: 'Cette archive est déjà importée dans ce projet. Confirmer ne dupliquera rien.',
     en: 'This archive is already imported into this project. Confirming will not duplicate anything.',
@@ -5340,10 +5340,10 @@ export const messages = {
     en: 'Next run: choose an available model; history stays readable.',
   },
   'archives.remote_unavailable': {
-    fr: 'Archives disponibles uniquement sur le Studio local.',
-    en: 'Archives are only available on the local Studio.',
+    fr: 'Fichier transférable sur un autre PC. Export et import depuis le Studio ouvert sur ce PC, pas depuis un navigateur distant (LAN/Tailscale/PWA).',
+    en: 'File can be moved to another PC. Export and import from Studio opened on that PC, not from a remote browser (LAN/Tailscale/PWA).',
   },
-  'archives.file_too_big': { fr: 'Le fichier dépasse 64 Mo.', en: 'The file exceeds 64 MB.' },
+  'archives.file_too_big': { fr: 'Le fichier dépasse 128 Mo.', en: 'The file exceeds 128 MB.' },
   'archives.invalid_file': { fr: 'Fichier .pastudio invalide.', en: 'Invalid .pastudio file.' },
   'archives.empty_archive': {
     fr: 'Aucun contenu importable dans ce fichier.',

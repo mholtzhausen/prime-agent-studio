@@ -1,6 +1,6 @@
 import { t as tr, bindText, translateKnown } from './i18n.js';
 
-// First-version .pastudio project archives (local-only).
+// First-version .pastudio project archives (transferable file; operate from Studio opened on that PC, not remote browser).
 // Contract v1 confirmed with portable-backend:
 // - GET  /api/project-archives/export?cwd=<enc abs path> -> .pastudio ZIP binary
 // - POST /api/project-archives/preview?cwd=<destCwd> raw octet-stream -> { previewToken, ... }
@@ -14,7 +14,7 @@ import { t as tr, bindText, translateKnown } from './i18n.js';
 // Import is additive, never overwrites, never selects the historical source model:
 // imported sessions keep a persisted needs-model mark and the banner below asks for
 // an explicit available-model choice through the existing model dialog (server gate).
-export const ARCHIVE_MAX_BYTES = 64 * 1024 * 1024;
+export const ARCHIVE_MAX_BYTES = 128 * 1024 * 1024;
 export const ARCHIVE_ENDPOINTS = {
   export: '/api/project-archives/export',
   preview: '/api/project-archives/preview',

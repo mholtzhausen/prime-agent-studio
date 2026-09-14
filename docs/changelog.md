@@ -4,6 +4,14 @@
 
 Les changements par version. Retrouvez les installateurs et les archives du code source dans les [releases GitHub](https://github.com/zerr0o/prime-agent-studio/releases).
 
+## 3.4.1
+
+- **Correctifs d’export .pastudio (fichier transférable, opération sur le PC lui-même)** : fichier transférable et importable sur un autre PC ; export et import depuis le Studio ouvert sur ce PC, pas depuis un navigateur distant (LAN/Tailscale/PWA). Compression sélective ZIP DEFLATE (niveau 6, seulement si plus petit, sinon stockée, en séquence avec repli stocké) ; tolérance de fork à l’export — l’identifiant canonique est `header.id`, le nom du fichier reste le chemin physique, seuls les doublons du même identifiant canonique via des fichiers physiques différents sont refusés ; code d’erreur d’origine préservé avec détail générique borné.
+- **Limites inchangées et compatibilité** : archive compressée limitée à 128 Mio assortie côté serveur et interface, total non compressé 256 Mio et 128 Mio par entrée inchangés, une seule opération à la fois. La limite 128 Mio demeure, ce n’est pas de l’illimité. Une archive de plus de 64 Mio exportée en 3.4.1 ne peut pas être importée en 3.4.0 : mettez à jour les deux instances.
+- **Contenu inchangé** : fichiers du projet, réglages, clés des fournisseurs, mémoires et moteur jamais inclus ; aucun traitement en flux — l’export reste en mémoire, séquentiel.
+- **Validation honnête** : revue indépendante approuvée et aller-retour export/décodage sur projets réels avec empreinte identique par fichier (Vtrott 178 Mo → 88 Mo, PrimeAgentGUI 75 Mo → 30 Mo) ; import réel et reprise live non revendiqués.
+- **Après installation** : redémarrez le serveur depuis les préférences une fois les agents terminés.
+
 ## 3.4.0
 
 - **Archives .pastudio v1 (local uniquement)** : exportez un projet complet puis importez-le dans un autre projet existant, sur cet appareil uniquement. Contenu transféré : conversations complètes avec sous-agents et Roadmap du projet. Les fichiers du projet, les réglages, les clés des fournisseurs, les mémoires et le moteur ne sont jamais inclus.

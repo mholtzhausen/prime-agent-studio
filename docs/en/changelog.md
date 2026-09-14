@@ -4,6 +4,14 @@
 
 Changes by version. See [GitHub releases](https://github.com/zerr0o/prime-agent-studio/releases) for installers and source archives.
 
+## 3.4.1
+
+- **.pastudio export fixes (transferable file, operation on the PC itself)**: transferable file importable on another PC; export and import from Studio opened on that PC, not from a remote browser (LAN/Tailscale/PWA). Selective ZIP DEFLATE compression (level 6, only when smaller, otherwise stored, sequential with stored fallback); export fork tolerance — canonical id is `header.id`, filename stays the physical path, only duplicate canonical ids from different physical files are rejected; original error code preserved with bounded generic detail.
+- **Unchanged limits and compatibility**: compressed archive capped at 128 MiB matched on server and UI, 256 MiB total uncompressed and 128 MiB per entry unchanged, one operation at a time. The 128 MiB limit remains, not unlimited. An archive over 64 MiB exported in 3.4.1 cannot be imported in 3.4.0: update both instances.
+- **Unchanged content**: project files, settings, provider keys, memories and engine never included; no streaming — export stays in-memory, sequential.
+- **Honest validation**: independent review approved plus export/decode round-trip on real projects with identical per-file hash (Vtrott 178 MB → 88 MB, PrimeAgentGUI 75 MB → 30 MB); real import and live resume not claimed.
+- **After installation**: restart the server from preferences once your agents have finished.
+
 ## 3.4.0
 
 - **.pastudio archives v1 (local-only)**: export a full project then import it into another existing project, on this device only. Transferred content: complete conversations with subagents plus the project Roadmap. Project files, settings, provider keys, memories and the engine are never included.

@@ -29,7 +29,7 @@ Chaque conversation dispose aussi d’un menu **⋯** pour la renommer, l’épi
 
 ## Importer et exporter des conversations (.pastudio)
 
-Le format `.pastudio` (v1) transfère des conversations complètes vers un autre projet existant, sur cet appareil uniquement.
+Le format `.pastudio` (v1) transfère des conversations complètes vers un autre projet existant. Fichier transférable sur un autre PC ; export et import depuis le Studio ouvert sur ce PC, pas depuis un navigateur distant (LAN/Tailscale/PWA).
 
 - Contenu transféré : conversations complètes avec leurs sous-agents, ainsi que la Roadmap du projet. Les fichiers du projet, les réglages, les clés des fournisseurs, les mémoires et le moteur ne sont jamais inclus.
 - Import additif : les conversations importées s'ajoutent au projet cible sans rien effacer. Réimporter la même archive est détecté et ignoré ; si la source a changé depuis, de nouvelles copies sont créées, jamais de fusion.
@@ -38,3 +38,4 @@ Le format `.pastudio` (v1) transfère des conversations complètes vers un autre
 - Les chemins externes cités dans un historique sont conservés tels quels comme témoignage ; seules les nouvelles exécutions utilisent le dossier du projet de destination.
 - Aucun processus en cours n'est migré : seuls les historiques sont transférés.
 - Un import interrompu reste en attente : prévisualisez-le et relancez-le sans rien réinstaller.
+- Limite d’archive : 128 Mio compressés assortis côté serveur et interface (256 Mio non compressés au total, 128 Mio par entrée) ; une archive de plus de 64 Mio demande la version 3.4.1 des deux côtés.
