@@ -2,7 +2,7 @@ import { copyFile, link, unlink, lstat, readFile, readdir, writeFile } from 'nod
 import { randomUUID } from 'node:crypto';
 import { dirname, join, resolve, sep } from 'node:path';
 
-// Runtime entrypoints include child-process workers and native Windows helpers, not just the launcher.
+// Runtime entrypoints include child-process workers and launch helpers, not just the launcher.
 export const desktopRuntimeScripts = [
   'start-server.mjs',
   'launcher-common.mjs',
@@ -21,9 +21,6 @@ export const desktopRuntimeScripts = [
   'mcp-probe-worker.mjs',
   'mcp-oauth-worker.mjs',
   'mcp-probe.py',
-  'open-directory.ps1',
-  'open-file.ps1',
-  'pick-directory.ps1',
 ];
 const missingIn280 = desktopRuntimeScripts.filter(
   (name) =>
@@ -103,7 +100,7 @@ export async function verifyDesktopRuntimeResources(studioRoot) {
       if (!/\.(mjs|js)$/.test(entry.name)) continue;
       const source = await readFile(path, 'utf8');
       for (const match of source.matchAll(
-        /['"]((?:\.{1,2}\/|scripts\/)[^'"\r\n]+\.(?:mjs|js|ps1|py))['"]/g,
+        /['"]((?:\.{1,2}\/|scripts\/)[^'"\r\n]+\.(?:mjs|js|py))['"]/g,
       )) {
         const reference = resolve(match[1].startsWith('scripts/') ? root : dirname(path), match[1]);
         if (!reference.startsWith(root + sep)) throw new Error(`Desktop reference escapes bundle: ${path}`);

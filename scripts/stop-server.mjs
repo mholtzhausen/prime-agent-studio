@@ -1,5 +1,3 @@
-import { execFile } from 'node:child_process';
-import { promisify } from 'node:util';
 import { unlink } from 'node:fs/promises';
 import {
   APP_ROOT,
@@ -12,8 +10,6 @@ import {
   sleep,
   isDirectInvocation,
 } from './launcher-common.mjs';
-
-const execFileAsync = promisify(execFile);
 
 export async function stopServer({ root = APP_ROOT, dataDir, expectedInstanceId, beforeStop } = {}) {
   const paths = pathsFor(root, dataDir);
@@ -53,16 +49,7 @@ export async function stopServer({ root = APP_ROOT, dataDir, expectedInstanceId,
     // before stopping this specific server, including after a confirmation dialog.
     if (beforeStop) await beforeStop(result.health);
 
-    if (process.platform === 'win32') {
-      // /T also closes active prime-agent descendants. The verified instance marker
-      // prevents stale PID files from targeting an unrelated Node process.
-      await execFileAsync('taskkill.exe', ['/PID', String(record.pid), '/T', '/F'], {
-        windowsHide: true,
-        shell: false,
-      });
-    } else {
-      process.kill(record.pid, 'SIGTERM');
-    }
+    process.kill(record.pid, 'SIGTERM');
     const deadline = Date.now() + 5000;
     while (Date.now() < deadline) {
       const current = await probeHealth(record.port, { timeout: 500 });

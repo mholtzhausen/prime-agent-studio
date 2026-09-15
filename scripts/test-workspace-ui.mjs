@@ -132,7 +132,7 @@ async function boxInside(selector, width, height) {
 }
 try {
   browser = await chromium.launch({
-    channel: process.env.PRIME_STUDIO_TEST_BROWSER || 'msedge',
+    channel: process.env.PRIME_STUDIO_TEST_BROWSER || 'chromium',
     headless: true,
   });
   page = await browser.newPage({

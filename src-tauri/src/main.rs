@@ -1,5 +1,3 @@
-#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-
 mod directory_picker;
 mod components;
 mod notifications;
@@ -272,11 +270,10 @@ async fn desktop_start(
                 if value["restarted"] == true { return Ok(value); }
             }
         }
-        let mut command = Command::new(resources.join("node.exe"));
+        let mut command = Command::new(resources.join("node"));
         command.arg(resources.join("studio/scripts/desktop-start.mjs"))
             .arg(serde_json::json!({"resourceDir":resources,"dataRoot":root,"port":port,"legacyRoot":legacy}).to_string())
             .current_dir(&resources);
-        #[cfg(windows)] { use std::os::windows::process::CommandExt; command.creation_flags(0x08000000); }
         let output = command.output().map_err(|e| format!("Impossible de lancer le Studio. / Could not start Studio: {e}"))?;
         if !output.status.success() { return Err(String::from_utf8_lossy(&output.stderr).chars().take(3000).collect::<String>()) }
         let mut value = serde_json::from_slice::<serde_json::Value>(&output.stdout).map_err(|e| e.to_string())?;
@@ -328,16 +325,11 @@ fn run_desktop_control(
     resources: &PathBuf,
     options: &serde_json::Value,
 ) -> Result<serde_json::Value, String> {
-    let mut command = Command::new(resources.join("node.exe"));
+    let mut command = Command::new(resources.join("node"));
     command
         .arg(resources.join("studio/scripts/desktop-control.mjs"))
         .arg(options.to_string())
         .current_dir(resources);
-    #[cfg(windows)]
-    {
-        use std::os::windows::process::CommandExt;
-        command.creation_flags(0x08000000);
-    }
     let output = command.output().map_err(|_| "server_status_failed")?;
     if !output.status.success() {
         return Err(String::from_utf8_lossy(&output.stderr)
@@ -456,7 +448,7 @@ fn main() {
                 .map(PathBuf::from)
                 .unwrap_or(app.path().app_local_data_dir()?);
             let mut resources = app.path().resource_dir()?.join("backend");
-            if cfg!(debug_assertions) && !resources.join("node.exe").is_file() {
+            if cfg!(debug_assertions) && !resources.join("node").is_file() {
                 resources = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../.desktop-build");
             }
             let port = std::env::var("PRIME_STUDIO_DESKTOP_PORT")

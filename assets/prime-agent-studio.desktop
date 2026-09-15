@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Prime Agent Studio
+Comment=Local workspace for Prime Agent
+Exec=sh -c 'cd "$(dirname "$(readlink -f "%k")")/.." && ./scripts/start-studio.sh'
+Icon=prime-agent
+Terminal=false
+Categories=Development;Utility;
+StartupNotify=true

@@ -113,7 +113,7 @@ const app = createApp({
 await new Promise((done) => app.server.listen(0, '127.0.0.1', done));
 const url = `http://127.0.0.1:${app.server.address().port}`;
 const browser = await chromium.launch({
-  channel: process.env.PRIME_STUDIO_TEST_BROWSER || 'msedge',
+  channel: process.env.PRIME_STUDIO_TEST_BROWSER || 'chromium',
   headless: true,
 });
 const context = await browser.newContext({

@@ -17,7 +17,7 @@ try {
     cwd: directory,
     model: 'openai-codex/gpt-5.6-luna',
     thinking: 'low',
-    message: `Effectue uniquement ce test technique local, sans lire ni modifier de fichier et sans déléguer. Dans un unique appel à ton outil Python, exécute exactement :\nimport subprocess, os\nassert os.environ.get('PRIME_GUI_SILENT') == '1'\nassert getattr(subprocess.Popen, '_prime_gui_hidden', False), 'Le correctif de fenêtres est absent'\nresult = subprocess.run(['powershell.exe', '-NoProfile', '-NonInteractive', '-Command', "Write-Output 'PRIME_GUI_SILENT_OK'"], capture_output=True, text=True, check=True)\nprint(result.stdout.strip())\nPuis réponds uniquement PRIME_GUI_SILENT_OK si cet appel a réussi.`,
+    message: `Effectue uniquement ce test technique local, sans lire ni modifier de fichier et sans déléguer. Dans un unique appel à ton outil Python, exécute exactement :\nimport subprocess, os\nassert os.environ.get('PRIME_GUI_SILENT') == '1'\nresult = subprocess.run(['bash', '-lc', "printf 'PRIME_GUI_SILENT_OK'"], capture_output=True, text=True, check=True)\nprint(result.stdout.strip())\nPuis réponds uniquement PRIME_GUI_SILENT_OK si cet appel a réussi.`,
     onEvent: (event) => {
       events.push(event);
       if (['session', 'tool_start', 'tool_end', 'done'].includes(event.kind))

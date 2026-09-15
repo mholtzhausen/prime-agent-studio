@@ -4,12 +4,12 @@ const messages = {
     componentsDetails: 'Détails',
     componentsHideDetails: 'Masquer les détails',
     componentsNote:
-      'Cette version de Studio utilise Prime Agent 0.9.4. Le bouton télécharge les composants manquants ou la version requise du moteur, npm privé, uv et Python 3.11 si nécessaire. Une connexion Internet est nécessaire. Git Bash doit être installé séparément pour les commandes shell.',
+      'Cette version de Studio utilise Prime Agent 0.9.4. Le bouton télécharge les composants manquants ou la version requise du moteur, npm privé, uv et Python 3.11 si nécessaire. Une connexion Internet est nécessaire. Bash doit être disponible pour les commandes shell.',
     componentsInstall: 'Installer les composants manquants',
     componentsDiagnose: 'Vérifier à nouveau',
     componentsExisting: 'Choisir une installation existante',
     componentsExistingNote:
-      'Sélectionnez la racine du paquet Prime Agent (avec package.json), uv.exe ou python.exe. Les chemins définis dans les variables d’environnement restent prioritaires.',
+      'Sélectionnez la racine du paquet Prime Agent (avec package.json), uv ou python. Les chemins définis dans les variables d’environnement restent prioritaires.',
     componentsLater: 'Plus tard — ouvrir le Studio',
     componentsReady: 'Tous les composants sont prêts.',
     componentsDeferred:
@@ -19,9 +19,9 @@ const messages = {
     componentsExplicit:
       'Le chemin explicitement configuré est invalide ou incompatible. Corrigez la variable d’environnement ou choisissez une autre installation.',
     componentsBash:
-      'Git Bash est requis pour les commandes shell. Installez Git pour Windows, ou configurez shellPath dans les réglages Prime Agent, puis vérifiez à nouveau.',
+      'Bash est requis pour les commandes shell. Installez bash, ou configurez shellPath dans les réglages Prime Agent, puis vérifiez à nouveau.',
     componentsUnsupported:
-      'Cette préparation nécessite Windows x64 et le Node compatible fourni avec Studio.',
+      'Cette préparation nécessite Linux (x64 ou arm64) et le Node compatible fourni avec Studio.',
     componentsChecksum:
       'L’intégrité ou la structure du téléchargement est invalide. Aucun composant altéré n’est activé.',
     componentsCancelled: 'Préparation annulée. Vous pouvez réessayer.',
@@ -68,7 +68,7 @@ const messages = {
     title: 'Votre espace de travail, prêt à vous suivre.',
     description:
       'Retrouvez vos projets et vos agents dans une fenêtre dédiée. Le Studio démarre pour vous, en arrière-plan.',
-    startup: 'Démarrer avec Windows',
+    startup: 'Démarrer avec la session',
     startupNote: 'Disponible dès votre connexion, sans ouvrir de fenêtre.',
     import: 'Reprendre une installation existante',
     importNote: 'Conservez vos projets, pièces jointes et accès distants.',
@@ -85,7 +85,7 @@ const messages = {
     failure: 'Le Studio n’a pas pu démarrer.',
     noBridge: 'Ouvrez cette page dans l’application Prime Agent Studio.',
     selected: 'Installation sélectionnée : ',
-    autostartError: 'Le démarrage avec Windows n’a pas pu être modifié.',
+    autostartError: 'Le démarrage automatique n’a pas pu être modifié.',
     updates: 'Mises à jour',
     updateIdle: 'Recherchez les nouvelles versions publiées sur GitHub.',
     updateCheck: 'Vérifier les mises à jour',
@@ -110,12 +110,12 @@ const messages = {
     componentsDetails: 'Details',
     componentsHideDetails: 'Hide details',
     componentsNote:
-      'This Studio version uses Prime Agent 0.9.4. The button downloads missing components or the required engine version, private npm, uv and Python 3.11 when needed. An Internet connection is required. Git Bash must be installed separately for shell commands.',
+      'This Studio version uses Prime Agent 0.9.4. The button downloads missing components or the required engine version, private npm, uv and Python 3.11 when needed. An Internet connection is required. Bash must be available for shell commands.',
     componentsInstall: 'Install missing components',
     componentsDiagnose: 'Check again',
     componentsExisting: 'Choose an existing installation',
     componentsExistingNote:
-      'Select the Prime Agent package root (with package.json), uv.exe or python.exe. Environment variable paths take precedence.',
+      'Select the Prime Agent package root (with package.json), uv or python. Environment variable paths take precedence.',
     componentsLater: 'Later — open Studio',
     componentsReady: 'All components are ready.',
     componentsDeferred:
@@ -125,8 +125,8 @@ const messages = {
     componentsExplicit:
       'The explicitly configured path is invalid or incompatible. Correct the environment variable or choose another installation.',
     componentsBash:
-      'Git Bash is required for shell commands. Install Git for Windows, or configure shellPath in Prime Agent settings, then check again.',
-    componentsUnsupported: 'Setup requires Windows x64 and the compatible Node supplied with Studio.',
+      'Bash is required for shell commands. Install bash, or configure shellPath in Prime Agent settings, then check again.',
+    componentsUnsupported: 'Setup requires Linux (x64 or arm64) and the compatible Node supplied with Studio.',
     componentsChecksum:
       'The download integrity or archive structure is invalid. No altered component is activated.',
     componentsCancelled: 'Preparation cancelled. You can try again.',
@@ -171,7 +171,7 @@ const messages = {
     eyebrow: 'YOUR DESKTOP APPLICATION',
     title: 'Your workspace, ready when you are.',
     description: 'Your projects and agents in a dedicated window. Studio starts for you, in the background.',
-    startup: 'Start with Windows',
+    startup: 'Start with session',
     startupNote: 'Ready when you sign in, without opening a window.',
     import: 'Use an existing installation',
     importNote: 'Keep your projects, attachments and remote access.',
@@ -188,7 +188,7 @@ const messages = {
     failure: 'Studio could not start.',
     noBridge: 'Open this page in the Prime Agent Studio application.',
     selected: 'Selected installation: ',
-    autostartError: 'Could not change the start with Windows setting.',
+    autostartError: 'Could not change the automatic start setting.',
     updates: 'Updates',
     updateIdle: 'Check for new versions published on GitHub.',
     updateCheck: 'Check for updates',
@@ -257,7 +257,7 @@ const componentNames = {
   python: 'Python',
   node: 'Node (Studio)',
   npm: 'npm',
-  bash: 'Git Bash',
+  bash: 'Bash',
   studio: 'Studio',
 };
 function componentError(code) {

@@ -21,7 +21,7 @@ const server = createServer(async (req, res) => {
 });
 await new Promise((done) => server.listen(0, '127.0.0.1', done));
 const browser = await chromium.launch({
-  channel: process.env.PRIME_STUDIO_TEST_BROWSER || 'msedge',
+  channel: process.env.PRIME_STUDIO_TEST_BROWSER || 'chromium',
   headless: true,
 });
 await mkdir('.local/components-ui', { recursive: true });

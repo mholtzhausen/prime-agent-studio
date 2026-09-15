@@ -6,17 +6,17 @@
 
 Prérequis : **Node.js 22.8 ou ultérieur** et **Prime Agent 0.9.2** installé. Configurez un fournisseur avant le premier message, dans Prime Agent ou dans le panneau local **Fournisseurs**. Cette version du Studio et son adaptateur de sous-agents sont validés avec **0.9.2**. Le GUI réutilise les comptes existants sans redemander leurs clés.
 
-```powershell
+```sh
 npm ci
 npm run setup:runtime
 npm start
 ```
 
-Il n’y a pas d’étape de compilation. Les bibliothèques Markdown sont servies localement depuis `node_modules`, sans CDN. `npm start` garde le serveur dans votre terminal ; utilisez le lanceur VBS pour un démarrage entièrement silencieux.
+Il n’y a pas d’étape de compilation. Les bibliothèques Markdown sont servies localement depuis `node_modules`, sans CDN. `npm start` / `make dev` gardent le serveur dans votre terminal ; utilisez `scripts/start-studio.sh` ou `make start-silent` pour un démarrage en arrière-plan qui réutilise une instance déjà ouverte et lance le navigateur.
 
-Dans **Un projet à explorer.**, **Choisir un dossier** ouvre le sélecteur Windows et remplit le chemin, sans ajouter le projet avant validation. Le helper PowerShell reste masqué ; PowerShell 7 fournit le sélecteur moderne lorsqu’il est installé, avec repli sur Windows PowerShell. Ce sélecteur est réservé au Studio local sur Windows. `npm run test:folders` vérifie la sélection, l’annulation, les erreurs et les réponses tardives. Pour ce test et `scripts/test-commands-ui.mjs`, `PRIME_STUDIO_TEST_BROWSER=chrome` permet d’utiliser Chrome à la place d’Edge.
+Dans **Un projet à explorer.**, **Choisir un dossier** ouvre le sélecteur de dossier Linux (`zenity`, ou `kdialog` si zenity est absent) et remplit le chemin, sans ajouter le projet avant validation. Ce sélecteur est réservé au Studio local sous Linux. `npm run test:folders` vérifie la sélection, l’annulation, les erreurs et les réponses tardives. Les tests d’interface navigateur privilégient Chrome/Chromium sous Linux ; définissez `PRIME_STUDIO_TEST_BROWSER` pour remplacer le canal Playwright.
 
-Sous Windows, le moteur Python est provisionné sous `.local/kernel-venv/` pour conserver le contournement du chemin POSIX `bin/python` de Prime Agent. Le Studio prépare le runtime, ses bibliothèques et les skills Python activées, dès le premier message ou avec `npm run setup:runtime`. La première installation nécessite Internet. `scripts/native-skill-resources.mjs` partage la découverte native avec le catalogue des commandes : filtres, priorité des projets, packages configurés et intégrations MCP désactivées sont respectés.
+Le moteur Python est provisionné sous `.local/kernel-venv/`. Le Studio prépare le runtime, ses bibliothèques et les skills Python activées, dès le premier message ou avec `npm run setup:runtime`. La première installation nécessite Internet. `scripts/native-skill-resources.mjs` partage la découverte native avec le catalogue des commandes : filtres, priorité des projets, packages configurés et intégrations MCP désactivées sont respectés.
 
 `lib/kernel-skills.mjs` lit les `pyproject.toml` avec un analyseur TOML et résout les dépendances locales entre packages frères, y compris les helpers sans `SKILL.md`. Le runtime et tous les packages locaux sont fournis par leurs chemins dans une seule résolution `uv pip install --python …`. Leurs homonymes sur PyPI ne remplacent donc pas les sources locales. Les packages sont installés normalement, sans ajout à `sys.path` ni lien éditable vers les sources d’une session active.
 
@@ -26,9 +26,9 @@ Sous Windows, le moteur Python est provisionné sous `.local/kernel-venv/` pour 
 
 Un `PRIME_AGENT_KERNEL_PYTHON` explicitement fourni reste prioritaire et n’est jamais modifié automatiquement. Le Studio vérifie sa compatibilité : une dépendance essentielle ou `agent_message.send` manquante bloque le lancement avec le chemin du Python et l’erreur d’import ; une skill optionnelle indisponible produit un avertissement explicite. La [documentation native](https://github.com/PrimeIntellect-ai/prime-agent/blob/main/packages/coding-agent/docs/skills.md#python-backed-skills) décrit pourquoi Prime Agent n’installe rien automatiquement dans ce Python externe.
 
-Pour réparer ou préparer un projet particulier, utilisez `npm run setup:runtime -- "C:\chemin du projet"`. La commande sans argument utilise le dossier courant. Arrêtez et relancez le Studio pour charger un nouvel adaptateur et redémarrer les kernels déjà ouverts ; les historiques sont conservés. Les anciennes générations peuvent être conservées tant que leurs kernels sont utilisés.
+Pour réparer ou préparer un projet particulier, utilisez `npm run setup:runtime -- "/chemin/du/projet"`. La commande sans argument utilise le dossier courant. Arrêtez et relancez le Studio pour charger un nouvel adaptateur et redémarrer les kernels déjà ouverts ; les historiques sont conservés. Les anciennes générations peuvent être conservées tant que leurs kernels sont utilisés.
 
-`test/kernel.test.mjs` couvre l’installation, la migration, les imports à chaque réutilisation, les changements de sources/dépendances, les erreurs suivies d’une nouvelle tentative, la concurrence, les chemins Windows avec espaces, le Python externe et la découverte native. `test:subagents:native` comprend aussi `scripts/test-kernel-messaging-native.mjs` : fournisseur simulé sur localhost, vrais kernels, messages explicites dans les deux sens vérifiés dans les historiques **et** les contextes des modèles, puis reprise du même parent après arrêt du moteur. Une notification de fin d’enfant ne satisfait pas ce test.
+`test/kernel.test.mjs` couvre l’installation, la migration, les imports à chaque réutilisation, les changements de sources/dépendances, les erreurs suivies d’une nouvelle tentative, la concurrence, les chemins contenant des espaces, le Python externe et la découverte native. `test:subagents:native` comprend aussi `scripts/test-kernel-messaging-native.mjs` : fournisseur simulé sur localhost, vrais kernels, messages explicites dans les deux sens vérifiés dans les historiques **et** les contextes des modèles, puis reprise du même parent après arrêt du moteur. Une notification de fin d’enfant ne satisfait pas ce test.
 
 ## Sessions longues et synchronisation
 
@@ -36,19 +36,15 @@ Pour réparer ou préparer un projet particulier, utilisez `npm run setup:runtim
 
 L’ordre des projets et les marqueurs de lecture partagés sont conservés dans `workspace.json`, sans modifier les historiques natifs. Les accusés de lecture désignent un identifiant de réponse précis, progressent uniquement sur la branche courante et sont autorisés aux appareils authentifiés en consultation. Les révisions de lecture et la fraîcheur des historiques sont traitées séparément pour supporter les réponses HTTP retardées. `npm run test:activity` vérifie deux navigateurs à stockages indépendants ; `npm run test:stability` couvre les cartes, les files protégées et l’ordre persistant sur PC/mobile. `node scripts/fixtures/session-stability.mjs` lance leur aperçu synthétique isolé.
 
-## Processus Windows silencieux
+## Modèle de processus
 
-La gestion des fournisseurs utilise `lib/provider-service.mjs` et un processus masqué `scripts/provider-auth-worker.mjs`. `lib/provider-auth.mjs` charge le catalogue et les flux OAuth natifs sans extension de projet. Les clés passent par stdin ; seules les informations d’affichage et les étapes de connexion reviennent au navigateur. Les écritures utilisent `FileAuthStorageBackend` et `AuthStorage`, avec une révision du fournisseur vérifiée sous verrou. La fermeture d’un parcours n’arrête que son processus de connexion. Les routes `/api/providers` et leurs sous-routes ne figurent pas dans la liste d’accès de la passerelle distante.
+La gestion des fournisseurs utilise `lib/provider-service.mjs` et un processus d’arrière-plan `scripts/provider-auth-worker.mjs`. `lib/provider-auth.mjs` charge le catalogue et les flux OAuth natifs sans extension de projet. Les clés passent par stdin ; seules les informations d’affichage et les étapes de connexion reviennent au navigateur. Les écritures utilisent `FileAuthStorageBackend` et `AuthStorage`, avec une révision du fournisseur vérifiée sous verrou. La fermeture d’un parcours n’arrête que son processus de connexion. Les routes `/api/providers` et leurs sous-routes ne figurent pas dans la liste d’accès de la passerelle distante.
 
 `npm run test:providers` vérifie l’ajout et le retrait de clés dans un stockage natif temporaire, l’actualisation des modèles, le parcours OAuth simulé, la conservation du brouillon et le refus des routes sur mobile et PC distant. `test/providers.test.mjs` couvre les verrous, conflits, clés invalides, commandes de secrets non exécutées, annulations et délais OAuth. Aucun compte personnel n’est connecté ou déconnecté par ces tests.
 
-Le serveur appelle directement le fichier JavaScript du CLI avec Node, sans passer par un lanceur `.cmd` ni une console PowerShell.
+Le serveur appelle directement le fichier JavaScript du CLI avec Node.
 
 Le Studio démarre son propre superviseur Prime Agent en arrière-plan, sur une adresse de communication privée. Il ne réutilise pas le superviseur d’un terminal externe. Les demandes partagent ce moteur, mais chacune garde son client : **Arrêter** demande au client concerné de fermer proprement sa session et ses sous-agents. L’arrêt forcé de son processus reste un recours si le client ne répond plus.
-
-Le correctif local `runtime/windows-hidden.cjs` applique `windowsHide` aux sous-processus Node du CLI. Le module `runtime/python/sitecustomize.py` applique `CREATE_NO_WINDOW` et `SW_HIDE` aux sous-processus du moteur Python, y compris leurs appels PowerShell. Ces réglages sont transmis uniquement à l’arbre de processus lancé par le GUI. L’installation globale de Prime Agent n’est pas modifiée.
-
-Le correctif `runtime/windows-session-leases.cjs` permet à Prime Agent 0.9.1 de reconnaître une collision de dossiers sous Windows lors de la récupération d’un verrou de session. Prime Agent conserve ses vérifications du PID et de sa date de démarrage : le correctif ne supprime pas les verrous de sessions encore actives.
 
 Le chargeur local `runtime/headless-loader.mjs` active l’attente native de fin des sous-agents avant que le client JSON ferme sa session. La réponse du parent ne coupe donc pas les tâches qu’il vient de déléguer. Le changement s’applique en mémoire, uniquement au mode d’exécution utilisé par le Studio ; les fichiers installés de Prime Agent restent intacts. Si une mise à jour du CLI change ce point d’intégration, le Studio affiche une erreur explicite plutôt que d’appliquer une transformation incertaine.
 
@@ -56,21 +52,21 @@ La fermeture d’un onglet ne tue pas l’agent. Le bouton **Arrêter**, lui, fe
 
 ## Développement des préférences sans interruption
 
-L’application native et son installateur se construisent avec `npm run desktop:build` : voir [le guide Windows](desktop.md). Les tests natifs utilisent un dossier temporaire et un port dédié. L’interface ne possède aucun accès générique au shell Tauri ; les commandes du lanceur vérifient leur origine locale, et les liens externes s’ouvrent dans le navigateur.
+L’application native et ses paquets se construisent avec `npm run desktop:build` : voir [le guide de l’application Linux](desktop.md). Les tests natifs utilisent un dossier temporaire et un port dédié. L’interface ne possède aucun accès générique au shell Tauri ; les commandes du lanceur vérifient leur origine locale, et les liens externes s’ouvrent dans le navigateur.
 
 Le Studio sert directement les fichiers du dépôt. Pour travailler pendant des sessions actives, utilisez un worktree séparé : modifier le checkout servi pourrait changer l’interface de ces sessions. `node scripts/preview-preferences.mjs --serve` lance un aperçu avec dossiers temporaires, moteur simulé et écoute exclusivement loopback ; les adresses affichées sont de démonstration. Ce script ne lance aucun agent et ne modifie aucun compte ou accès réel.
 
 `lib/remote-network.mjs` gère séparément les passerelles et leur cycle de vie. Les modifications réseau et du PIN utilisent la même file d’écriture et une révision de configuration. Une nouvelle écoute doit réussir avant l’enregistrement et le remplacement de l’ancienne ; un échec annule les écoutes préparées. La fermeture d’une passerelle détruit ses connexions proxy, sans appeler l’annulation des agents. La passerelle distante ne relaie aucune route de configuration réseau ou système.
 
-`lib/tailscale-https.mjs` prépare et vérifie Tailscale Serve avec `execFile`, sans shell ni fenêtre Windows. La passerelle loopback doit écouter avant toute modification Serve. L’annulation restaure uniquement la redirection préparée si elle appartient encore au Studio ; les services tiers et Funnel ne sont jamais remplacés. Les liens d’autorisation sont limités aux pages Serve/DNS HTTPS de `login.tailscale.com`. Désactiver HTTPS ferme la passerelle locale et conserve la redirection privée pour la prochaine activation.
+`lib/tailscale-https.mjs` prépare et vérifie Tailscale Serve avec `execFile`, sans shell. La passerelle loopback doit écouter avant toute modification Serve. L’annulation restaure uniquement la redirection préparée si elle appartient encore au Studio ; les services tiers et Funnel ne sont jamais remplacés. Les liens d’autorisation sont limités aux pages Serve/DNS HTTPS de `login.tailscale.com`. Désactiver HTTPS ferme la passerelle locale et conserve la redirection privée pour la prochaine activation.
 
 `npm run test:https` vérifie l’autorisation, la nouvelle tentative, l’état d’attente, le PIN, le QR et les options HTTPS sur PC/mobile. `test/https-settings.test.mjs` vérifie les conflits, l’annulation et la continuité des agents. Ces tests et l’aperçu utilisent un émulateur Tailscale : aucune commande réelle de configuration n’est exécutée.
 
-`npm run test:settings` vérifie la navigation, le focus, les changements réseau, le QR, les langues et les largeurs 390/320 px. `test/remote-network.test.mjs` vérifie la conservation du PIN, les échecs, les révisions concurrentes, les permissions et les agents toujours actifs. Les tests utilisent uniquement des données temporaires et des ports loopback. Définissez `PRIME_STUDIO_TEST_BROWSER=chrome` pour Chrome à la place d’Edge dans les tests d’interface concernés.
+`npm run test:settings` vérifie la navigation, le focus, les changements réseau, le QR, les langues et les largeurs 390/320 px. `test/remote-network.test.mjs` vérifie la conservation du PIN, les échecs, les révisions concurrentes, les permissions et les agents toujours actifs. Les tests utilisent uniquement des données temporaires et des ports loopback. Les tests d’interface navigateur privilégient Chrome/Chromium sous Linux ; définissez `PRIME_STUDIO_TEST_BROWSER` pour remplacer le canal Playwright.
 
 ## Vérifications
 
-```powershell
+```sh
 npm run check
 npm test
 npm run test:ui
@@ -95,7 +91,7 @@ Pour ajouter un texte ou une langue, suivez [le guide de traduction](translation
 
 La documentation dispose également de deux versions. `npm run check:docs`, inclus dans `npm run check`, vérifie le registre des paires, les liens, les ancres et les empreintes de relecture. Après une modification, relisez les deux langues puis utilisez `npm run docs:sync -- identifiant` ; [le guide des traductions](translations.md#maintenir-la-documentation-bilingue) décrit cette procédure. Ce contrôle n’évalue pas automatiquement la qualité linguistique.
 
-Les tests automatiques utilisent des données temporaires et un faux moteur, sans consommation de modèle. Les tests Windows vérifient également les paramètres natifs de création des processus, le lancement VBS, la réutilisation du serveur et l’arrêt des descendants. Les tests de navigateur utilisent Microsoft Edge installé localement et produisent des captures dans `test-results/`.
+Les tests automatiques utilisent des données temporaires et un faux moteur, sans consommation de modèle. Les tests de lanceur vérifient la réutilisation du serveur et l’arrêt des descendants via les scripts shell. Les tests de navigateur privilégient Chrome/Chromium sous Linux et produisent des captures dans `test-results/`.
 
 `test:subagents:native` utilise le vrai moteur et Python avec un fournisseur HTTP local simulé, sans compte ni appel payant. Il vérifie les arguments par défaut et explicites, le prompt existant, les niveaux en direct et dans l’historique, puis un changement par projet pendant que les premiers sous-agents travaillent encore.
 
@@ -105,11 +101,11 @@ Le chargeur `runtime/subagent-loader.mjs` est ajouté uniquement à l’environn
 
 Test réel facultatif avec le compte Luna déjà configuré (**consomme des appels au modèle**) :
 
-```powershell
+```sh
 node scripts/smoke-luna.mjs
 ```
 
-Il utilise `openai-codex/gpt-5.6-luna` et des sessions isolées dans `.local/smoke-sessions`. Il vérifie un appel de l’outil Python vers PowerShell avec le correctif silencieux chargé.
+Il utilise `openai-codex/gpt-5.6-luna` et des sessions isolées dans `.local/smoke-sessions`. Il vérifie un appel de l’outil Python vers un sous-processus shell avec le runtime du Studio chargé.
 
 Le scénario réel de délégation, reprise avec outil et interruption se lance explicitement avec `node scripts/smoke-worker-recovery.mjs --run-luna`. Il utilise uniquement Luna et conserve ses sessions et rapports dans `.local/recovery-smoke-workspace/`.
 
@@ -119,7 +115,7 @@ Le scénario réel de délégation, reprise avec outil et interruption se lance 
 
 `lib/project-files.mjs` limite les chemins aux projets enregistrés, vérifie les cibles réelles des liens et masque les dossiers techniques et privés. Git est exécuté sans shell ni fenêtre, avec limites de temps et de volume, sans verrouillage facultatif, diff externe ou textconv. Les routes `GET /api/inspector*` et `GET /api/project-files*` utilisent les protections d’origine et l’authentification existantes, y compris pour les téléchargements.
 
-Les références de documents passent par `GET /api/project-files/resolve` et la même vérification du projet. `public/file-links.js` relie les liens Markdown et les chemins en code au visualiseur, sans navigation du navigateur. L’ouverture native utilise exclusivement `POST /api/project-files/open`, autorisé aux accès distants en contrôle complet. `lib/open-file.mjs` et le helper Windows transmettent le chemin comme donnée à `ShellExecuteW` avec une fenêtre visible pour l’application, depuis un helper PowerShell masqué. Les scripts sont envoyés au Bloc-notes et les exécutables refusés.
+Les références de documents passent par `GET /api/project-files/resolve` et la même vérification du projet. `public/file-links.js` relie les liens Markdown et les chemins en code au visualiseur, sans navigation du navigateur. L’ouverture native utilise exclusivement `POST /api/project-files/open`, autorisé aux accès distants en contrôle complet. `lib/open-file.mjs` ouvre le chemin avec `xdg-open` sous Linux. Les exécutables et types non pris en charge sont refusés.
 
 `npm run test:inspector` couvre une hiérarchie imbriquée, l’activité d’un agent réutilisé, les fichiers et diffs, le téléchargement exact, le mode distant en lecture seule, le clavier, les thèmes et les formats 1440, 390 et 320 pixels. Il vérifie que les fichiers natifs, l’index Git et le brouillon restent intacts. `npm run test:commands:native` vérifie aussi la lecture du nouvel instantané auprès du vrai moteur 0.9.2 pendant un outil Python, sans appel à un fournisseur payant.
 
@@ -139,7 +135,7 @@ Les vérifications ciblées sont `node scripts/test-live-messages-ui.mjs` et `no
 
 Le navigateur propose deux sélecteurs, le dépôt dans la conversation et le collage des objets `File` du presse-papiers. Un chemin copié sous forme de simple texte n’est pas importé automatiquement. Les brouillons de pièces jointes utilisent IndexedDB et sont retirés après acceptation seulement. Le serveur annonce cette capacité dans le bootstrap pour éviter un envoi silencieusement ignoré par un ancien serveur encore en cours d’exécution.
 
-```powershell
+```sh
 npm run test:attachments
 node scripts/smoke-live-messages.mjs --run-native --attachments
 ```
@@ -152,7 +148,7 @@ Le premier scénario vérifie les sélecteurs réels, le collage, le dépôt, le
 
 `lib/pwa.mjs` définit les seules ressources publiques nécessaires à l’installation et valide l’origine HTTPS Tailscale. `lib/lan.mjs` accepte cette origine uniquement sur la passerelle loopback dédiée, conserve les contrôles Host/Origin et émet un cookie Secure. Les en-têtes de proxy ne définissent pas l’origine de confiance. `scripts/enable-pwa.mjs` préserve la configuration existante et pointe Tailscale Serve vers cette passerelle, jamais directement vers l’API locale.
 
-`npm run test:pwa` utilise un profil Edge temporaire pour vérifier les critères d’installation via CDP, le service worker, l’absence de données privées dans le cache, le retour hors ligne, la conservation des brouillons et les instructions iPhone. Le dialogue d’installation est simulé pour ne pas installer réellement une application sur le PC pendant les tests. Les tests HTTP dans `test/pwa.test.mjs` couvrent l’authentification HTTPS, les ressources publiques, les origines et les conflits de configuration Serve.
+`npm run test:pwa` utilise un profil Chrome/Chromium temporaire pour vérifier les critères d’installation via CDP, le service worker, l’absence de données privées dans le cache, le retour hors ligne, la conservation des brouillons et les instructions iPhone. Le dialogue d’installation est simulé pour ne pas installer réellement une application sur le PC pendant les tests. Les tests HTTP dans `test/pwa.test.mjs` couvrent l’authentification HTTPS, les ressources publiques, les origines et les conflits de configuration Serve.
 
 `public/viewport.js` ajuste la hauteur du chat au viewport visible, y compris lorsque le clavier réduit seulement celui-ci. Le zoom tactile reste libre. Les marges système sont réservées autour de l’interface ; le pied de page secondaire est masqué sur mobile. `npm run test:layout` vérifie une longue conversation en portrait, paysage et avec des géométries simulées de clavier et de barre système. Ces simulations ne remplacent pas un test sur un téléphone physique.
 
@@ -162,9 +158,7 @@ Le test PWA couvre aussi une arrivée depuis un autre site suivie d’un recharg
 
 `npm run test:workspace` vérifie les menus de projet et de session sur écran tactile, leur stabilité lors du redimensionnement, le retrait confirmé avec conservation des fichiers, les formulaires MCP et la déconnexion d’un navigateur pendant une exécution simulée. Les captures PC/mobile sont conservées dans `test-results/`.
 
-Sous Windows, `lib/open-directory.mjs` utilise un assistant PowerShell masqué et une demande ShellExecute explicitement visible pour l’Explorateur. Une fenêtre existante du même dossier est réutilisée, y compris si un ancien lancement l’avait masquée. La notification de succès attend la confirmation d’une fenêtre visible et non minimisée ; les processus des agents conservent leur lancement silencieux. Le chemin est transmis comme donnée, sans construction de commande PowerShell.
-
-`npm run test:explorer` est un test Windows facultatif qui ouvre réellement un dossier temporaire dans l’Explorateur depuis un processus masqué, vérifie sa visibilité, reproduit une fenêtre invisible et vérifie sa restauration sans doublon. Il ferme uniquement la fenêtre du dossier temporaire créé par le scénario. Ce test de bureau est séparé de `npm test`, qui ne doit pas ouvrir de dossiers pendant ses vérifications ordinaires.
+Sous Linux, `lib/open-directory.mjs` ouvre les dossiers de projet avec `xdg-open`. Le chemin est transmis comme argument de données, sans shell.
 
 `lib/mcp-config.mjs` valide le format natif, masque les secrets renvoyés au navigateur et écrit uniquement `mcpServers` avec `FileSettingsStorage.withLock`. Les valeurs par défaut des modèles utilisent le même verrou. Chaque modification MCP vérifie la révision de la configuration pour refuser un écrasement depuis un écran périmé. `lib/prime-native.mjs` charge les modules de l’installation Prime Agent résolue par le Studio ; une installation incompatible produit une erreur explicite.
 
@@ -194,11 +188,11 @@ Les principales routes sont `GET /api/bootstrap`, `GET /api/overview`, `GET /api
 
 `node scripts/capture-roadmap.mjs` régénère les illustrations de la Roadmap en français et en anglais, avec un projet fictif entièrement isolé. Le script capture l’interface réelle sans utiliser de projet utilisateur ni appeler de fournisseur.
 
-```powershell
+```sh
 node scripts/capture-readme.mjs
 ```
 
-Le script ouvre la véritable interface dans Microsoft Edge sans fenêtre visible, sur un serveur temporaire distinct. Les projets, conversations, modèles et événements sont des données de démonstration. Aucun agent natif ni compte de fournisseur n’est utilisé, et aucune session du Studio en cours n’est modifiée.
+Le script ouvre la véritable interface dans Chrome/Chromium sans fenêtre visible, sur un serveur temporaire distinct. Les projets, conversations, modèles et événements sont des données de démonstration. Aucun agent natif ni compte de fournisseur n’est utilisé, et aucune session du Studio en cours n’est modifiée.
 
 `npm run test:workspace -- --capture-docs` régénère la capture du gestionnaire MCP avec une configuration de démonstration isolée. Les comptes utilisateur sont conservés.
 
@@ -206,7 +200,7 @@ Les captures sont enregistrées dans `docs/screenshots/`. Cinq vues du bureau so
 
 Pour régénérer les captures avec l’interface anglaise dans `docs/screenshots/en/`, sans remplacer les captures françaises :
 
-```powershell
+```sh
 node scripts/capture-readme.mjs --docs-en
 node scripts/test-providers-ui.mjs --docs-en
 node scripts/test-inspector-ui.mjs --docs-en

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import { mkdtemp, mkdir, writeFile, readFile, rm, copyFile, stat } from 'node:fs/promises';
+import { mkdtemp, mkdir, writeFile, readFile, rm, copyFile, stat, chmod } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { startServer } from '../scripts/start-server.mjs';
@@ -43,7 +43,7 @@ async function fixture(t) {
     const server = createServer((req, res) => {
       if (req.url === '/child') {
         const child = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], {
-          windowsHide: true, stdio: 'ignore', shell: false,
+          stdio: 'ignore', shell: false,
         });
         children.push(child);
         res.end(JSON.stringify({ pid: child.pid }));
@@ -60,15 +60,19 @@ async function fixture(t) {
     });
   `;
   await writeFile(join(root, 'server.mjs'), source);
-  for (const script of ['launcher-common.mjs', 'start-server.mjs', 'stop-server.mjs']) {
+  for (const script of [
+    'launcher-common.mjs',
+    'start-server.mjs',
+    'stop-server.mjs',
+    'start-studio.sh',
+    'stop-studio.sh',
+  ]) {
     await copyFile(join(APP_ROOT, 'scripts', script), join(root, 'scripts', script));
   }
-  for (const script of ['Lancer Prime Agent.vbs', 'Arreter Prime Agent.vbs']) {
-    await copyFile(join(APP_ROOT, script), join(root, script));
-  }
+  await chmod(join(root, 'scripts', 'start-studio.sh'), 0o755);
+  await chmod(join(root, 'scripts', 'stop-studio.sh'), 0o755);
   t.after(async () => {
     await stopServer({ root }).catch(() => {});
-    // Cleanup is confined to this test's own unique temporary directory.
     assert.equal(dirname(resolve(temporary)), resolve(tmpdir()));
     assert.ok(temporary.includes('prime-studio-launcher-'));
     await rm(temporary, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
@@ -161,29 +165,26 @@ test('a startup failure produces a useful log and releases the launch lock', asy
 });
 
 test(
-  'Windows VBS starts and stops without a shell, and stop also closes agent descendants',
-  { skip: process.platform !== 'win32' },
+  'Linux shell launchers start and stop without a browser and close agent descendants',
+  { skip: process.platform !== 'linux' },
   async (t) => {
     const options = await fixture(t);
-    const env = { ...process.env, PORT: String(options.port), PRIME_AGENT_GUI_NODE: process.execPath,
-      PRIME_AGENT_GUI_NONINTERACTIVE: '1' };
-    await execFileAsync(
-      'cscript.exe',
-      ['//NoLogo', join(options.root, 'Lancer Prime Agent.vbs'), '--no-browser'],
-      {
-        env,
-        windowsHide: true,
-        timeout: 30000,
-      },
-    );
+    const env = {
+      ...process.env,
+      PORT: String(options.port),
+      PRIME_AGENT_GUI_NODE: process.execPath,
+    };
+    await execFileAsync('bash', [join(options.root, 'scripts', 'start-studio.sh'), '--no-browser'], {
+      env,
+      timeout: 30000,
+    });
     const health = await probeHealth(options.port);
     assert.equal(health.state, 'ready');
     const response = await fetch(`http://127.0.0.1:${options.port}/child`);
     const child = await response.json();
     assert.ok(child.pid > 0);
-    await execFileAsync('cscript.exe', ['//NoLogo', join(options.root, 'Arreter Prime Agent.vbs')], {
+    await execFileAsync('bash', [join(options.root, 'scripts', 'stop-studio.sh')], {
       env,
-      windowsHide: true,
       timeout: 30000,
     });
     assert.equal((await probeHealth(options.port)).state, 'absent');
@@ -192,54 +193,23 @@ test(
 );
 
 test(
-  'shortcut installer creates a working launcher shortcut in the requested directory',
-  { skip: process.platform !== 'win32' },
+  'Linux shell launcher failures exit promptly with the underlying script status',
+  { skip: process.platform !== 'linux' },
   async (t) => {
     const options = await fixture(t);
-    await execFileAsync(
-      'powershell.exe',
-      [
-        '-NoProfile',
-        '-ExecutionPolicy',
-        'Bypass',
-        '-File',
-        join(APP_ROOT, 'scripts', 'install-shortcut.ps1'),
-        '-Destination',
-        options.root,
-      ],
-      { windowsHide: true },
-    );
-    const shortcut = join(options.root, 'Prime Agent Studio.lnk');
-    assert.ok((await stat(shortcut)).size > 0);
-    const script = [
-      '$studioShell = New-Object -ComObject WScript.Shell',
-      '$studioShortcut = $studioShell.CreateShortcut($env:STUDIO_TEST_SHORTCUT)',
-      '@{ target = $studioShortcut.TargetPath; arguments = $studioShortcut.Arguments; cwd = $studioShortcut.WorkingDirectory; icon = $studioShortcut.IconLocation } | ConvertTo-Json -Compress',
-    ].join('\n');
-    const result = await execFileAsync('powershell.exe', ['-NoProfile', '-Command', script], {
-      windowsHide: true,
-      env: { ...process.env, STUDIO_TEST_SHORTCUT: shortcut },
-    });
-    const metadata = JSON.parse(result.stdout.replace(/^\uFEFF/, ''));
-    assert.match(metadata.target, /wscript\.exe$/i);
-    assert.equal(metadata.arguments, `"${join(APP_ROOT, 'Lancer Prime Agent.vbs')}"`);
-    assert.equal(metadata.cwd, APP_ROOT);
-    assert.equal(metadata.icon, `${join(APP_ROOT, 'assets', 'prime-agent.ico')},0`);
-  },
-);
-
-test('noninteractive VBS failures exit promptly without displaying a dialog',
-  { skip: process.platform !== 'win32' }, async (t) => {
-    const options = await fixture(t);
-    const env = { ...process.env, PRIME_AGENT_GUI_NODE: process.execPath,
-      PRIME_AGENT_GUI_NONINTERACTIVE: '1' };
+    const env = { ...process.env, PRIME_AGENT_GUI_NODE: process.execPath };
     for (const [script, launcher] of [
-      ['start-server.mjs', 'Lancer Prime Agent.vbs'],
-      ['stop-server.mjs', 'Arreter Prime Agent.vbs'],
+      ['start-server.mjs', 'start-studio.sh'],
+      ['stop-server.mjs', 'stop-studio.sh'],
     ]) {
       await writeFile(join(options.root, 'scripts', script), 'process.exit(7);\n');
-      await assert.rejects(execFileAsync('cscript.exe',
-        ['//NoLogo', join(options.root, launcher), '--no-browser'],
-        { env, windowsHide: true, timeout: 3000 }), (error) => error.code === 7 && !error.killed);
+      await assert.rejects(
+        execFileAsync('bash', [join(options.root, 'scripts', launcher), '--no-browser'], {
+          env,
+          timeout: 5000,
+        }),
+        (error) => error.code === 7 && !error.killed,
+      );
     }
-  });
+  },
+);

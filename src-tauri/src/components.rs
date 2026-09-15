@@ -48,15 +48,14 @@ pub async fn desktop_components(
             let kind = component.as_deref().unwrap_or("engine");
             if !["engine", "uv", "python"].contains(&kind) { return Err("selection_invalid".into()); }
             let picker = rfd::FileDialog::new().set_parent(&window);
-            let selected = if kind == "engine" { picker.pick_folder() } else { picker.add_filter("Executable", &["exe"]).pick_file() };
+            let selected = if kind == "engine" { picker.pick_folder() } else { picker.pick_file() };
             let Some(path) = selected else { return Ok(serde_json::json!({"cancelled":true})); };
             options["component"] = kind.into();
             options["path"] = path.to_string_lossy().to_string().into();
         }
-        let mut command = Command::new(resources.join("node.exe"));
+        let mut command = Command::new(resources.join("node"));
         command.arg(resources.join("studio/scripts/desktop-components.mjs")).arg(options.to_string())
             .current_dir(&resources).stdin(Stdio::piped()).stdout(Stdio::piped()).stderr(Stdio::null());
-        #[cfg(windows)] { use std::os::windows::process::CommandExt; command.creation_flags(0x08000000); }
         let mut child = command.spawn().map_err(|_| "preparation_failed".to_owned())?;
         *worker_app.state::<Components>().input.lock().map_err(|_| "preparation_failed")? = child.stdin.take();
         let mut result = Err("preparation_failed".to_owned());

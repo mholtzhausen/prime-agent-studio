@@ -4,7 +4,7 @@ High-level system design for **Prime Agent Studio** — a local workspace UI aro
 
 ## Purpose
 
-Studio reunites local Prime Agent sessions in a browser (and optional Windows desktop shell): streaming responses, project/session navigation, MCP and provider management, mobile access over LAN/Tailscale, and shared project features (knowledge, roadmap, inspector).
+Studio reunites local Prime Agent sessions in a browser (and optional Linux desktop shell): streaming responses, project/session navigation, MCP and provider management, mobile access over LAN/Tailscale, and shared project features (knowledge, roadmap, inspector).
 
 It does **not** replace Prime Agent. Conversations, auth, models, and most tools remain native; Studio adds a GUI, metadata, and process orchestration.
 
@@ -17,7 +17,7 @@ It does **not** replace Prime Agent. Conversations, auth, models, and most tools
 | Client | Vanilla JS/CSS in `public/` + `index.html` (no bundler) |
 | Engine | Installed Prime Agent CLI / supervisor (external) |
 | Python skills | Managed venvs via `uv` under `.local/kernel-venv/` |
-| Desktop | Tauri 2 (`src-tauri/`) for Windows installer / tray / updater |
+| Desktop | Tauri 2 (`src-tauri/`) for Linux AppImage/deb / tray / updater |
 | Tests | `node --test` + Playwright UI scripts under `scripts/` |
 
 ## Repository layout
@@ -42,7 +42,7 @@ flowchart TB
   subgraph clients [Clients]
     Browser["Browser / PWA"]
     Phone["Phone over LAN or Tailscale"]
-    Tauri["Tauri Windows app"]
+    Tauri["Tauri Linux app"]
   end
 
   subgraph studio [Studio host]
@@ -116,19 +116,20 @@ flowchart TB
 | --- | --- |
 | `~/.prime/agent/` | Native settings, models, auth, sessions |
 | `.local/` | Studio workspace, LAN PIN hash, attachments, kernel venvs, subagent defaults |
+| `~/.local/share/com.primeagent.studio/` | Linux desktop app data (Tauri): engine copies, webview storage, `desktop.json` |
 | Browser storage | Drafts, theme, language, favorites (device-local) |
 | Env vars | `PORT`, `PRIME_AGENT_CLI`, `PRIME_AGENT_*` paths — see [docs/en/configuration.md](docs/en/configuration.md) |
 
 ## Operational notes
 
 - **No compile step** for the web UI; edit and refresh. Use a separate worktree if a live Studio is serving the same checkout.
-- **Desktop builds** (`make desktop-build`) package Node + Studio for Windows; unsigned Authenticode on the installer is a known product limitation.
+- **Desktop builds** (`make desktop-build`) package Node + Studio for Linux (AppImage/deb); updates use Tauri minisign, not Authenticode/NSIS.
 - **Checks**: `make check` covers JS syntax, translation table integrity, and bilingual doc fingerprints.
-- **Platform**: end-user product targets Windows; Linux/macOS are viable for Node server development and non-UI unit tests.
+- **Platform**: end-user product targets Linux; the Node server and unit tests also run on that host.
 
 ## Related docs
 
 - [AGENTS.md](AGENTS.md) — coding-agent conventions and workflows
 - [docs/en/development.md](docs/en/development.md) — deep internals and test matrix
-- [docs/en/desktop.md](docs/en/desktop.md) — Windows application packaging
+- [docs/en/desktop.md](docs/en/desktop.md) — Linux application packaging
 - [docs/en/configuration.md](docs/en/configuration.md) — env vars and on-disk layout

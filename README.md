@@ -11,12 +11,12 @@
   <a href="https://github.com/zerr0o/prime-agent-studio/stargazers"><img src="https://img.shields.io/github/stars/zerr0o/prime-agent-studio?logo=github&amp;label=stars" alt="GitHub stars"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license"></a>
   <a href="#quick-start"><img src="https://img.shields.io/badge/Node.js-%3E%3D22.8-339933?logo=nodedotjs&amp;logoColor=white" alt="Node.js 22.8 or later"></a>
-  <a href="#quick-start"><img src="https://img.shields.io/badge/platform-Windows-0078D4" alt="Windows platform"></a>
+  <a href="#quick-start"><img src="https://img.shields.io/badge/platform-Linux-FCC624?logo=linux&amp;logoColor=black" alt="Linux platform"></a>
 </p>
 
 <p align="center">
   <strong>Your projects. Your agents. One workspace.</strong><br>
-  A local French and English interface for Prime Agent, designed for Windows.
+  A local French and English interface for Prime Agent, designed for Linux.
 </p>
 
 <p align="center">
@@ -32,7 +32,7 @@
   <a href="docs/en/commands.md">Commands and skills</a> ·
   <a href="docs/en/inspector.md">Agents and files</a> ·
   <a href="docs/en/lan.md">Mobile access</a> ·
-  <a href="docs/en/desktop.md">Windows application</a> ·
+  <a href="docs/en/desktop.md">Linux application</a> ·
   <a href="docs/en/pwa.md">Mobile PWA</a> ·
   <a href="docs/en/translations.md">Languages</a> ·
   <a href="docs/en/development.md">Development</a>
@@ -42,9 +42,9 @@
 
 <p align="center"><em>The real interface with demonstration data. Sample conversations and documents retain their original language.</em></p>
 
-Prime Agent Studio brings your **local Prime Agent sessions** together in a Windows application and a browser interface. Follow streaming responses, find your projects and continue a conversation without opening a terminal. On Windows, agents and their tools run in the background, without unexpected PowerShell windows.
+Prime Agent Studio brings your **local Prime Agent sessions** together in a Linux desktop application and a browser interface. Follow streaming responses, find your projects and continue a conversation without opening a terminal. Agents and their tools run as ordinary Linux processes in the background while the server stays up.
 
-**Version 3.4.1** · [Download the Windows x64 installer](https://github.com/zerr0o/prime-agent-studio/releases/download/v3.4.1/Prime-Agent-Studio_3.4.1_x64-setup.exe) · [Release history](docs/en/changelog.md).
+**Version 3.4.1** · [Download AppImage or deb](https://github.com/zerr0o/prime-agent-studio/releases/latest) · [Release history](docs/en/changelog.md).
 
 ## Images and questions in the conversation
 
@@ -52,7 +52,7 @@ See project images directly in the agent’s response and click to enlarge them.
 
 **Allow questions**, beside the thinking selector, lets the agent ask for your input. Choose an option, expand its description, write another answer or **Skip**. It is enabled by default; choose the default for new conversations in **Preferences → Models & agents**. Each conversation keeps its own saved choice. Questions use Prime Agent’s native interaction mechanism and stay synchronized between PC and phone. [Configuration guide](docs/en/configuration.md#interactive-questions-and-conversation-images).
 
-In the Windows application, **Preferences → Notifications** independently controls alerts for questions and completed turns. Studio stays silent while any of its windows is focused.
+In the Linux application, **Preferences → Notifications** independently controls alerts for questions and completed turns. Studio stays silent while any of its windows is focused.
 
 ![Project image and native agent question, with an expanded option description, a free-text answer field and a Skip button.](docs/screenshots/en/desktop-interactive-questions.png)
 
@@ -91,13 +91,13 @@ Translations live in **one table**, with French and English side by side for eac
 | **Manage providers**        | On the PC, connect an account, save an API key and remove credentials with confirmation.                                 |
 | **Work in parallel**        | Run several sessions and switch between them.                                                                            |
 | **Use Studio on mobile**    | Control the PC from a phone over Wi-Fi or Tailscale, protected by an access code.                                        |
-| **Install Studio**          | Install the Windows application with shortcuts, or add the mobile PWA to your home screen over HTTPS.                    |
+| **Install Studio**          | Install the Linux AppImage or deb, or add the mobile PWA to your home screen over HTTPS.                                  |
 
 Runs continue when you switch sessions, reload the page or close the tab. The server must stay running.
 
 Each project’s **⋯** menu also works on mobile; desktop supports right-click. Removing a project hides its Studio entry while preserving its folder and sessions. Add the folder again to find them. A project with an active run cannot be removed.
 
-In the project list, a **green dot** indicates a working session and a **blue dot** indicates an unread completed response. Green takes priority. The corresponding session also has a blue dot: read its latest response to clear it. Read receipts are saved on the host PC and shared across browsers, phones and the Windows application, including read-only access. Open devices synchronize at the next refresh (within 10 seconds), or when brought back to the foreground. When shared tracking is first enabled, existing responses become the common starting point.
+In the project list, a **green dot** indicates a working session and a **blue dot** indicates an unread completed response. Green takes priority. The corresponding session also has a blue dot: read its latest response to clear it. Read receipts are saved on the host PC and shared across browsers, phones and the Linux application, including read-only access. Open devices synchronize at the next refresh (within 10 seconds), or when brought back to the foreground. When shared tracking is first enabled, existing responses become the common starting point.
 
 Drag a project to its new position in the sidebar. On touchscreens, use its handle; scrolling the rest of the list remains available. With the keyboard, focus the handle and use the up/down arrows. The **…** menu also retains those actions. The order is saved on the server and shared across devices; pinned projects stay at the top and can be reordered within their group.
 
@@ -133,27 +133,27 @@ Connection tests discover tools without executing them. New settings apply to ne
 
 ## Quick start
 
-### Windows application
+### Linux application
 
-Download the [Windows x64 installer](https://github.com/zerr0o/prime-agent-studio/releases/latest), install it, then open **Prime Agent Studio** from your desktop or Start menu. Node.js is included. Builds with guided setup offer **Install missing components** at first launch and in application settings: Prime Agent **0.9.4**, private npm, uv and Python download on demand after your click. Compatible external installations are reused; Git Bash is detected separately for shell commands. Configure your provider afterward. Previously published installers are unchanged. If you used the VBS launcher, select **Use an existing installation**. [Full guide](docs/en/desktop.md).
+Download the [AppImage or deb](https://github.com/zerr0o/prime-agent-studio/releases/latest) for amd64, then open **Prime Agent Studio**. The AppImage is portable; the deb installs system integration. Node.js is included in the package. Builds with guided setup offer **Install missing components** at first launch and in application settings: Prime Agent **0.9.4**, private npm, uv and Python download on demand after your click. Compatible external installations are reused; a working `bash` is required for engine shell commands. Configure your provider afterward. If you previously used a source checkout, select **Use an existing installation**. [Full guide](docs/en/desktop.md).
 
-Updates are signed for Tauri; the installer does not yet carry a Windows Authenticode signature.
+Updates carry a Tauri cryptographic signature.
 
-**After updating:** the application can keep using the previous server while agents finish. Once they have finished, use **Preferences → Updates → Restart server** in the Windows application to activate 3.4.1. [Update guide](docs/en/desktop.md).
+**After updating:** the application can keep using the previous server while agents finish. Once they have finished, use **Preferences → Updates → Restart server** in the Linux application to activate 3.4.1. [Update guide](docs/en/desktop.md).
 
 ### From source
 
-**Requirements:** Windows, **Node.js 22.8 or later**, **uv**, and **Prime Agent** installed. Configure a provider before the first message, through the CLI or Studio’s desktop **Providers** panel. Subagent settings integration has been verified with **Prime Agent 0.9.4**.
+**Requirements:** Linux, **Node.js 22.8 or later**, **uv**, and **Prime Agent** installed. For the folder picker in the browser UI, install **zenity** or **kdialog**. Configure a provider before the first message, through the CLI or Studio’s desktop **Providers** panel. Subagent settings integration has been verified with **Prime Agent 0.9.4**.
 
 Download **Source code (zip)** from the [latest release](https://github.com/zerr0o/prime-agent-studio/releases/latest) and extract it, or clone this repository. Open a terminal in the extracted folder:
 
-```powershell
-npm ci
-npm run setup:runtime
-npm run start:silent
+```sh
+make init            # npm ci
+make setup-runtime   # optional; needs Prime Agent + uv
+make start-silent    # background server + browser → http://127.0.0.1:3088
 ```
 
-**Developer bootstrap** (Linux/macOS/Windows; Make targets wrap the same npm scripts):
+**Developer bootstrap** (Make targets wrap the same npm scripts):
 
 ```sh
 make init            # npm ci
@@ -164,7 +164,7 @@ make check && make test
 
 See [AGENTS.md](AGENTS.md) for coding-agent conventions and [ARCHITECTURE.md](ARCHITECTURE.md) for the system map. `make help` lists all targets.
 
-The browser opens at **[127.0.0.1:3088](http://127.0.0.1:3088)**. Afterward, double-click **`Lancer Prime Agent.vbs`**: the launcher reuses the server if it is already running.
+The browser opens at **[127.0.0.1:3088](http://127.0.0.1:3088)**. Later starts can use `make start-silent` or `scripts/start-studio.sh`: the launcher reuses the server if it is already running.
 
 1. Add a project folder with **+** in the workspace.
 2. Open an existing session or choose **New session**.
@@ -172,30 +172,30 @@ The browser opens at **[127.0.0.1:3088](http://127.0.0.1:3088)**. Afterward, dou
 
 Studio reuses Prime Agent’s configuration: you do not need to paste an API key into the browser. Initial Python engine setup may require an Internet connection.
 
-| Command                | Purpose                                           |
-| ---------------------- | ------------------------------------------------- |
-| `npm run start:silent` | Start in the background and open the browser.     |
-| `npm run shortcut`     | Create a desktop shortcut.                        |
-| `npm start`            | Start with logs in the terminal, for development. |
-| `npm run stop`         | Close the server and its active runs.             |
+| Command                  | Purpose                                           |
+| ------------------------ | ------------------------------------------------- |
+| `make start-silent`      | Start in the background and open the browser.     |
+| `scripts/start-studio.sh`| Same background launch (npm `start:silent`).      |
+| `make dev` / `npm start` | Start with logs in the terminal, for development. |
+| `make stop`              | Close the server and its active runs.             |
 
-**Closing the tab lets agents keep working.** **Stop** ends the selected run; `Arreter Prime Agent.vbs` or `npm run stop` closes all of Studio.
+**Closing the tab lets agents keep working.** **Stop** ends the selected run; `scripts/stop-studio.sh` or `make stop` closes all of Studio.
 
 ### Update a Git installation
 
 Wait for active runs to finish, then run these commands in the Studio folder:
 
-```powershell
-npm run stop
+```sh
+make stop
 git pull --ff-only
-npm ci
-npm run setup:runtime
-npm run start:silent
+make init
+make setup-runtime
+make start-silent
 ```
 
 Local settings and native Prime Agent sessions are preserved. For an archive installation, replace Studio’s files with the new release while keeping the `.local` folder, then repeat the installation steps.
 
-**Upgrading from version 2.3 or earlier:** run `npm ci`, then `npm run setup:runtime`, and restart Studio to load the Python skills fix. Already-open kernels keep their environment until restarted.
+**Upgrading from version 2.3 or earlier:** run `make init`, then `make setup-runtime`, and restart Studio to load the Python skills fix. Already-open kernels keep their environment until restarted.
 
 ## While the agent is working
 
@@ -296,7 +296,7 @@ The PWA keeps the website’s commands and attachments. If connectivity is lost,
 | [Providers](docs/en/providers.md)                     | Account sign-in, API keys, sign-out and desktop-only access.                |
 | [Mobile access](docs/en/lan.md)                       | Setup, network address, authentication and permissions.                     |
 | [Installable application](docs/en/pwa.md)             | PWA installation, private HTTPS and reconnection.                           |
-| [Development](docs/en/development.md)                 | Architecture, silent Windows processes, tests and reproducible screenshots. |
+| [Development](docs/en/development.md)                 | Architecture, Linux process model, tests and reproducible screenshots.      |
 | [Agents and files](docs/en/inspector.md)              | Subagents, usage, Git changes, previews and document opening.               |
 | [Commands and skills](docs/en/commands.md)            | Native commands, shortcuts, project skills and prompts.                     |
 | [MCP connections](docs/en/mcp.md)                     | Servers, OAuth, tools and connection diagnostics.                           |
@@ -304,10 +304,10 @@ The PWA keeps the website’s commands and attachments. If connectivity is lost,
 
 To check the project:
 
-```powershell
-npm run check
-npm test
-npm run test:ui
+```sh
+make check
+make test
+make test-ui
 npm run test:mobile
 npm run test:attachments
 npm run test:pwa
@@ -315,7 +315,7 @@ npm run test:inspector
 npm run test:providers
 ```
 
-Automated tests use temporary data and a simulated engine. Browser tests require Microsoft Edge; optional live tests with Luna are documented separately.
+Automated tests use temporary data and a simulated engine. Browser UI tests expect Chrome or Chromium on Linux (`PRIME_STUDIO_TEST_BROWSER` can override the Playwright channel); optional live tests with Luna are documented separately.
 
 ## License and attribution
 

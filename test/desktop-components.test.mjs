@@ -17,6 +17,7 @@ import {
   verifyDigest,
   releaseOrigin,
   checkNode,
+  hasManagedUvReceipt,
 } from '../lib/desktop-components.mjs';
 import { acquireLock } from '../scripts/launcher-common.mjs';
 
@@ -52,14 +53,48 @@ function tar(entries) {
 }
 test('policy pins an exact tested engine; unsupported architectures and Node lines fail closed', () => {
   assert.equal(COMPONENT_POLICY.engine, '0.9.4');
-  checkNode('24.19.0', 'win32', 'x64');
+  checkNode('24.19.0', 'linux', 'x64');
+  checkNode('22.16.0', 'linux', 'x64');
   for (const args of [
-    ['24.19.0', 'win32', 'arm64'],
-    ['24.19.0', 'linux', 'x64'],
-    ['20.6.0', 'win32', 'x64'],
-    ['26.0.0', 'win32', 'x64'],
+    ['24.19.0', 'win32', 'x64'],
+    ['24.19.0', 'linux', 'arm64'],
+    ['24.19.0', 'darwin', 'x64'],
+    ['20.6.0', 'linux', 'x64'],
+    ['26.0.0', 'linux', 'x64'],
   ])
     assert.throws(() => checkNode(...args));
+  const linuxUv =
+    `https://github.com/astral-sh/uv/releases/download/${COMPONENT_POLICY.uv}/uv-x86_64-unknown-linux-gnu.tar.gz`;
+  assert.equal(
+    hasManagedUvReceipt('/managed/uv', {
+      installed: {
+        components: {
+          uv: {
+            path: '/managed/uv',
+            version: COMPONENT_POLICY.uv,
+            sha256: 'a'.repeat(64),
+            provenance: linuxUv,
+          },
+        },
+      },
+    }),
+    true,
+  );
+  assert.equal(
+    hasManagedUvReceipt('/managed/uv', {
+      installed: {
+        components: {
+          uv: {
+            path: '/managed/uv',
+            version: COMPONENT_POLICY.uv,
+            sha256: 'a'.repeat(64),
+            provenance: `https://github.com/astral-sh/uv/releases/download/${COMPONENT_POLICY.uv}/uv-x86_64-pc-windows-msvc.zip`,
+          },
+        },
+      },
+    }),
+    false,
+  );
 });
 test('explicit environment beats saved selection, which beats the managed manifest; no PATH mutation', async (t) => {
   const root = await fixture(t);

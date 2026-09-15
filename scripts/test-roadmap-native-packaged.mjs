@@ -32,7 +32,7 @@ await mkdir(join(studio, 'scripts'));
 for (const name of [...desktopRuntimeScripts, 'test-roadmap-native.mjs'])
   await cp(join(source, 'scripts', name), join(studio, 'scripts', name));
 await verifyDesktopRuntimeResources(studio);
-const node = join(root, process.platform === 'win32' ? 'node.exe' : 'node');
+const node = join(root, 'node');
 await cp(process.execPath, node);
 const npmCli = join(dirname(process.execPath), 'node_modules/npm/bin/npm-cli.js');
 execFileSync(node, [npmCli, 'ci', '--omit=dev', '--ignore-scripts', '--no-audit', '--no-fund'], {

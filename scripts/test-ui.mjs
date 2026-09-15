@@ -352,7 +352,7 @@ let browser;
 const report = [];
 try {
   browser = await chromium.launch({
-    channel: process.env.PRIME_STUDIO_TEST_BROWSER || 'msedge',
+    channel: process.env.PRIME_STUDIO_TEST_BROWSER || 'chromium',
     headless: true,
   });
   const context = await browser.newContext({

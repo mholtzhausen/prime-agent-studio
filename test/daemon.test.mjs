@@ -90,7 +90,7 @@ test('unused runtimes allocate distinct private sockets and never start a daemon
   assert.equal(first.launches.length + second.launches.length, 0);
 });
 
-test('concurrent runs share one directly owned hidden daemon without inheriting foreign worker roles', async () => {
+test('concurrent runs share one directly owned daemon without inheriting foreign worker roles', async () => {
   const f = fixture();
   const results = await Promise.all([f.daemon.ensureReady(), f.daemon.ensureReady()]);
   assert.deepEqual(results[0], results[1]);
@@ -103,8 +103,8 @@ test('concurrent runs share one directly owned hidden daemon without inheriting 
     f.daemon.socketPath,
   ]);
   const options = f.launches[0].options;
-  assert.equal(options.windowsHide, true);
   assert.equal(options.shell, false);
+  assert.equal(options.detached, true);
   assert.equal(options.env.NODE_OPTIONS, '--require=gui-hidden.cjs');
   assert.equal(options.env.PRIME_AGENT_SESSION_DIR, '/fake/sessions');
   assert.equal(options.env.PRIME_GUI_SILENT, '1');

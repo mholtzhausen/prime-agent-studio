@@ -5,12 +5,10 @@
   "author": "zerr0o",
   "license": "MIT",
   "type": "module",
-  "description": "Espace de travail local pour Prime Agent, avec sessions persistantes et lancement Windows silencieux.",
+  "description": "Local workspace for Prime Agent, with persistent sessions and a Linux desktop or browser UI.",
   "scripts": {
     "start": "node server.mjs",
-    "start:silent": "wscript.exe \"Lancer Prime Agent.vbs\"",
     "stop": "node scripts/stop-server.mjs",
-    "shortcut": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/install-shortcut.ps1",
     "setup:runtime": "node scripts/setup-runtime.mjs",
     "lan:enable": "node scripts/enable-lan.mjs",
     "tailscale:enable": "node scripts/enable-tailscale.mjs",
@@ -40,7 +38,6 @@
     "test:subagents:native": "node scripts/test-subagents-native.mjs && node scripts/test-kernel-messaging-native.mjs",
     "test:reasoning": "node scripts/test-reasoning-ui.mjs",
     "test:remote-access": "node scripts/test-remote-access-ui.mjs",
-    "test:explorer": "node scripts/test-open-directory.mjs",
     "test:folders": "node scripts/test-folder-ui.mjs",
     "test:layout": "node scripts/test-mobile-layout.mjs",
     "test:attachments": "node scripts/test-attachments-ui.mjs",
@@ -62,11 +59,12 @@
     "test:settings-updates": "node scripts/test-settings-updates-ui.mjs",
     "test:desktop-lifecycle": "node scripts/test-desktop-update-lifecycle.mjs",
     "test:desktop-interactions": "node scripts/test-desktop-interactions.mjs",
-    "test:desktop-folder-picker": "node scripts/test-desktop-folder-picker.mjs",
     "test:desktop-runtime": "node scripts/test-desktop-runtime.mjs",
     "test:components": "node --test test/desktop-components.test.mjs && node scripts/test-components-ui.mjs",
     "test:components:download": "node scripts/test-components-download.mjs --download",
-    "test:mcp:packaged": "node scripts/test-mcp-packaged.mjs"
+    "test:mcp:packaged": "node scripts/test-mcp-packaged.mjs",
+    "start:silent": "bash scripts/start-studio.sh",
+    "start:silent:no-browser": "bash scripts/start-studio.sh --no-browser"
   },
   "engines": {
     "node": ">=22.8.0"

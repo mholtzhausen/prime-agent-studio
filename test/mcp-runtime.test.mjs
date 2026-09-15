@@ -105,8 +105,8 @@ test('MCP probes use the packaged application persistent runtime instead of the 
   assert.equal(f.calls[0].payload.python, python);
   assert.equal(f.calls[0].payload.agentHome, f.agentHome);
   assert.equal(f.calls[0].options.env.PRIME_AGENT_CODING_AGENT_DIR, f.agentHome);
-  assert.equal(f.calls[0].options.windowsHide, true);
   assert.equal(f.calls[0].options.shell, false);
+  assert.equal(f.calls[0].options.detached, true);
 });
 
 test('MCP resolves the validated runtime when probing, including after a later generation is prepared', async (t) => {

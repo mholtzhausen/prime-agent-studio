@@ -1,16 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
-import { tmpdir, homedir } from 'node:os';
-import { join, resolve } from 'node:path';
-import { execFile } from 'node:child_process';
-import { promisify } from 'node:util';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createAgentRuntime, normalizeEvent, discoverCli, agentEnvironment } from '../lib/agent.mjs';
+import { createAgentRuntime, normalizeEvent, discoverCli } from '../lib/agent.mjs';
 import { createModelAvailability } from '../lib/model-availability.mjs';
 
-const exec = promisify(execFile);
 const fixture = fileURLToPath(new URL('./fixtures/agent-cli.mjs', import.meta.url));
 async function setup(t) {
   const dir = await mkdtemp(join(tmpdir(), 'prime-gui-runtime-'));
@@ -293,97 +289,3 @@ test('closing runtime prevents pending or subsequent starts from creating agents
   await rejected;
   await assert.rejects(runtime.start({ cwd: dir, message: 'closed' }), /arrêt/);
 });
-
-test(
-  'Windows Node preload enforces hidden creation and propagation at native spawn boundary',
-  { skip: process.platform !== 'win32' },
-  async () => {
-    const source = `
-    const cp = require('node:child_process');
-    const binding = process.binding('process_wrap');
-    const original = binding.Process.prototype.spawn;
-    const observed = [];
-    binding.Process.prototype.spawn = function(...args) {
-      // Node 24 passes positional native arguments; Node 22 passes options.
-      const hidden = typeof args[0] === 'object' ? args[0].windowsHide : args[5] !== 0;
-      const env = typeof args[0] === 'object' ? args[0].envPairs : args[3];
-      observed.push({hidden,env:env.filter(p=>/^(NODE_OPTIONS|PYTHONPATH|PRIME_GUI_SILENT)=/.test(p))});
-      return original.apply(this,args);
-    };
-    const child=cp.spawn(process.execPath,['-e','process.exit(0)'],{windowsHide:false,env:{NODE_OPTIONS:'--no-warnings'},stdio:'ignore'});
-    child.on('close',()=>console.log(JSON.stringify(observed)));
-  `;
-    const { stdout } = await exec(process.execPath, ['-e', source], {
-      env: agentEnvironment(),
-      windowsHide: true,
-      timeout: 10000,
-    });
-    const observed = JSON.parse(stdout);
-    assert.equal(observed[0].hidden, true);
-    assert.ok(observed[0].env.some((value) => value.includes('windows-hidden.cjs')));
-    assert.ok(observed[0].env.includes('PRIME_GUI_SILENT=1'));
-  },
-);
-
-const localPython = resolve('.local/kernel-venv/Scripts/python.exe');
-const kernelPython = existsSync(localPython)
-  ? localPython
-  : join(homedir(), '.prime', 'agent', 'kernel-venv', 'Scripts', 'python.exe');
-test(
-  'Windows Python kernel subprocesses receive CREATE_NO_WINDOW and SW_HIDE',
-  { skip: process.platform !== 'win32' || !existsSync(kernelPython) },
-  async () => {
-    const source = `import json, subprocess, sys, _winapi\noriginal = _winapi.CreateProcess\nseen = []\ndef capture(*args):\n    seen.append({'flags': args[5], 'show': args[8].wShowWindow, 'startup': args[8].dwFlags})\n    return original(*args)\n_winapi.CreateProcess = capture\nsubprocess.run([sys.executable, '-c', 'pass'], check=True, creationflags=subprocess.CREATE_NEW_CONSOLE)\nprint(json.dumps(seen))`;
-    const { stdout, stderr } = await exec(kernelPython, ['-c', source], {
-      env: agentEnvironment(),
-      windowsHide: true,
-      timeout: 10000,
-    });
-    assert.equal(stderr, '');
-    const observed = JSON.parse(stdout)[0];
-    assert.ok(observed.flags & 0x08000000, 'CREATE_NO_WINDOW');
-    assert.equal(observed.flags & 0x00000010, 0, 'CREATE_NEW_CONSOLE cleared');
-    assert.equal(observed.show, 0, 'SW_HIDE');
-    assert.ok(observed.startup & 1, 'STARTF_USESHOWWINDOW');
-  },
-);
-
-test(
-  'Windows rlm.bash Job Object launch stays hidden at CreateProcessW boundary',
-  { skip: process.platform !== 'win32' || !existsSync(localPython) },
-  async () => {
-    const source = `
-import json, ctypes, sys, os
-import rlm._winjob as job
-native = job._kernel32()
-seen = []
-class Proxy:
-    def __getattr__(self, name):
-        return getattr(native, name)
-    def CreateProcessW(self, *args):
-        startup = ctypes.cast(args[8], ctypes.POINTER(job._STARTUPINFOEXW)).contents.StartupInfo
-        seen.append({'flags': args[5], 'startup': startup.dwFlags, 'show': startup.wShowWindow})
-        return native.CreateProcessW(*args)
-job._kernel32_cache = Proxy()
-handle = job.create_job()
-assert handle
-child = job.spawn_in_job(handle, [sys.executable, '-c', 'print("ready")'], cwd=os.getcwd(), env=dict(os.environ))
-assert child.resume()
-assert child.stdout.read().strip() == b'ready'
-assert child.wait() == 0
-child.close()
-job.close(handle)
-print(json.dumps(seen))
-`;
-    const { stdout, stderr } = await exec(localPython, ['-c', source], {
-      env: agentEnvironment(),
-      windowsHide: true,
-      timeout: 10000,
-    });
-    assert.equal(stderr, '');
-    const observed = JSON.parse(stdout)[0];
-    assert.ok(observed.flags & 0x08000000, 'CREATE_NO_WINDOW');
-    assert.equal(observed.show, 0, 'SW_HIDE');
-    assert.ok(observed.startup & 1, 'STARTF_USESHOWWINDOW');
-  },
-);

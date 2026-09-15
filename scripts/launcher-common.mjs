@@ -1,7 +1,7 @@
 import { request } from 'node:http';
 import { mkdir, readFile, writeFile, rename, unlink, open } from 'node:fs/promises';
 import { existsSync, realpathSync } from 'node:fs';
-import { dirname, join, resolve, toNamespacedPath } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const APP_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -132,8 +132,7 @@ export async function acquireLock(paths, { timeout = 22000 } = {}) {
 }
 
 export function isDirectInvocation(metaUrl) {
-  const canonical = (path) =>
-    process.platform === 'win32' ? toNamespacedPath(realpathSync(path)).toLowerCase() : realpathSync(path);
+  const canonical = (path) => realpathSync(path);
   try {
     return Boolean(process.argv[1]) && canonical(process.argv[1]) === canonical(fileURLToPath(metaUrl));
   } catch {

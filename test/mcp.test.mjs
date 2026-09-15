@@ -216,8 +216,8 @@ test(
       python,
       environment: { ...process.env, MCP_TEST_TOKEN: 'fixture-private-token' },
       spawnProcess(command, args, options) {
-        assert.equal(options.windowsHide, true);
         assert.equal(options.shell, false);
+        assert.equal(options.detached, true);
         const child = spawn(command, args, options);
         children.push(child);
         return child;

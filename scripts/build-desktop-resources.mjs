@@ -1,4 +1,4 @@
-import { cp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
+import { cp, mkdir, readFile, readdir, rm, writeFile, chmod } from 'node:fs/promises';
 import { join, resolve, dirname, relative } from 'node:path';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
@@ -40,7 +40,8 @@ execFileSync(process.execPath, [npmCli, 'ci', '--omit=dev', '--ignore-scripts', 
   windowsHide: true,
   stdio: 'inherit',
 });
-await cp(process.execPath, join(output, 'node.exe'));
+await cp(process.execPath, join(output, 'node'));
+await chmod(join(output, 'node'), 0o755);
 const nodeLicense = await fetch(`https://raw.githubusercontent.com/nodejs/node/${process.version}/LICENSE`);
 if (!nodeLicense.ok) throw new Error('Cannot fetch the license for the bundled Node version');
 await writeFile(join(output, 'NODE-LICENSE'), await nodeLicense.text());

@@ -2,7 +2,7 @@ import { lstatSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 export const THINKING_LEVELS = ['off', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max'];
-export const projectKey = (cwd) => (process.platform === 'win32' ? resolve(cwd).toLowerCase() : resolve(cwd));
+export const projectKey = (cwd) => resolve(cwd);
 export const inheritedPolicy = () => ({ model: '', thinking: '' });
 export function validPolicy(value) {
   return (

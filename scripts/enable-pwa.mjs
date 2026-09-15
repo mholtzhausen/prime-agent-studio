@@ -1,6 +1,5 @@
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import { existsSync } from 'node:fs';
 import { readFile, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { APP_ROOT, isDirectInvocation, writeJson } from './launcher-common.mjs';
@@ -9,12 +8,9 @@ import { validatePwaOrigin } from '../lib/pwa.mjs';
 
 const execFileAsync = promisify(execFile);
 async function tailscale(args) {
-  const installed = join(process.env.ProgramFiles || 'C:/Program Files', 'Tailscale', 'tailscale.exe');
-  const binary = process.platform === 'win32' && existsSync(installed) ? installed : 'tailscale';
   try {
     return (
-      await execFileAsync(binary, args, {
-        windowsHide: true,
+      await execFileAsync('tailscale', args, {
         shell: false,
         timeout: 20000,
         maxBuffer: 1024 * 1024,

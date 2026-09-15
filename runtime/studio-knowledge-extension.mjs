@@ -18,8 +18,15 @@ export default function studioKnowledge(pi) {
         cwd: ctx.cwd,
         // The reader needs only Node and an explicit configuration over stdin.
         // Inherited loaders would unnecessarily patch the reader's own process.
-        env: { SystemRoot: process.env.SystemRoot, WINDIR: process.env.WINDIR },
-        windowsHide: true,
+        env: Object.fromEntries(
+          Object.entries({
+            PATH: process.env.PATH,
+            HOME: process.env.HOME,
+            LANG: process.env.LANG,
+            LC_ALL: process.env.LC_ALL,
+            TMPDIR: process.env.TMPDIR,
+          }).filter(([, value]) => typeof value === 'string' && value),
+        ),
         shell: false,
         stdio: ['pipe', 'pipe', 'pipe'],
       });

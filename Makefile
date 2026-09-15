@@ -9,7 +9,7 @@ SHELL := /bin/bash
 NPM ?= npm
 NODE ?= node
 
-.PHONY: help init install setup-runtime dev start stop check test test-ui format docs-check docs-sync desktop-dev desktop-build clean version
+.PHONY: help init install setup-runtime dev start start-silent stop check test test-ui format docs-check docs-sync desktop-dev desktop-build clean version
 
 help: ## Show this help
 	@awk 'BEGIN {FS = ":.*?## "; printf "\nPrime Agent Studio — local GUI for Prime Agent\n\nUsage: make <target>\n\n"} \
@@ -32,6 +32,9 @@ dev: ## Start the local server in the foreground (logs in terminal)
 start: ## Alias for make dev
 	@$(MAKE) --no-print-directory dev
 
+start-silent: ## Start server in the background and open the browser
+	cd "$(ROOT)" && $(NPM) run start:silent
+
 stop: ## Stop the Studio server and active runs
 	cd "$(ROOT)" && $(NPM) run stop
 
@@ -41,7 +44,7 @@ check: ## Syntax, translations, and bilingual docs checks
 test: ## Unit / integration tests (node --test; no paid model calls)
 	cd "$(ROOT)" && $(NPM) test
 
-test-ui: ## Browser UI smoke (Playwright; Edge by default, or PRIME_STUDIO_TEST_BROWSER=chrome)
+test-ui: ## Browser UI smoke (Playwright; prefer Chrome/Chromium on Linux)
 	cd "$(ROOT)" && $(NPM) run test:ui
 
 format: ## Format sources with Prettier
@@ -54,10 +57,10 @@ docs-sync: ## Record doc review fingerprints (pass ID: make docs-sync ID=…)
 	@test -n "$(ID)" || { echo "Usage: make docs-sync ID=<doc-identifier>"; exit 1; }
 	cd "$(ROOT)" && $(NPM) run docs:sync -- $(ID)
 
-desktop-dev: ## Run the Tauri desktop shell (Windows-oriented; needs Rust toolchain)
+desktop-dev: ## Run the Linux Tauri desktop shell (needs Rust + WebKitGTK)
 	cd "$(ROOT)" && $(NPM) run desktop:dev
 
-desktop-build: ## Build the desktop installer / package
+desktop-build: ## Build Linux AppImage and deb packages
 	cd "$(ROOT)" && $(NPM) run desktop:build
 
 clean: ## Remove node_modules, desktop build dirs, and test-results

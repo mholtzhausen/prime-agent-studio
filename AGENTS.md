@@ -4,7 +4,7 @@ Guidance for LLM / coding agents working in this repository.
 
 ## Project summary
 
-**Prime Agent Studio** (v3.4.1) is a local French/English workspace UI around [Prime Agent](https://github.com/PrimeIntellect-ai/prime-agent). It serves a vanilla browser client from this repo, drives the installed Prime Agent CLI/supervisor, and optionally wraps that stack in a Windows Tauri app.
+**Prime Agent Studio** (v3.4.1) is a local French/English workspace UI around [Prime Agent](https://github.com/PrimeIntellect-ai/prime-agent). It serves a vanilla browser client from this repo, drives the installed Prime Agent CLI/supervisor, and optionally wraps that stack in a Linux Tauri app (AppImage/deb).
 
 Canonical product docs: [README.md](README.md) · internals: [docs/en/development.md](docs/en/development.md) · system map: [ARCHITECTURE.md](ARCHITECTURE.md).
 
@@ -33,13 +33,14 @@ Canonical product docs: [README.md](README.md) · internals: [docs/en/developmen
 make init            # npm ci
 make setup-runtime   # optional; needs Prime Agent + uv
 make dev             # node server.mjs → http://127.0.0.1:3088
+make start-silent    # background server + browser (scripts/start-studio.sh)
 make check           # syntax + translations + docs
 make test            # node --test under test/
 make format          # prettier
 make stop            # shut down server / runs
 ```
 
-Default listen: `127.0.0.1` port `PORT` or **3088**. Product UI and silent VBS launchers are Windows-first; the Node server and many unit tests run on Linux/macOS. Browser UI tests expect Edge (or `PRIME_STUDIO_TEST_BROWSER=chrome`). Several `test/*.test.mjs` cases need an installed Prime Agent CLI (expect HTTP 503 / skipped adapters without it).
+Default listen: `127.0.0.1` port `PORT` or **3088**. Product surfaces are Linux-only: Node web server + browser (`make dev`) and the Linux Tauri desktop shell. Background launchers are `scripts/start-studio.sh`, `scripts/stop-studio.sh`, and `make start-silent`. Browser UI tests expect Chrome/Chromium on Linux (override with `PRIME_STUDIO_TEST_BROWSER`). Several `test/*.test.mjs` cases need an installed Prime Agent CLI (expect HTTP 503 / skipped adapters without it).
 
 ## Important paths
 

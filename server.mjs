@@ -18,7 +18,7 @@ import { createModelDefaultsStore } from './lib/model-defaults.mjs';
 import { createSubagentDefaultsStore } from './lib/subagent-defaults.mjs';
 import { validPolicy } from './runtime/subagent-policy.mjs';
 import { openDirectory } from './lib/open-directory.mjs';
-import { createDirectoryPicker } from './lib/pick-directory.mjs';
+import { createDirectoryPicker, detectDirectoryPicker } from './lib/pick-directory.mjs';
 import { createMcpService } from './lib/mcp-service.mjs';
 import { createProviderService } from './lib/provider-service.mjs';
 import { createCommandService, parseCommand, validateCommand } from './lib/commands.mjs';
@@ -587,7 +587,7 @@ export function createApp(options = {}) {
             inspector: true,
             nativeFileOpen: true,
             providers: true,
-            directoryPicker: process.platform === 'win32',
+            directoryPicker: !!detectDirectoryPicker(),
           },
         });
       }

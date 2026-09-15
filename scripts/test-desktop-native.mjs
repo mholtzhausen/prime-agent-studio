@@ -104,7 +104,7 @@ try {
   const generation = join(dataRoot, 'versions', generations[0]);
   const studio = join(generation, 'studio');
   for (const script of ['test-desktop-runtime.mjs', 'test-commands-native.mjs']) {
-    const check = spawn(join(generation, 'node.exe'), [resolve('scripts', script), studio], {
+    const check = spawn(join(generation, 'node'), [resolve('scripts', script), studio], {
       windowsHide: true,
       stdio: 'inherit',
       env: { ...process.env, PRIME_STUDIO_TEST_RUNTIME_ROOT: studio },

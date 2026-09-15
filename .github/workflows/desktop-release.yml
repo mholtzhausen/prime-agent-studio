@@ -1,9 +1,9 @@
-name: Windows desktop release
+name: Linux desktop release
 on:
   workflow_dispatch:
     inputs:
       tag:
-        description: Existing stable tag to build (for example v2.8.0)
+        description: Existing stable tag to build (for example v3.4.1)
         required: true
         type: string
 permissions:
@@ -12,15 +12,9 @@ concurrency:
   group: desktop-release-${{ inputs.tag }}
   cancel-in-progress: false
 jobs:
-  windows:
-    runs-on: windows-latest
+  linux:
+    runs-on: ubuntu-latest
     steps:
-      - name: Use canonical temp directory
-        # runner context is unavailable in jobs.<id>.env; export via GITHUB_ENV here where it is allowed.
-        # Keeps the canonical workspace temp path rather than a DOS 8.3 user alias.
-        run: |
-          Add-Content $env:GITHUB_ENV "TEMP=${{ runner.temp }}"
-          Add-Content $env:GITHUB_ENV "TMP=${{ runner.temp }}"
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           ref: ${{ inputs.tag }}
@@ -34,9 +28,19 @@ jobs:
           RELEASE_TAG: ${{ inputs.tag }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
         run: |
-          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
-          if ($version -notmatch '^\d+\.\d+\.\d+$' -or $env:RELEASE_TAG -cne "v$version") { throw 'Tag and package version must match' }
-          if (!$env:TAURI_SIGNING_PRIVATE_KEY) { throw 'Missing TAURI_SIGNING_PRIVATE_KEY repository secret' }
+          version=$(node -p "require('./package.json').version")
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || [[ "$RELEASE_TAG" != "v$version" ]]; then
+            echo "Tag and package version must match" >&2
+            exit 1
+          fi
+          if [[ -z "$TAURI_SIGNING_PRIVATE_KEY" ]]; then
+            echo "Missing TAURI_SIGNING_PRIVATE_KEY repository secret" >&2
+            exit 1
+          fi
+      - name: Install Linux desktop build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
       - run: rustup default stable
       - run: npm ci
       - name: Prepare isolated compatible engine for integration tests
@@ -44,7 +48,7 @@ jobs:
       - run: node --test --test-concurrency=2 test/*.test.mjs
       - run: npm run check
       - run: cargo test --manifest-path src-tauri/Cargo.toml --locked
-      - name: Build signed Windows installer
+      - name: Build signed Linux packages
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
@@ -56,16 +60,16 @@ jobs:
           GH_REPO: ${{ github.repository }}
           RELEASE_TAG: ${{ inputs.tag }}
         run: |
-          $release = gh release view $env:RELEASE_TAG --json isDraft 2>$null
-          if ($LASTEXITCODE -eq 0) {
-            if (!(($release | ConvertFrom-Json).isDraft)) { throw 'Refusing to replace assets on a published release' }
-          } else {
-            gh release create $env:RELEASE_TAG --verify-tag --draft --title "Prime Agent Studio $env:RELEASE_TAG" --generate-notes
-            if ($LASTEXITCODE -ne 0) { throw 'Could not create the draft release' }
-          }
-          gh release view $env:RELEASE_TAG --json body --jq .body | Set-Content .local/release-notes.md -Encoding utf8
+          set -euo pipefail
+          if gh release view "$RELEASE_TAG" --json isDraft >/tmp/release.json 2>/dev/null; then
+            if [[ "$(jq -r .isDraft /tmp/release.json)" != "true" ]]; then
+              echo "Refusing to replace assets on a published release" >&2
+              exit 1
+            fi
+          else
+            gh release create "$RELEASE_TAG" --verify-tag --draft --title "Prime Agent Studio $RELEASE_TAG" --generate-notes
+          fi
+          gh release view "$RELEASE_TAG" --json body --jq .body > .local/release-notes.md
           npm run desktop:manifest -- .local/release-notes.md
-          if ($LASTEXITCODE -ne 0) { throw 'Could not prepare update metadata' }
-          $artifacts = Get-ChildItem -LiteralPath ".local/desktop-release/$env:RELEASE_TAG" -File | ForEach-Object FullName
-          gh release upload $env:RELEASE_TAG @artifacts --clobber
-          if ($LASTEXITCODE -ne 0) { throw 'Could not upload release artifacts' }
+          mapfile -t artifacts < <(find ".local/desktop-release/$RELEASE_TAG" -type f)
+          gh release upload "$RELEASE_TAG" "${artifacts[@]}" --clobber

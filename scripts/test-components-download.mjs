@@ -30,7 +30,7 @@ if (process.argv[2] !== '--worker') {
   };
   await mkdir(env.TEMP);
   console.log(`Isolated test data retained at ${root}`);
-  const child = spawn(join(resources, 'node.exe'), [fileURLToPath(import.meta.url), '--worker', root], {
+  const child = spawn(join(resources, 'node'), [fileURLToPath(import.meta.url), '--worker', root], {
     // The native launcher runs from backend/, which has no package.json.
     // Running this test from the repository used to hide npm's implicit cwd input.
     cwd: resources,

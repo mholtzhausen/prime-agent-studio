@@ -14,7 +14,7 @@ import { captureEnglishDocumentation } from './documentation-capture.mjs';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const output = join(root, 'docs', 'screenshots');
 const temp = await mkdtemp(join(tmpdir(), 'prime-readme-'));
-const cwd = process.platform === 'win32' ? 'C:\\Projets\\Atelier' : '/projects/Atelier';
+const cwd = '/projects/Atelier';
 const timestamp = Date.now() - 20 * 60000;
 const model = 'openai-codex/gpt-5.6-luna';
 let serial = 0;
@@ -203,7 +203,7 @@ let browser;
 const errors = [],
   captures = [];
 try {
-  browser = await chromium.launch({ channel: process.env.PRIME_STUDIO_BROWSER || 'msedge', headless: true });
+  browser = await chromium.launch({ channel: process.env.PRIME_STUDIO_BROWSER || 'chromium', headless: true });
   const context = await browser.newContext({
     viewport: { width: 1600, height: 1000 },
     deviceScaleFactor: 1,

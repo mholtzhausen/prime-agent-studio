@@ -1,4 +1,4 @@
-import { cp, mkdir, readFile, rename, rm, lstat, writeFile } from 'node:fs/promises';
+import { cp, mkdir, readFile, rename, rm, lstat, writeFile, chmod } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { dirname, join, resolve, sep } from 'node:path';
 import { homedir } from 'node:os';
@@ -79,7 +79,8 @@ export async function startDesktop(
       try {
         await mkdir(staging);
         await cp(join(resourceDir, 'studio'), join(staging, 'studio'), { recursive: true });
-        await cp(join(resourceDir, 'node.exe'), join(staging, 'node.exe'));
+        await cp(join(resourceDir, 'node'), join(staging, 'node'));
+        await chmod(join(staging, 'node'), 0o755);
         await writeFile(join(staging, 'ready.json'), JSON.stringify(manifest));
         await rename(staging, generation);
       } finally {
@@ -94,11 +95,11 @@ export async function startDesktop(
       PRIME_AGENT_GUI_DATA_DIR: dataDir,
       PRIME_AGENT_GUI_KERNEL_ROOT: dataRoot,
       PRIME_AGENT_GUI_INITIAL_CWD: homedir(),
-      PATH: `${generation}${process.platform === 'win32' ? ';' : ':'}${env.PATH || ''}`,
+      PATH: `${generation}:${env.PATH || ''}`,
     };
     return await (deps.start || startServer)({
       root: join(generation, 'studio'),
-      node: join(generation, 'node.exe'),
+      node: join(generation, 'node'),
       port,
       env: childEnv,
     });

@@ -28,7 +28,7 @@ export const messages = {
     en: 'New conversations on this PC. Each conversation keeps its own choice.',
   },
   'notifications.title': { fr: 'Notifications', en: 'Notifications' },
-  'notifications.scope': { fr: 'Application Windows · Ce PC', en: 'Windows application · This PC' },
+  'notifications.scope': { fr: 'Application de bureau · Ce PC', en: 'Desktop application · This PC' },
   'notifications.questions': { fr: 'Question de l’agent', en: 'Agent question' },
   'notifications.questionsNote': {
     fr: 'Quand une question attend votre réponse.',
@@ -44,12 +44,12 @@ export const messages = {
     en: 'No notifications while Studio is in the foreground.',
   },
   'notifications.windowsNote': {
-    fr: 'Les réglages de notification et le mode Ne pas déranger de Windows s’appliquent également.',
-    en: 'Windows notification settings and Do not disturb also apply.',
+    fr: 'Les réglages de notification et le mode Ne pas déranger du système s’appliquent également.',
+    en: 'System notification settings and Do not disturb also apply.',
   },
   'notifications.desktopOnly': {
-    fr: 'Ouvrez cette page dans l’application Windows à jour pour régler ses notifications.',
-    en: 'Open this page in the updated Windows application to manage its notifications.',
+    fr: 'Ouvrez cette page dans l’application de bureau à jour pour régler ses notifications.',
+    en: 'Open this page in the updated desktop application to manage its notifications.',
   },
   'push.title': { fr: 'Notifications mobiles', en: 'Mobile notifications' },
   'push.scope': { fr: 'PWA · Cet appareil', en: 'PWA · This device' },
@@ -296,10 +296,10 @@ export const messages = {
     en: 'No sources of this type for this project yet.',
   },
   'updates.title': { fr: 'Mise à jour', en: 'Updates' },
-  'updates.scope': { fr: 'Application Windows · Ce PC', en: 'Windows application · This PC' },
+  'updates.scope': { fr: 'Application de bureau · Ce PC', en: 'Desktop application · This PC' },
   'updates.browser': {
-    fr: 'Ouvrez le Studio dans l’application Windows pour installer une mise à jour ou redémarrer son serveur.',
-    en: 'Open Studio in the Windows application to install an update or restart its server.',
+    fr: 'Ouvrez le Studio dans l’application de bureau pour installer une mise à jour ou redémarrer son serveur.',
+    en: 'Open Studio in the desktop application to install an update or restart its server.',
   },
   'updates.app_version': { fr: 'Application installée', en: 'Installed application' },
   'updates.server_version': { fr: 'Serveur en cours', en: 'Running server' },
@@ -606,8 +606,8 @@ export const messages = {
   },
   'settings.components': { fr: 'Composants du Studio', en: 'Studio components' },
   'settings.components_note': {
-    fr: 'Vérifier ou préparer Prime Agent, uv et Python dans les réglages de l’application Windows.',
-    en: 'Check or prepare Prime Agent, uv and Python in the Windows application settings.',
+    fr: 'Vérifier ou préparer Prime Agent, uv et Python dans les réglages de l’application de bureau.',
+    en: 'Check or prepare Prime Agent, uv and Python in the desktop application settings.',
   },
   'settings.components_open': { fr: 'Configurer', en: 'Set up' },
   'settings.scope_agent': {
@@ -794,9 +794,13 @@ export const messages = {
     fr: 'Projet sélectionné',
     en: 'Selected project',
   },
-  'folders.windows_only': {
-    fr: 'Le sélecteur de dossier est disponible sur le PC Windows.',
-    en: 'The folder picker is available on the Windows PC.',
+  'folders.linux_only': {
+    fr: 'Le sélecteur de dossier est disponible sur le PC Linux.',
+    en: 'The folder picker is available on the Linux PC.',
+  },
+  'folders.linux_picker_missing': {
+    fr: 'Installez zenity ou kdialog pour choisir un dossier, ou saisissez son chemin.',
+    en: 'Install zenity or kdialog to choose a folder, or enter its path.',
   },
   'folders.already_open': {
     fr: 'Un sélecteur est déjà ouvert sur le PC. Terminez la sélection ou annulez-la.',
@@ -2763,8 +2767,8 @@ export const messages = {
     en: 'Open this page in Safari, then use Share → Add to Home Screen. Enable “Open as Web App” if offered.',
   },
   'ui.dans_le_menu_de_votre_navigateur_choisissez_installer_l_applicati': {
-    fr: 'Dans le menu de votre navigateur, choisissez « Installer l’application » ou « Ajouter à l’écran d’accueil ». Si cette option manque, utilisez Chrome ou Edge et rechargez la page.',
-    en: 'In your browser menu, choose “Install app” or “Add to Home screen”. If this option is missing, use Chrome or Edge and reload the page.',
+    fr: 'Dans le menu de votre navigateur, choisissez « Installer l’application » ou « Ajouter à l’écran d’accueil ». Si cette option manque, utilisez Chrome ou Chromium et rechargez la page.',
+    en: 'In your browser menu, choose “Install app” or “Add to Home screen”. If this option is missing, use Chrome or Chromium and reload the page.',
   },
   'ui.le_pc_doit_rester_allume_fermer_l_application_laisse_les_agents_t': {
     fr: 'Le PC doit rester allumé. Fermer l’application laisse les agents travailler.',

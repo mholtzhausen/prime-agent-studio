@@ -7,7 +7,7 @@ const fixture = await preferencesFixture();
 let browser;
 try {
   browser = await chromium.launch({
-    channel: process.env.PRIME_STUDIO_TEST_BROWSER || 'msedge',
+    channel: process.env.PRIME_STUDIO_TEST_BROWSER || 'chromium',
     headless: true,
   });
   const context = await browser.newContext({ locale: 'fr-FR', viewport: { width: 1440, height: 1000 } });

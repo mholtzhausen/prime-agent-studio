@@ -39,7 +39,7 @@ export async function restartDesktop(options, deps = {}) {
   if (!manifest.version || !/^[a-f0-9]{64}$/.test(manifest.identity))
     throw new Error('server_version_mismatch');
   await Promise.all(
-    ['node.exe', 'studio/server.mjs', 'studio/scripts/desktop-start.mjs'].map((path) =>
+    ['node', 'studio/server.mjs', 'studio/scripts/desktop-start.mjs'].map((path) =>
       access(join(options.resourceDir, path)),
     ),
   );

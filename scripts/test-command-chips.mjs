@@ -84,7 +84,7 @@ const app = createApp({
 await new Promise((done) => app.server.listen(0, '127.0.0.1', done));
 let browser;
 try {
-  browser = await chromium.launch({ channel: 'msedge', headless: true });
+  browser = await chromium.launch({ channel: process.env.PRIME_STUDIO_TEST_BROWSER || 'chromium', headless: true });
   for (const mobile of [false, true]) {
     const context = await browser.newContext({
       locale: 'fr-FR',

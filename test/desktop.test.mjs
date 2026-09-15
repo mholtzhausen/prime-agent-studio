@@ -2,10 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, writeFile, readFile, rm, readdir, symlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join, dirname, resolve, toNamespacedPath } from 'node:path';
-import { pathToFileURL } from 'node:url';
-import { execFile } from 'node:child_process';
-import { promisify } from 'node:util';
+import { join, dirname, resolve } from 'node:path';
 import { startDesktop, importLegacyData } from '../scripts/desktop-start.mjs';
 import { pathsFor } from '../scripts/launcher-common.mjs';
 
@@ -20,7 +17,7 @@ async function fixture(t) {
     legacyRoot = join(root, 'ancien Studio é');
   await mkdir(join(resources, 'studio'), { recursive: true });
   await writeFile(join(resources, 'studio', 'server.mjs'), '// fake server');
-  await writeFile(join(resources, 'node.exe'), 'fake node');
+  await writeFile(join(resources, 'node'), 'fake node');
   await writeFile(join(resources, 'desktop-resource.json'), JSON.stringify({ identity: 'a'.repeat(64) }));
   await mkdir(join(legacyRoot, '.local'), { recursive: true });
   await writeFile(join(legacyRoot, 'server.mjs'), '// old');
@@ -29,28 +26,12 @@ async function fixture(t) {
   await writeFile(join(legacyRoot, '.local', 'server.json'), 'old ownership');
   return { root, resourceDir: resources, dataRoot, legacyRoot };
 }
-test('Tauri receives the high-resolution ICO frame first and Windows retains small sizes', async () => {
+test('Tauri icon pack still includes the small tray sizes used by the Linux shell', async () => {
   const ico = await readFile(new URL('../src-tauri/icons/icon.ico', import.meta.url));
   assert.equal(ico[6] || 256, 256);
   const sizes = Array.from({ length: ico.readUInt16LE(4) }, (_, i) => ico[6 + i * 16] || 256);
   for (const size of [16, 24, 32, 48, 64, 256]) assert.ok(sizes.includes(size));
 });
-test(
-  'Windows extended paths from native launchers still execute the entrypoint',
-  { skip: process.platform !== 'win32' },
-  async (t) => {
-    const f = await fixture(t),
-      script = join(f.root, 'entry.mjs');
-    await writeFile(
-      script,
-      `import { isDirectInvocation } from ${JSON.stringify(pathToFileURL(resolve('scripts/launcher-common.mjs')).href)}; process.stdout.write(String(isDirectInvocation(import.meta.url)));`,
-    );
-    const result = await promisify(execFile)(process.execPath, [toNamespacedPath(script)], {
-      windowsHide: true,
-    });
-    assert.equal(result.stdout, 'true');
-  },
-);
 test('desktop reuses a running server without importing data or invoking a launcher', async (t) => {
   const f = await fixture(t);
   const result = await startDesktop(f, {
@@ -84,7 +65,7 @@ test('desktop cold start preserves migration data and separates persistent data,
   assert.equal(options.env.PRIME_AGENT_GUI_DATA_DIR, join(f.dataRoot, 'data'));
   assert.equal(options.env.PRIME_AGENT_GUI_KERNEL_ROOT, f.dataRoot);
   assert.match(options.root, /versions/);
-  assert.match(options.node, /node.exe$/);
+  assert.match(options.node, /(?:^|\/)node$/);
   assert.equal(
     await readFile(join(f.dataRoot, 'data', 'lan-access.json'), 'utf8'),
     '{"codeHash":"same-hash"}',

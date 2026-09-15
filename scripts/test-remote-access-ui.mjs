@@ -48,7 +48,7 @@ await app.remoteAccess.registerGateway(gateway);
 await new Promise((done) => gateway.listen(0, '127.0.0.1', done));
 const remote = `http://127.0.0.1:${gateway.address().port}`;
 const browser = await chromium.launch({
-  channel: process.env.PRIME_STUDIO_TEST_BROWSER || 'msedge',
+  channel: process.env.PRIME_STUDIO_TEST_BROWSER || 'chromium',
   headless: true,
 });
 const pc = await browser.newPage({ locale: 'fr-FR', viewport: { width: 1440, height: 1000 } });

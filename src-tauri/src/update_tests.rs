@@ -35,10 +35,9 @@ fn desktop_links_do_not_expand_the_privileged_or_studio_origins() {
         assert!(!super::is_launcher_url(&url));
     }
     for raw in [
-        "file:///C:/Windows/notepad.exe",
+        "file:///etc/passwd",
         "javascript:alert(1)",
         "data:text/html,test",
-        "ms-settings:privacy",
         "tauri://localhost/index.html",
     ] {
         assert!(!super::is_external_link(&raw.parse().unwrap()));
@@ -78,7 +77,7 @@ impl Feed {
             b"{}".to_vec()
         } else {
             serde_json::to_vec(&serde_json::json!({
-                "version":version, "platforms":{"windows-x86_64":{
+                "version":version, "platforms":{"linux-x86_64":{
                     "url":format!("{url}/payload"),
                     "signature":include_str!("../../test/fixtures/updater/payload.txt.sig").trim()
                 }}

@@ -21,7 +21,7 @@ async function fixture(t) {
   await mkdir(join(options.dataRoot, 'data'), { recursive: true });
   await mkdir(join(options.resourceDir, 'studio', 'scripts'), { recursive: true });
   await Promise.all(
-    ['node.exe', 'studio/server.mjs', 'studio/scripts/desktop-start.mjs'].map((path) =>
+    ['node', 'studio/server.mjs', 'studio/scripts/desktop-start.mjs'].map((path) =>
       writeFile(join(options.resourceDir, path), 'fixture'),
     ),
   );
@@ -103,7 +103,7 @@ test('real detached restart preserves workspace data and changes resource genera
   };
   const workspace = '{"projects":[{"cwd":"C:/fixture"}],"readReceipts":{"session":"answer"}}';
   await writeFile(join(dataDir, 'workspace.json'), workspace);
-  await copyFile(process.execPath, join(f.options.resourceDir, 'node.exe'));
+  await copyFile(process.execPath, join(f.options.resourceDir, 'node'));
   const prepare = async (version, identity) => {
     await writeFile(
       join(f.options.resourceDir, 'desktop-resource.json'),

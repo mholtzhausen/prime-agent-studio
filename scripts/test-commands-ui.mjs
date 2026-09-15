@@ -72,7 +72,7 @@ await new Promise((done) => gateway.listen(0, '127.0.0.1', done));
 let browser;
 try {
   browser = await chromium.launch({
-    channel: process.env.PRIME_STUDIO_TEST_BROWSER || 'msedge',
+    channel: process.env.PRIME_STUDIO_TEST_BROWSER || 'chromium',
     headless: true,
   });
   for (const mobile of [false, true]) {
