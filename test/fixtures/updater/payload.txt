@@ -1,1 +1,1 @@
-Prime Agent Studio updater verification fixture.
+Prime Agent Studio Nix updater verification fixture.

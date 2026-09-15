@@ -119,7 +119,7 @@ fn show_settings(app: &tauri::AppHandle) -> Result<(), String> {
         WebviewUrl::App("index.html?settings".into()),
     )
     .data_directory(data_directory)
-    .title("Prime Agent Studio · Application")
+    .title("Prime Agent Studio Nix · Application")
     .inner_size(660.0, 760.0)
     .min_inner_size(560.0, 600.0)
     .on_new_window(move |url, _| {
@@ -202,7 +202,7 @@ async fn desktop_choose_legacy(
     native_only(&window)?;
     let chosen = tauri::async_runtime::spawn_blocking(|| {
         rfd::FileDialog::new()
-            .set_title("Installation existante de Prime Agent Studio")
+            .set_title("Installation existante de Prime Agent Studio Nix")
             .pick_folder()
     })
     .await
@@ -501,7 +501,7 @@ fn main() {
                     .into(),
                 ),
             )
-            .title("Prime Agent Studio")
+            .title("Prime Agent Studio Nix")
             .inner_size(1280.0, 860.0)
             .min_inner_size(860.0, 620.0)
             .visible(!background)
@@ -564,7 +564,7 @@ fn main() {
             let menu = Menu::with_items(app, &[&open, &settings, &separator, &quit])?;
             TrayIconBuilder::new()
                 .icon(app.default_window_icon().unwrap().clone())
-                .tooltip("Prime Agent Studio")
+                .tooltip("Prime Agent Studio Nix")
                 .menu(&menu)
                 .show_menu_on_left_click(false)
                 .on_menu_event(move |app, event| match event.id.as_ref() {
@@ -604,5 +604,5 @@ fn main() {
             }
         })
         .run(tauri::generate_context!())
-        .expect("Prime Agent Studio desktop failed");
+        .expect("Prime Agent Studio Nix desktop failed");
 }

@@ -1206,7 +1206,7 @@ if (isDirectInvocation(import.meta.url)) {
   // B2: replay-or-rollback pending .pastudio imports before accepting traffic.
   await app.projectArchives.recoverPending().catch(() => {});
   app.server.listen(port, '127.0.0.1', () => {
-    console.log(`Prime Agent Studio ${VERSION} — http://127.0.0.1:${port}`);
+    console.log(`Prime Agent Studio Nix ${VERSION} — http://127.0.0.1:${port}`);
     void startNetwork();
   });
   for (const signal of ['SIGINT', 'SIGTERM'])

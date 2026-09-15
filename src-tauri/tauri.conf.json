@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Prime Agent Studio",
+  "productName": "Prime Agent Studio Nix",
   "version": "../package.json",
-  "identifier": "com.primeagent.studio",
+  "identifier": "com.primeagent.studio.nix",
   "build": {
     "frontendDist": "../desktop",
     "beforeBuildCommand": "node scripts/build-desktop-resources.mjs",
@@ -16,7 +16,10 @@
       "capabilities": [
         {
           "identifier": "launcher",
-          "windows": ["main", "desktop-settings"],
+          "windows": [
+            "main",
+            "desktop-settings"
+          ],
           "permissions": [
             "core:default",
             "allow-desktop-state",
@@ -38,8 +41,15 @@
   },
   "bundle": {
     "active": true,
-    "targets": ["appimage", "deb"],
-    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png"],
+    "targets": [
+      "appimage",
+      "deb"
+    ],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png"
+    ],
     "resources": {
       "../.desktop-build/": "backend/"
     },
@@ -55,8 +65,10 @@
   },
   "plugins": {
     "updater": {
-      "endpoints": ["https://github.com/zerr0o/prime-agent-studio/releases/latest/download/latest.json"],
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDFGNjdBNjFBMTM5MTlBRjMKUldUem1wRVRHcVpuSCs3NG5TeVNCYUpXVE9ldndiendudUtpbkEreGtRcGNkUDRxVXhlbmFsc0oK"
+      "endpoints": [
+        "https://github.com/mholtzhausen/prime-agent-studio/releases/latest/download/latest.json"
+      ],
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDZCN0ZEQUJBNTI2ODQ4RUYKUldUdlNHaFN1dHAvYStBekJoN2RsUW1qWVBtNHljVVgvS000ckkwd2ZMU3JUQUJKdWJrV21lYysK\n"
     }
   }
 }

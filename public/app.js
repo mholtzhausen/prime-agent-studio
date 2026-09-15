@@ -1157,7 +1157,7 @@ function renderDetails() {
   );
   bindAttribute($('header-session'), 'title', () => $('header-session').textContent);
   bindAttribute(document, 'title', () =>
-    s?.title ? `${s.title} · Prime Agent Studio` : 'Prime Agent Studio',
+    s?.title ? `${s.title} · Prime Agent Studio Nix` : 'Prime Agent Studio Nix',
   );
   bindText(
     $('detail-project-name'),

@@ -2,7 +2,17 @@
 
 [English](en/changelog.md) · **Français** · [← Retour au README](../README.fr.md)
 
-Les changements par version. Retrouvez les installateurs et les archives du code source dans les [releases GitHub](https://github.com/zerr0o/prime-agent-studio/releases).
+Les changements par version. Retrouvez les installateurs et les archives du code source dans les [releases GitHub](https://github.com/mholtzhausen/prime-agent-studio/releases).
+
+## 4.0.0
+
+- **Identité bureau Linux Nix** : produit **Prime Agent Studio Nix**, paquet `prime-agent-studio-nix`, identifiant `com.primeagent.studio.nix`, données sous `~/.local/share/com.primeagent.studio.nix`. Les artefacts AppImage/deb utilisent les noms `Prime-Agent-Studio-Nix_*`. Le packaging Windows n’est pas dans le périmètre de cette ligne.
+- **Confiance updater indépendante** : nouvelle clé minisign (`~/.tauri/prime-agent-studio-nix.key`), clé publique embarquée et catalogue hébergé sur [mholtzhausen/prime-agent-studio](https://github.com/mholtzhausen/prime-agent-studio/releases). Les builds signés avec l’ancienne clé amont ne peuvent pas mettre à jour vers cette ligne.
+- **Amorçage de release** : `make desktop-release-bootstrap` / `desktop-release-check` synchronisent la clé dans `tauri.conf.json` et peuvent envoyer les secrets GitHub Actions ; les coordonnées partagées sont dans `lib/desktop-release.mjs`.
+- **Densité d’apparence** : préférence client comfortable / compact / dense.
+- **Fournisseurs d’extensions (opt-in)** : le panneau Fournisseurs peut inclure les modèles de `~/.prime/agent/extensions` dans le catalogue ; désactivé par défaut car les extensions exécutent du code arbitraire.
+- **Port Linux et outillage** : coque Tauri et serveur web Linux uniquement, cibles Makefile et documentation vivante pour la fourche Nix.
+- **Après installation** : redémarrez le serveur depuis les préférences une fois les agents terminés. Migrez depuis une ancienne installation via l’assistant bureau si besoin — les réglages ne sont pas copiés automatiquement depuis `com.primeagent.studio`.
 
 ## 3.4.1
 

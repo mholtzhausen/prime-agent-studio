@@ -70,7 +70,7 @@ if (isDirectInvocation(import.meta.url)) {
   try {
     const result = await stopServer();
     process.stdout.write(
-      result.stopped ? 'Prime Agent Studio est arrêté.\n' : 'Aucun serveur géré par ce lanceur à arrêter.\n',
+      result.stopped ? 'Prime Agent Studio Nix est arrêté.\n' : 'Aucun serveur géré par ce lanceur à arrêter.\n',
     );
   } catch (error) {
     await recordMessage(pathsFor(), error.stack || String(error)).catch(() => {});

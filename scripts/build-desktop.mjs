@@ -7,7 +7,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2);
 const env = { ...process.env };
 env.TAURI_SIGNING_PRIVATE_KEY_PASSWORD ??= '';
-const localKey = join(homedir(), '.tauri', 'prime-agent-studio.key');
+const localKey = join(homedir(), '.tauri', 'prime-agent-studio-nix.key');
 if (!env.TAURI_SIGNING_PRIVATE_KEY && existsSync(localKey)) env.TAURI_SIGNING_PRIVATE_KEY = localKey;
 if (!args.includes('--no-bundle') && !env.TAURI_SIGNING_PRIVATE_KEY)
   throw new Error('Signing key required: set TAURI_SIGNING_PRIVATE_KEY. See docs/desktop.md.');

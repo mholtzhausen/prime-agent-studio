@@ -2,11 +2,11 @@
 
 [English](en/desktop.md) · **Français** · [← Retour au README](../README.fr.md)
 
-L’application **Prime Agent Studio**, construite avec Tauri 2, ouvre le Studio dans une fenêtre Linux dédiée (WebKitGTK). Son lanceur démarre le serveur en arrière-plan ou réutilise l’instance déjà ouverte. Depuis les sources, vous pouvez utiliser `scripts/start-studio.sh` / `make start-silent`.
+L’application **Prime Agent Studio Nix**, construite avec Tauri 2, ouvre le Studio dans une fenêtre Linux dédiée (WebKitGTK). Son lanceur démarre le serveur en arrière-plan ou réutilise l’instance déjà ouverte. Depuis les sources, vous pouvez utiliser `scripts/start-studio.sh` / `make start-silent`.
 
 ## Installation et premier lancement
 
-Téléchargez l’[AppImage](https://github.com/zerr0o/prime-agent-studio/releases/latest) ou le [deb](https://github.com/zerr0o/prime-agent-studio/releases/latest) amd64 depuis la dernière release. L’AppImage est portable ; le deb installe l’intégration bureau. Node.js est inclus. Les paquets s’appuient sur WebKitGTK du système — aucun runtime de navigateur séparé n’est à installer.
+Téléchargez l’[AppImage](https://github.com/mholtzhausen/prime-agent-studio/releases/latest) ou le [deb](https://github.com/mholtzhausen/prime-agent-studio/releases/latest) amd64 depuis la dernière release. L’AppImage est portable ; le deb installe l’intégration bureau. Node.js est inclus. Les paquets s’appuient sur WebKitGTK du système — aucun runtime de navigateur séparé n’est à installer.
 
 Les builds avec préparation guidée téléchargent **Prime Agent, npm privé, uv et Python** à la demande. Ces composants ne sont pas inclus dans le paquet. Aucune installation antérieure de Node, npm ou Python, modification du PATH ou commande de terminal n’est nécessaire. Une connexion réseau initiale est requise. **Un `bash` fonctionnel reste un prérequis distinct** pour les commandes shell du moteur ; son absence est signalée.
 
@@ -20,7 +20,7 @@ Les préférences d’apparence et les brouillons du navigateur ne sont pas copi
 
 **Préférences → Système → Composants du Studio → Configurer**, ou **Réglages de l’application** depuis l’icône de notification, ouvre le même diagnostic. La sélection d’une installation existante accepte la racine du paquet Prime Agent, `uv` ou `python`. `PRIME_AGENT_CLI`, `PRIME_GUI_UV` et `PRIME_AGENT_KERNEL_PYTHON` ont priorité, suivis des sélections enregistrées, de l’installation gérée, puis des emplacements externes habituels. Un chemin explicite invalide doit être corrigé ; il n’est jamais remplacé en silence. Un Python externe valide n’est que validé, sans y installer quoi que ce soit ni exiger uv.
 
-La politique versionnée dans `lib/desktop-components.mjs` associe Studio 3.4.1 à **Prime Agent 0.9.4**, **npm 10.9.4** et **uv 0.8.22**, avec Python 3.11. Le packaging cible Linux x86_64 avec Node 22 ≥ 22.16 ou Node 24 ; le moteur exige ≥ 22.8. Une prochaine version de Studio peut demander un autre moteur précis : le bouton installe alors cette version après accord explicite. Aucun suivi périodique, sélection aveugle de « stable », ni mise à jour des installations externes.
+La politique versionnée dans `lib/desktop-components.mjs` associe Studio 4.0.0 à **Prime Agent 0.9.4**, **npm 10.9.4** et **uv 0.8.22**, avec Python 3.11. Le packaging cible Linux x86_64 avec Node 22 ≥ 22.16 ou Node 24 ; le moteur exige ≥ 22.8. Une prochaine version de Studio peut demander un autre moteur précis : le bouton installe alors cette version après accord explicite. Aucun suivi périodique, sélection aveugle de « stable », ni mise à jour des installations externes.
 
 La préparation lit le contrat d’origine dans [l’installateur officiel](https://app.primeintellect.ai/prime-agent/install.sh), sans exécuter ce script. L’archive du moteur et les trois paquets Prime associés sont contrôlés contre l’inventaire `releases/v<version>/SHA256SUMS`. npm provient du [registre officiel versionné](https://registry.npmjs.org/npm/10.9.4), vérifié par son intégrité SHA-512 avant extraction ; il est exécuté avec le Node Studio par `npm-cli.js`. L’archive [uv Linux x86_64](https://github.com/astral-sh/uv/releases/tag/0.8.22) est vérifiée contre son fichier `.sha256`. Ces références HTTPS de même origine assurent l’intégrité du transfert, pas une signature indépendante. Les hôtes autorisés sont fixes et toute rotation d’origine échoue de façon fermée. Un moteur externe détecté automatiquement n’est pas exécuté : choisissez-le explicitement pour lui accorder votre confiance.
 
@@ -46,7 +46,7 @@ Une entrée de bureau ou une commande de lancement peut utiliser l’argument `-
 
 ## Données et mises à jour
 
-Les données de bureau utilisent le dossier de données d’application XDG / Tauri, en pratique `~/.local/share/com.primeagent.studio` :
+Les données de bureau utilisent le dossier de données d’application XDG / Tauri, en pratique `~/.local/share/com.primeagent.studio.nix` :
 
 | Emplacement    | Contenu                                                                  |
 | -------------- | ------------------------------------------------------------------------ |
@@ -95,12 +95,22 @@ Pour les tests isolés, `PRIME_STUDIO_DESKTOP_DATA_ROOT` et `PRIME_STUDIO_DESKTO
 
 `npm run test:desktop-updates` et `npm run test:settings-updates` vérifient les deux panneaux en français et en anglais. `npm run test:desktop-lifecycle` valide un vrai redémarrage Tauri avec un serveur occupé, confirmation, données préservées et activation de la version installée. `cargo test --manifest-path src-tauri/Cargo.toml --locked` teste le client de mise à jour réel contre un serveur local : signature valide, fichier altéré, versions égales/plus anciennes et catalogue invalide. Les tests n’exécutent jamais un installateur.
 
-Pour les tests natifs en parallèle de votre application, compilez une identité de test distincte : `TAURI_CONFIG='{"identifier":"com.primeagent.studio.interaction-test"}' cargo build --manifest-path src-tauri/Cargo.toml --locked`. Retirez ensuite la variable avant une compilation de distribution. `npm run test:desktop-interactions` teste les liens web et OAuth synthétiques, les pièces jointes, le presse-papiers, l’export et les permissions dans le webview WebKitGTK. Il ouvre des onglets de test dans le navigateur habituel, sans connexion à un compte.
+Pour les tests natifs en parallèle de votre application, compilez une identité de test distincte : `TAURI_CONFIG='{"identifier":"com.primeagent.studio.nix.interaction-test"}' cargo build --manifest-path src-tauri/Cargo.toml --locked`. Retirez ensuite la variable avant une compilation de distribution. `npm run test:desktop-interactions` teste les liens web et OAuth synthétiques, les pièces jointes, le presse-papiers, l’export et les permissions dans le webview WebKitGTK. Il ouvre des onglets de test dans le navigateur habituel, sans connexion à un compte.
 
 ## Préparer une release de mise à jour
 
-La clé privée de signature reste hors du dépôt, par exemple dans `~/.tauri/prime-agent-studio.key` sur la machine de release. Sauvegardez-la de façon sûre : les applications installées font confiance à la clé publique embarquée, et une clé de remplacement incompatible empêcherait les mises à jour. `desktop:build` utilise cette clé locale ou `TAURI_SIGNING_PRIVATE_KEY` (chemin ou contenu) et `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`. Sans clé, `npm run desktop:build -- --no-bundle` ne construit que l’exécutable.
+Amorcez une fois la machine de release (génère ou réutilise `~/.tauri/prime-agent-studio-nix.key`, synchronise la clé publique d’updater et l’URL du catalogue, et peut envoyer les secrets GitHub Actions) :
 
-Après une compilation signée, lancez `npm run desktop:manifest -- chemin/notes.md` (les notes sont optionnelles). `.local/desktop-release/v<version>` contient les fichiers à joindre ensemble à la release stable `v<version>` : l’AppImage au nom sans espace, sa signature `.sig`, `latest.json`, et en général le `.deb` correspondant. Ne renommez pas l’AppImage ensuite : le catalogue contient son URL exacte.
+```sh
+make desktop-release-bootstrap
+# optionnel : make desktop-release-bootstrap SET_SECRETS=1
+make desktop-release-check
+```
 
-Le workflow GitHub **Linux desktop release** s’exécute manuellement avec une balise stable existante correspondant à `package.json`. Il teste, compile, signe et prépare une **release brouillon** contenant ces fichiers. Configurez les secrets du dépôt `TAURI_SIGNING_PRIVATE_KEY` et, pour une clé chiffrée, `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`. Il refuse d’écraser une release publiée. Les workflows ne signent jamais un paquet téléversé manuellement : ils reconstruisent toujours depuis la balise avant de signer. Relisez le brouillon, puis publiez-le comme dernière release stable pour rendre la mise à jour disponible. Ne publiez pas ensuite une release stable sans son catalogue et son AppImage.
+La clé privée de signature reste hors du dépôt. Sauvegardez-la de façon sûre : les applications installées font confiance à la clé publique embarquée, et une clé de remplacement incompatible empêcherait les mises à jour. `desktop:build` utilise cette clé locale ou `TAURI_SIGNING_PRIVATE_KEY` (chemin ou contenu) et `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`. Sans clé, `npm run desktop:build -- --no-bundle` ne construit que l’exécutable.
+
+Après une compilation signée, lancez `npm run desktop:manifest -- chemin/notes.md` (les notes sont optionnelles), ou `make desktop-manifest`. `.local/desktop-release/v<version>` contient les fichiers à joindre ensemble à la release stable `v<version>` : l’AppImage au nom sans espace, sa signature `.sig`, `latest.json`, et en général le `.deb` correspondant. Ne renommez pas l’AppImage ensuite : le catalogue contient son URL exacte.
+
+Les téléchargements de release et le catalogue de mise à jour in-app sont publiés depuis [mholtzhausen/prime-agent-studio](https://github.com/mholtzhausen/prime-agent-studio/releases). Le workflow GitHub **Linux desktop release** s’exécute manuellement avec une balise stable existante correspondant à `package.json`. Il teste, compile, signe et prépare une **release brouillon** contenant ces fichiers. Configurez les secrets du dépôt `TAURI_SIGNING_PRIVATE_KEY` et, pour une clé chiffrée, `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` (le bootstrap peut les définir). Il refuse d’écraser une release publiée. Les workflows ne signent jamais un paquet téléversé manuellement : ils reconstruisent toujours depuis la balise avant de signer. Relisez le brouillon, puis publiez-le comme dernière release stable pour rendre la mise à jour disponible. Ne publiez pas ensuite une release stable sans son catalogue et son AppImage.
+
+Pour monter la version du paquet avant une release, utilisez la skill Cursor `/version-bump` avec un type explicite (`major`, `minor`, `patch` ou `build`) afin d’aligner `package.json`, `src-tauri/Cargo.toml` et les journaux bilingues.

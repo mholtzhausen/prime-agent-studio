@@ -34,7 +34,7 @@ await writeFile(
   join(cwd, 'md_files', 'PLAN.md'),
   '# Plan de reconnexion\n\nRetrouver une session après une interruption réseau, sur **PC et téléphone**.\n\n## Parcours prévu\n\n1. Afficher l’état de la connexion.\n2. Reprendre les messages à partir du dernier événement reçu.\n3. Conserver le brouillon et les pièces jointes.\n\n> Les agents continuent leur travail pendant la reconnexion.\n\n## Vérifications\n\n| Situation | Résultat attendu |\n| --- | --- |\n| Retour sur la page | Historique restauré |\n| Réseau rétabli | Réponses en direct |\n| Brouillon en cours | Texte conservé |\n\n[Les notes](../notes.md)',
 );
-const pdfStream = 'BT /F1 18 Tf 20 140 Td (Prime Agent Studio) Tj ET\n';
+const pdfStream = 'BT /F1 18 Tf 20 140 Td (Prime Agent Studio Nix) Tj ET\n';
 const pdfObjects = [
   '<< /Type /Catalog /Pages 2 0 R >>',
   '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',

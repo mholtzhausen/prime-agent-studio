@@ -68,7 +68,7 @@ if (process.argv[2] !== '--worker') {
   assert.equal(prepared.components.uv.source, 'managed');
   const first = JSON.parse(await readFile(join(root, 'engine/installation.json')));
   const enginePackage = JSON.parse(await readFile(join(first.components.engine.packageDir, 'package.json')));
-  assert.equal(enginePackage.dependencies?.['prime-agent-studio'], undefined);
+  assert.equal(enginePackage.dependencies?.['prime-agent-studio-nix'], undefined);
   const again = await prepareComponents(
     { dataRoot: root },
     {

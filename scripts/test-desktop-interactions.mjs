@@ -12,7 +12,7 @@ import { createApp } from '../server.mjs';
 
 const baseline = process.argv.includes('--baseline');
 const preview = process.argv.includes('--preview');
-const exe = resolve(process.env.PRIME_STUDIO_TEST_EXE || 'src-tauri/target/debug/prime-agent-studio.exe');
+const exe = resolve(process.env.PRIME_STUDIO_TEST_EXE || 'src-tauri/target/debug/prime-agent-studio-nix.exe');
 const root = await mkdtemp(join(tmpdir(), 'prime-webview-interactions-'));
 const cwd = join(root, 'Atelier'),
   sessionDir = join(root, 'sessions'),

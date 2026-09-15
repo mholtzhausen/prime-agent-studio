@@ -4,7 +4,7 @@ Guidance for LLM / coding agents working in this repository.
 
 ## Project summary
 
-**Prime Agent Studio** (v3.4.1) is a local French/English workspace UI around [Prime Agent](https://github.com/PrimeIntellect-ai/prime-agent). It serves a vanilla browser client from this repo, drives the installed Prime Agent CLI/supervisor, and optionally wraps that stack in a Linux Tauri app (AppImage/deb).
+**Prime Agent Studio Nix** (v4.0.0) is a local French/English workspace UI around [Prime Agent](https://github.com/PrimeIntellect-ai/prime-agent). It serves a vanilla browser client from this repo, drives the installed Prime Agent CLI/supervisor, and optionally wraps that stack in a Linux Tauri app (AppImage/deb).
 
 Canonical product docs: [README.md](README.md) · internals: [docs/en/development.md](docs/en/development.md) · system map: [ARCHITECTURE.md](ARCHITECTURE.md).
 
@@ -65,6 +65,7 @@ Default listen: `127.0.0.1` port `PORT` or **3088**. Product surfaces are Linux-
 - **Translations**: add strings to `public/translations.js` (one row, both languages). `make check` validates params and references.
 - **Appearance density**: client-only preference (`comfortable` / `compact` / `dense`, default `compact`) in `prime-studio.preferences`; applied as `html[data-density]` by `public/theme.js` and spacing tokens in CSS. Do not send density to the server.
 - **Extension providers in the model catalog**: opt-in Studio preference `includeExtensionProviders` (server store / `/api/studio-preferences`), toggled on the Providers panel. When on, `scripts/model-catalog-worker.mjs` loads `~/.prime/agent/extensions` via native `discoverAndLoadExtensions` and registers their providers. Default off — extensions are arbitrary code.
+- **Desktop release**: `make desktop-release-bootstrap` syncs `~/.tauri/prime-agent-studio-nix.key` into `src-tauri/tauri.conf.json` and can upload `TAURI_SIGNING_PRIVATE_KEY` secrets (`SET_SECRETS=1`). Release artifacts publish from `mholtzhausen/prime-agent-studio`. Cut package versions with `/version-bump [major|minor|patch|build]`.
 - **Tests**: default suite uses temp dirs and simulated engines. Native/Luna smokes are opt-in and may consume model quota — do not run them unless asked.
 - **Active sessions**: Studio serves the checkout live. Prefer a separate git worktree when changing UI while a real Studio instance is running from the same tree.
 

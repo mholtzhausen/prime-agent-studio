@@ -65,7 +65,7 @@ async function launch() {
   const debugPort = await freePort();
   await writeFile(join(dataRoot, 'desktop.json'), '{"started":true}');
   child = spawn(
-    resolve(process.env.PRIME_STUDIO_TEST_EXE || 'src-tauri/target/debug/prime-agent-studio.exe'),
+    resolve(process.env.PRIME_STUDIO_TEST_EXE || 'src-tauri/target/debug/prime-agent-studio-nix.exe'),
     ['--background'],
     {
       windowsHide: true,

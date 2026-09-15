@@ -142,6 +142,6 @@ export function isDirectInvocation(metaUrl) {
 
 export function verifyInstallation(paths) {
   if (!existsSync(join(paths.root, 'server.mjs'))) {
-    throw new Error('server.mjs est introuvable. Conservez le lanceur dans le dossier Prime Agent Studio.');
+    throw new Error('server.mjs est introuvable. Conservez le lanceur dans le dossier Prime Agent Studio Nix.');
   }
 }

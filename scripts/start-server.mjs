@@ -104,7 +104,7 @@ export async function startServer({
 if (isDirectInvocation(import.meta.url)) {
   try {
     const result = await startServer();
-    process.stdout.write(`Prime Agent Studio : http://127.0.0.1:${result.port}\n`);
+    process.stdout.write(`Prime Agent Studio Nix : http://127.0.0.1:${result.port}\n`);
   } catch (error) {
     await recordMessage(pathsFor(), error.stack || String(error)).catch(() => {});
     process.stderr.write(`${error.message}\n`);

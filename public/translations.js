@@ -815,8 +815,8 @@ export const messages = {
     en: 'Choose Skills or Prompts and a global or project location.',
   },
   'login.title': {
-    fr: 'Prime Agent Studio · Accès mobile',
-    en: 'Prime Agent Studio · Mobile access',
+    fr: 'Prime Agent Studio Nix · Accès mobile',
+    en: 'Prime Agent Studio Nix · Mobile access',
   },
   'login.heading': {
     fr: 'Votre studio, à portée de main.',
@@ -1527,8 +1527,8 @@ export const messages = {
     en: 'Loading configuration…',
   },
   'ui.le_serveur_en_cours_doit_etre_redemarre_pour_activer_le_configura': {
-    fr: 'Le serveur en cours doit être redémarré pour activer le configurateur. Arrêtez puis relancez Prime Agent Studio.',
-    en: 'The running server needs to be restarted to enable the configurator. Stop and restart Prime Agent Studio.',
+    fr: 'Le serveur en cours doit être redémarré pour activer le configurateur. Arrêtez puis relancez Prime Agent Studio Nix.',
+    en: 'The running server needs to be restarted to enable the configurator. Stop and restart Prime Agent Studio Nix.',
   },
   'ui.impossible_de_charger_la_configuration': {
     fr: 'Impossible de charger la configuration. {value1}',
@@ -2815,8 +2815,8 @@ export const messages = {
     en: 'Account connected to Prime Agent.',
   },
   'ui.installer_prime_agent_studio': {
-    fr: 'Installer Prime Agent Studio',
-    en: 'Install Prime Agent Studio',
+    fr: 'Installer Prime Agent Studio Nix',
+    en: 'Install Prime Agent Studio Nix',
   },
   'ui.sur_le_telephone_ouvrez_l_adresse_https_du_studio_avec_tailscale': {
     fr: 'Sur le téléphone, ouvrez l’adresse HTTPS du Studio avec Tailscale connecté. L’adresse HTTP du réseau local ne permet pas l’installation complète.',
@@ -3435,8 +3435,8 @@ export const messages = {
     en: 'Projects and sessions',
   },
   'ui.prime_agent_studio_accueil': {
-    fr: 'Prime Agent Studio, accueil',
-    en: 'Prime Agent Studio, home',
+    fr: 'Prime Agent Studio Nix, accueil',
+    en: 'Prime Agent Studio Nix, home',
   },
   'ui.ajouter_un_projet': {
     fr: 'Ajouter un projet',
@@ -3523,8 +3523,8 @@ export const messages = {
     en: 'Model catalogue',
   },
   'ui.prime_agent_studio_reconnexion': {
-    fr: 'Prime Agent Studio · Reconnexion',
-    en: 'Prime Agent Studio · Reconnecting',
+    fr: 'Prime Agent Studio Nix · Reconnexion',
+    en: 'Prime Agent Studio Nix · Reconnecting',
   },
   'ui.retrouvons_votre_studio': {
     fr: 'Retrouvons votre Studio.',

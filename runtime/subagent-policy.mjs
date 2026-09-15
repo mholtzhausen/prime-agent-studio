@@ -56,7 +56,7 @@ export function subagentInstruction(cwd, file) {
   const policy = policyFor(cwd, file);
   if (!policy.model && !policy.thinking) return '';
   return [
-    '## Prime Agent Studio — subagent defaults',
+    '## Prime Agent Studio Nix — subagent defaults',
     'For delegated agents created with rlm.run or rlm, use these defaults unless the user requests another choice for the task:',
     `- Model: ${policy.model || 'inherit the parent model'}.`,
     `- Thinking level: ${policy.thinking || 'inherit the parent thinking level (native model compatibility rules apply)'}.`,

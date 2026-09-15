@@ -1,6 +1,6 @@
 {
-  "name": "prime-agent-studio",
-  "version": "3.4.1",
+  "name": "prime-agent-studio-nix",
+  "version": "4.0.0",
   "private": true,
   "author": "zerr0o",
   "license": "MIT",
@@ -51,6 +51,8 @@
     "desktop:dev": "tauri dev --no-dev-server",
     "desktop:build": "node scripts/build-desktop.mjs",
     "desktop:manifest": "node scripts/desktop-update-manifest.mjs",
+    "desktop:release:bootstrap": "node scripts/bootstrap-desktop-release.mjs",
+    "desktop:release:check": "node scripts/bootstrap-desktop-release.mjs --check",
     "desktop:resources": "node scripts/build-desktop-resources.mjs",
     "desktop:icons": "node scripts/generate-desktop-icons.mjs",
     "test:desktop": "node scripts/test-desktop-native.mjs",

@@ -1,14 +1,14 @@
 <p align="center">
-  <img src="assets/prime-agent.svg" width="80" alt="Logo Prime Agent Studio">
+  <img src="assets/prime-agent.svg" width="80" alt="Logo Prime Agent Studio Nix">
 </p>
 
-<h1 align="center">Prime Agent Studio</h1>
+<h1 align="center">Prime Agent Studio Nix</h1>
 
 <p align="center"><a href="README.md" lang="en">English</a> · <strong>Français</strong></p>
 
 <p align="center">
-  <a href="https://github.com/zerr0o/prime-agent-studio/releases/latest"><img src="https://img.shields.io/github/v/release/zerr0o/prime-agent-studio?logo=github&amp;label=release" alt="Dernière release GitHub"></a>
-  <a href="https://github.com/zerr0o/prime-agent-studio/stargazers"><img src="https://img.shields.io/github/stars/zerr0o/prime-agent-studio?logo=github&amp;label=stars" alt="Étoiles GitHub"></a>
+  <a href="https://github.com/mholtzhausen/prime-agent-studio/releases/latest"><img src="https://img.shields.io/github/v/release/zerr0o/prime-agent-studio?logo=github&amp;label=release" alt="Dernière release GitHub"></a>
+  <a href="https://github.com/mholtzhausen/prime-agent-studio/stargazers"><img src="https://img.shields.io/github/stars/zerr0o/prime-agent-studio?logo=github&amp;label=stars" alt="Étoiles GitHub"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="Licence MIT"></a>
   <a href="#démarrage-rapide"><img src="https://img.shields.io/badge/Node.js-%3E%3D22.8-339933?logo=nodedotjs&amp;logoColor=white" alt="Node.js 22.8 ou ultérieur"></a>
   <a href="#démarrage-rapide"><img src="https://img.shields.io/badge/platform-Linux-FCC624?logo=linux&amp;logoColor=black" alt="Plateforme Linux"></a>
@@ -38,13 +38,13 @@
   <a href="docs/development.md">Développement</a>
 </p>
 
-![Prime Agent Studio sur PC : projets, conversation, activité de l’agent et panneau de contexte.](docs/screenshots/desktop-conversation.png)
+![Prime Agent Studio Nix sur PC : projets, conversation, activité de l’agent et panneau de contexte.](docs/screenshots/desktop-conversation.png)
 
 <p align="center"><em>L’interface réelle, avec des données de démonstration. Les exemples de conversations et de documents conservent leur langue d’origine.</em></p>
 
-Prime Agent Studio réunit les sessions de votre **Prime Agent local** dans une application de bureau Linux et une interface accessible depuis le navigateur. Suivez les réponses en direct, retrouvez vos projets et continuez une conversation sans ouvrir de terminal. Les agents et leurs outils s’exécutent comme des processus Linux ordinaires tant que le serveur reste actif.
+Prime Agent Studio Nix réunit les sessions de votre **Prime Agent local** dans une application de bureau Linux et une interface accessible depuis le navigateur. Suivez les réponses en direct, retrouvez vos projets et continuez une conversation sans ouvrir de terminal. Les agents et leurs outils s’exécutent comme des processus Linux ordinaires tant que le serveur reste actif.
 
-**Version 3.4.1** · [Télécharger l’AppImage ou le deb](https://github.com/zerr0o/prime-agent-studio/releases/latest) · [Historique des versions](docs/changelog.md).
+**Version 4.0.0** · [Télécharger l’AppImage ou le deb](https://github.com/mholtzhausen/prime-agent-studio/releases/latest) · [Historique des versions](docs/changelog.md).
 
 ## Images et questions dans la conversation
 
@@ -135,17 +135,17 @@ Les tests découvrent les outils sans en exécuter. Les nouveaux réglages s’a
 
 ### Application Linux
 
-Téléchargez l’[AppImage ou le deb](https://github.com/zerr0o/prime-agent-studio/releases/latest) pour amd64, puis ouvrez **Prime Agent Studio**. L’AppImage est portable ; le deb installe l’intégration système. Node.js est inclus dans le paquet. Les builds avec préparation guidée proposent **Installer les composants manquants** au premier lancement et dans les réglages de l’application : Prime Agent **0.9.4**, npm privé, uv et Python sont téléchargés à la demande après votre clic. Les installations externes compatibles sont réutilisées ; un `bash` fonctionnel est requis pour les commandes shell du moteur. Configurez ensuite votre fournisseur. Si vous utilisiez déjà un checkout source, choisissez **Reprendre une installation existante**. [Guide complet](docs/desktop.md).
+Téléchargez l’[AppImage ou le deb](https://github.com/mholtzhausen/prime-agent-studio/releases/latest) pour amd64, puis ouvrez **Prime Agent Studio Nix**. L’AppImage est portable ; le deb installe l’intégration système. Node.js est inclus dans le paquet. Les builds avec préparation guidée proposent **Installer les composants manquants** au premier lancement et dans les réglages de l’application : Prime Agent **0.9.4**, npm privé, uv et Python sont téléchargés à la demande après votre clic. Les installations externes compatibles sont réutilisées ; un `bash` fonctionnel est requis pour les commandes shell du moteur. Configurez ensuite votre fournisseur. Si vous utilisiez déjà un checkout source, choisissez **Reprendre une installation existante**. [Guide complet](docs/desktop.md).
 
 Les mises à jour portent une signature cryptographique Tauri.
 
-**Après la mise à jour :** l’application peut continuer à utiliser l’ancien serveur pendant que les agents terminent leur travail. Une fois leurs exécutions terminées, utilisez **Préférences → Mise à jour → Redémarrer le serveur** dans l’application Linux pour activer la version 3.4.1. [Guide de mise à jour](docs/desktop.md).
+**Après la mise à jour :** l’application peut continuer à utiliser l’ancien serveur pendant que les agents terminent leur travail. Une fois leurs exécutions terminées, utilisez **Préférences → Mise à jour → Redémarrer le serveur** dans l’application Linux pour activer la version 4.0.0. [Guide de mise à jour](docs/desktop.md).
 
 ### Depuis le code source
 
 **Prérequis :** Linux, **Node.js 22.8 ou ultérieur**, **uv** et **Prime Agent** installé. Pour le sélecteur de dossier dans l’interface navigateur, installez **zenity** ou **kdialog**. Un fournisseur doit être configuré avant le premier message, depuis le CLI ou le panneau **Fournisseurs** du Studio sur le PC. L’intégration des réglages des sous-agents a été vérifiée avec **Prime Agent 0.9.4**.
 
-Téléchargez **Source code (zip)** depuis la [dernière release](https://github.com/zerr0o/prime-agent-studio/releases/latest) et extrayez l’archive, ou clonez ce dépôt. Ouvrez ensuite un terminal dans le dossier extrait :
+Téléchargez **Source code (zip)** depuis la [dernière release](https://github.com/mholtzhausen/prime-agent-studio/releases/latest) et extrayez l’archive, ou clonez ce dépôt. Ouvrez ensuite un terminal dans le dossier extrait :
 
 ```sh
 make init            # npm ci
@@ -319,7 +319,7 @@ Les tests automatiques utilisent des données temporaires et un moteur simulé. 
 
 ## Licence et attribution
 
-Prime Agent Studio est développé par **[zerr0o](https://github.com/zerr0o)** et distribué sous [licence MIT](LICENSE). Copyright © 2026 zerr0o.
+Prime Agent Studio Nix est développé par **[zerr0o](https://github.com/zerr0o)** et distribué sous [licence MIT](LICENSE). Copyright © 2026 zerr0o.
 
 Vous pouvez utiliser, modifier et redistribuer ce projet, y compris à des fins commerciales, en conservant la mention de copyright de **zerr0o** et le texte de la licence dans les copies ou portions substantielles du logiciel. Le fichier [LICENSE](LICENSE) reprend le [texte standard de la licence MIT](https://opensource.org/license/mit).
 
@@ -328,6 +328,6 @@ Prime Agent et les dépendances tierces conservent leurs licences respectives.
 ---
 
 <p align="center">
-  <strong>Prime Agent Studio</strong><br>
+  <strong>Prime Agent Studio Nix</strong><br>
   Une interface locale autour de Prime Agent, avec vos sessions et votre configuration existantes.
 </p>

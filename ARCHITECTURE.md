@@ -1,6 +1,6 @@
 # Architecture
 
-High-level system design for **Prime Agent Studio** — a local workspace UI around Prime Agent. Keep this document aligned with the code; detailed internals live in [docs/en/development.md](docs/en/development.md).
+High-level system design for **Prime Agent Studio Nix** — a local workspace UI around Prime Agent. Keep this document aligned with the code; detailed internals live in [docs/en/development.md](docs/en/development.md).
 
 ## Purpose
 
@@ -116,14 +116,14 @@ flowchart TB
 | --- | --- |
 | `~/.prime/agent/` | Native settings, models, auth, sessions |
 | `.local/` | Studio workspace, LAN PIN hash, attachments, kernel venvs, subagent defaults |
-| `~/.local/share/com.primeagent.studio/` | Linux desktop app data (Tauri): engine copies, webview storage, `desktop.json` |
+| `~/.local/share/com.primeagent.studio.nix/` | Linux desktop app data (Tauri): engine copies, webview storage, `desktop.json` |
 | Browser storage | Drafts, theme, language, favorites (device-local) |
 | Env vars | `PORT`, `PRIME_AGENT_CLI`, `PRIME_AGENT_*` paths — see [docs/en/configuration.md](docs/en/configuration.md) |
 
 ## Operational notes
 
 - **No compile step** for the web UI; edit and refresh. Use a separate worktree if a live Studio is serving the same checkout.
-- **Desktop builds** (`make desktop-build`) package Node + Studio for Linux (AppImage/deb); updates use Tauri minisign, not Authenticode/NSIS.
+- **Desktop builds** (`make desktop-build`) package Node + Studio for Linux (AppImage/deb); updates use Tauri minisign against `mholtzhausen/prime-agent-studio` (`make desktop-release-bootstrap` syncs the nix signing pubkey).
 - **Checks**: `make check` covers JS syntax, translation table integrity, and bilingual doc fingerprints.
 - **Platform**: end-user product targets Linux; the Node server and unit tests also run on that host.
 

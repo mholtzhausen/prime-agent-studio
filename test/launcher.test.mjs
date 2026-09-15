@@ -88,7 +88,7 @@ test('launcher validates ports before creating a process', () => {
   }
 });
 
-test('health probe distinguishes Prime Agent Studio, a foreign port and no listener', async () => {
+test('health probe distinguishes Prime Agent Studio Nix, a foreign port and no listener', async () => {
   const ours = createServer((_req, response) =>
     response.end(JSON.stringify({ service: 'prime-agent-gui', status: 'ok' })),
   );

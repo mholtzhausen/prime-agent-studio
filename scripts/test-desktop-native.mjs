@@ -8,7 +8,7 @@ import { join, resolve, dirname } from 'node:path';
 import { preferencesFixture } from './preview-preferences.mjs';
 import { probeHealth } from './launcher-common.mjs';
 
-const exe = resolve(process.argv[2] || 'src-tauri/target/debug/prime-agent-studio.exe');
+const exe = resolve(process.argv[2] || 'src-tauri/target/debug/prime-agent-studio-nix.exe');
 const temp = await mkdtemp(join(tmpdir(), 'prime-native-test-'));
 const children = [];
 let backend;

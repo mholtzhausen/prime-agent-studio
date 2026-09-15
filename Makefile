@@ -1,4 +1,4 @@
-# Prime Agent Studio — developer targets
+# Prime Agent Studio Nix — developer targets
 # Run `make help` to list commands.
 
 ROOT := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
@@ -9,10 +9,10 @@ SHELL := /bin/bash
 NPM ?= npm
 NODE ?= node
 
-.PHONY: help init install setup-runtime dev start start-silent stop check test test-ui format docs-check docs-sync desktop-dev desktop-build clean version
+.PHONY: help init install setup-runtime dev start start-silent stop check test test-ui format docs-check docs-sync desktop-dev desktop-build desktop-release-bootstrap desktop-release-check desktop-manifest clean version
 
 help: ## Show this help
-	@awk 'BEGIN {FS = ":.*?## "; printf "\nPrime Agent Studio — local GUI for Prime Agent\n\nUsage: make <target>\n\n"} \
+	@awk 'BEGIN {FS = ":.*?## "; printf "\nPrime Agent Studio Nix — local GUI for Prime Agent\n\nUsage: make <target>\n\n"} \
 		/^[a-zA-Z0-9_-]+:.*?## / {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2} \
 		END {printf "\n"}' $(MAKEFILE_LIST)
 
@@ -63,6 +63,15 @@ desktop-dev: ## Run the Linux Tauri desktop shell (needs Rust + WebKitGTK)
 
 desktop-build: ## Build Linux AppImage and deb packages
 	cd "$(ROOT)" && $(NPM) run desktop:build
+
+desktop-release-bootstrap: ## Sync nix signing key pubkey + updater URLs (optional: SET_SECRETS=1)
+	cd "$(ROOT)" && $(NPM) run desktop:release:bootstrap -- $(if $(filter 1 true yes,$(SET_SECRETS)),--set-github-secrets,)
+
+desktop-release-check: ## Verify local nix key matches tauri.conf.json updater settings
+	cd "$(ROOT)" && $(NPM) run desktop:release:check
+
+desktop-manifest: ## Prepare signed AppImage catalog under .local/desktop-release/
+	cd "$(ROOT)" && $(NPM) run desktop:manifest
 
 clean: ## Remove node_modules, desktop build dirs, and test-results
 	rm -rf "$(ROOT)node_modules" "$(ROOT).desktop-build" "$(ROOT)src-tauri/target" "$(ROOT)test-results"

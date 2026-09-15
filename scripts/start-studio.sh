@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Start Prime Agent Studio in the background and open the browser.
+# Start Prime Agent Studio Nix in the background and open the browser.
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"

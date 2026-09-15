@@ -2888,8 +2888,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "925383efa346730478fb4838dbe9137d2a47675ad789c546d150a6e1dd4ab31c"
 
 [[package]]
-name = "prime-agent-studio"
-version = "3.4.1"
+name = "prime-agent-studio-nix"
+version = "4.0.0"
 dependencies = [
  "reqwest",
  "rfd",

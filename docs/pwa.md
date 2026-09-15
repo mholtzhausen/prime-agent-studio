@@ -1,4 +1,4 @@
-# Installer Prime Agent Studio
+# Installer Prime Agent Studio Nix
 
 [English](en/pwa.md) · **Français** · [← Retour au README](../README.fr.md)
 

@@ -8,7 +8,7 @@ test('release catalog uses the real signature and a stable GitHub AppImage name'
   assert.equal(manifest.platforms['linux-x86_64'].signature, signature.trim());
   assert.equal(
     manifest.platforms['linux-x86_64'].url,
-    'https://github.com/zerr0o/prime-agent-studio/releases/download/v2.8.0/Prime-Agent-Studio_2.8.0_amd64.AppImage',
+    'https://github.com/mholtzhausen/prime-agent-studio/releases/download/v2.8.0/Prime-Agent-Studio-Nix_2.8.0_amd64.AppImage',
   );
   assert.equal(manifest.notes, 'Release notes');
   assert.equal(manifest.platforms['windows-x86_64'], undefined);

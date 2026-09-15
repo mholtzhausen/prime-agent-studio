@@ -2,7 +2,17 @@
 
 **English** · [Français](../changelog.md) · [← Back to README](../../README.md)
 
-Changes by version. See [GitHub releases](https://github.com/zerr0o/prime-agent-studio/releases) for installers and source archives.
+Changes by version. See [GitHub releases](https://github.com/mholtzhausen/prime-agent-studio/releases) for installers and source archives.
+
+## 4.0.0
+
+- **Linux Nix desktop identity**: product **Prime Agent Studio Nix**, package `prime-agent-studio-nix`, app id `com.primeagent.studio.nix`, and data under `~/.local/share/com.primeagent.studio.nix`. AppImage/deb artifacts use the `Prime-Agent-Studio-Nix_*` names. Previous Windows packaging is out of scope on this line.
+- **Independent updater trust**: new minisign key (`~/.tauri/prime-agent-studio-nix.key`), embedded pubkey, and catalog hosted on [mholtzhausen/prime-agent-studio](https://github.com/mholtzhausen/prime-agent-studio/releases). Builds signed for the former upstream key cannot update into this line.
+- **Release bootstrap**: `make desktop-release-bootstrap` / `desktop-release-check` sync the key into `tauri.conf.json` and can upload GitHub Actions signing secrets; shared coordinates live in `lib/desktop-release.mjs`.
+- **Appearance density**: client-only comfortable / compact / dense layout preference.
+- **Extension providers (opt-in)**: Providers panel can include models from `~/.prime/agent/extensions` in the catalog; default off because extensions run arbitrary code.
+- **Linux port and tooling**: Linux-only Tauri shell and web server, Makefile targets, and living docs for the Nix fork.
+- **After installation**: restart the server from preferences once your agents have finished. Migrate from an older Studio install via the desktop setup wizard if needed — settings are not copied automatically from `com.primeagent.studio`.
 
 ## 3.4.1
 

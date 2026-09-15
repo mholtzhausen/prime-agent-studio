@@ -1,5 +1,5 @@
 {
-  "name": "Prime Agent Studio",
+  "name": "Prime Agent Studio Nix",
   "short_name": "Prime Agent",
   "lang": "fr",
   "description": "Espace de travail local pour Prime Agent, avec sessions persistantes.",
