@@ -29,8 +29,9 @@ setup-runtime: ## Prepare Python kernel / skills runtime for the current directo
 dev: ## Start the local server in the foreground (logs in terminal)
 	cd "$(ROOT)" && $(NPM) start
 
-start: ## Alias for make dev
-	@$(MAKE) --no-print-directory dev
+# Prerequisite-only alias (do not recurse via $(MAKE): Cursor AppImage exports
+# ARGV0, which GNU make treats as MAKE and would re-exec the AppImage).
+start: dev ## Alias for make dev
 
 start-silent: ## Start server in the background and open the browser
 	cd "$(ROOT)" && $(NPM) run start:silent
