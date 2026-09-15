@@ -29,14 +29,168 @@
   --code: #161719;
   --shadow: 0 20px 70px #0005;
   --sidebar-width: 272px;
-  --detail-width: 276px;
+  --detail-width: 310px;
   --font-mono: 'Cascadia Code', 'SFMono-Regular', Consolas, monospace;
   --studio-safe-top: env(safe-area-inset-top, 0px);
   --studio-safe-bottom: env(safe-area-inset-bottom, 0px);
   --studio-safe-left: env(safe-area-inset-left, 0px);
   --studio-safe-right: env(safe-area-inset-right, 0px);
+
+  /* Density: comfortable (today’s spacing). Compact/dense override below. */
+  --brand-height: 88px;
+  --brand-pad-x: 23px;
+  --brand-gap: 11px;
+  --brand-mark: 36px;
+  --brand-name: 26px;
+  --sidebar-top-pad: 0 16px 26px;
+  --new-session-pad: 11px 12px;
+  --search-mt: 16px;
+  --section-heading-pad: 0 21px 8px;
+  --project-list-pad: 0 10px 20px;
+  --project-group-mt: 16px;
+  --project-group-mb: 7px;
+  --project-entry-mb: 6px;
+  --project-row-pad: 8px 5px;
+  --session-pad: 9px 10px;
+  --session-indent: 33px;
+  --footer-pad: 17px 20px 14px;
+  --runtime-pad-b: 13px;
+  --settings-pad: 8px 3px;
+  --header-height: 67px;
+  --header-pad-x: 27px;
+  --messages-pad: 31px 39px 40px;
+  --message-mb: 30px;
+  --message-heading-mb: 14px;
+  --activity-radius: 11px;
+  --activity-margin: 14px 0;
+  --activity-summary-pad: 14px;
+  --activity-summary-min-h: 62px;
+  --activity-summary-gap: 11px;
+  --activity-content-pad: 3px 14px 14px;
+  --activity-step-pt: 14px;
+  --activity-step-gap: 14px;
+  --composer-area-pad: 0 32px 22px;
+  --composer-form-pad: 16px 16px 11px;
+  --composer-radius: 13px;
+  --composer-toolbar-mt: 9px;
+  --composer-footnote-mt: 12px;
+  --send-size: 30px;
+  --inspector-heading-min-h: 56px;
+  --inspector-heading-pad: 10px 18px;
+  --inspector-tabs-pad: 0 12px 12px;
+  --inspector-tab-min-h: 40px;
+  --inspector-content-pad: 20px 18px;
+  --context-section-pad-b: 20px;
+  --context-section-mb: 20px;
+  --context-label-mb: 19px;
+  --session-props-gap: 15px;
+  --context-bottom-pt: 12px;
   font-size: 14px;
   font-synthesis: none;
+}
+:root[data-density='compact'] {
+  --sidebar-width: 248px;
+  --detail-width: 280px;
+  --brand-height: 56px;
+  --brand-pad-x: 14px;
+  --brand-gap: 8px;
+  --brand-mark: 28px;
+  --brand-name: 20px;
+  --sidebar-top-pad: 0 12px 12px;
+  --new-session-pad: 7px 10px;
+  --search-mt: 8px;
+  --section-heading-pad: 0 14px 4px;
+  --project-list-pad: 0 8px 12px;
+  --project-group-mt: 10px;
+  --project-group-mb: 4px;
+  --project-entry-mb: 2px;
+  --project-row-pad: 5px 6px;
+  --session-pad: 5px 8px;
+  --session-indent: 26px;
+  --footer-pad: 10px 14px 10px;
+  --runtime-pad-b: 8px;
+  --settings-pad: 5px 2px;
+  --header-height: 44px;
+  --header-pad-x: 16px;
+  --messages-pad: 16px 20px 20px;
+  --message-mb: 16px;
+  --message-heading-mb: 8px;
+  --activity-radius: 8px;
+  --activity-margin: 6px 0;
+  --activity-summary-pad: 8px 10px;
+  --activity-summary-min-h: 0;
+  --activity-summary-gap: 8px;
+  --activity-content-pad: 2px 10px 8px;
+  --activity-step-pt: 8px;
+  --activity-step-gap: 8px;
+  --composer-area-pad: 0 16px 12px;
+  --composer-form-pad: 10px 12px 8px;
+  --composer-radius: 10px;
+  --composer-toolbar-mt: 6px;
+  --composer-footnote-mt: 6px;
+  --send-size: 28px;
+  --inspector-heading-min-h: 40px;
+  --inspector-heading-pad: 6px 12px;
+  --inspector-tabs-pad: 0 10px 8px;
+  --inspector-tab-min-h: 32px;
+  --inspector-content-pad: 12px 14px;
+  --context-section-pad-b: 12px;
+  --context-section-mb: 12px;
+  --context-label-mb: 10px;
+  --session-props-gap: 8px;
+  --context-bottom-pt: 16px;
+}
+:root[data-density='dense'] {
+  --sidebar-width: 232px;
+  --detail-width: 260px;
+  --brand-height: 44px;
+  --brand-pad-x: 10px;
+  --brand-gap: 6px;
+  --brand-mark: 24px;
+  --brand-name: 17px;
+  --sidebar-top-pad: 0 8px 8px;
+  --new-session-pad: 5px 8px;
+  --search-mt: 6px;
+  --section-heading-pad: 0 10px 2px;
+  --project-list-pad: 0 6px 8px;
+  --project-group-mt: 8px;
+  --project-group-mb: 2px;
+  --project-entry-mb: 1px;
+  --project-row-pad: 3px 5px;
+  --session-pad: 3px 6px;
+  --session-indent: 22px;
+  --footer-pad: 8px 10px 8px;
+  --runtime-pad-b: 6px;
+  --settings-pad: 4px 2px;
+  --header-height: 36px;
+  --header-pad-x: 12px;
+  --messages-pad: 10px 14px 12px;
+  --message-mb: 10px;
+  --message-heading-mb: 5px;
+  --activity-radius: 6px;
+  --activity-margin: 4px 0;
+  --activity-summary-pad: 5px 8px;
+  --activity-summary-min-h: 0;
+  --activity-summary-gap: 6px;
+  --activity-content-pad: 0 8px 6px;
+  --activity-step-pt: 6px;
+  --activity-step-gap: 6px;
+  --composer-area-pad: 0 12px 8px;
+  --composer-form-pad: 7px 9px 6px;
+  --composer-radius: 8px;
+  --composer-toolbar-mt: 4px;
+  --composer-footnote-mt: 4px;
+  --send-size: 26px;
+  --inspector-heading-min-h: 34px;
+  --inspector-heading-pad: 4px 10px;
+  --inspector-tabs-pad: 0 8px 6px;
+  --inspector-tab-min-h: 28px;
+  --inspector-content-pad: 8px 10px;
+  --context-section-pad-b: 8px;
+  --context-section-mb: 8px;
+  --context-label-mb: 6px;
+  --session-props-gap: 5px;
+  --context-bottom-pt: 10px;
 }
 :root[data-theme='light'] {
   color-scheme: light;
@@ -205,18 +359,18 @@ p {
   min-height: 0;
 }
 .brand {
-  height: 88px;
+  height: var(--brand-height);
   display: flex;
   align-items: center;
-  padding: 0 23px;
-  gap: 11px;
+  padding: 0 var(--brand-pad-x);
+  gap: var(--brand-gap);
   text-decoration: none;
   color: var(--text);
   flex-shrink: 0;
 }
 .brand-mark {
-  width: 36px;
-  height: 36px;
+  width: var(--brand-mark);
+  height: var(--brand-mark);
   border-radius: 10px;
   background: var(--accent);
   color: #292737;
@@ -224,11 +378,11 @@ p {
   place-items: center;
 }
 .brand-mark svg {
-  width: 30px;
-  height: 30px;
+  width: calc(var(--brand-mark) * 30 / 36);
+  height: calc(var(--brand-mark) * 30 / 36);
 }
 .brand-name {
-  font-size: 26px;
+  font-size: var(--brand-name);
   font-weight: 650;
   letter-spacing: -1.1px;
   line-height: 1;
@@ -253,14 +407,14 @@ p {
   color: var(--muted);
 }
 .sidebar-top {
-  padding: 0 16px 26px;
+  padding: var(--sidebar-top-pad);
 }
 .new-session-button {
   width: 100%;
   display: flex;
   align-items: center;
   gap: 9px;
-  padding: 11px 12px;
+  padding: var(--new-session-pad);
   border: 1px solid #79738e45;
   background: var(--accent-bg);
   color: var(--accent-text);
@@ -291,7 +445,7 @@ kbd {
   align-items: center;
   gap: 8px;
   color: var(--faint);
-  margin-top: 16px;
+  margin-top: var(--search-mt);
   padding: 0 1px;
 }
 .search-field svg {
@@ -315,7 +469,7 @@ kbd {
   padding: 2px 3px;
 }
 .sidebar-section-heading {
-  padding: 0 21px 8px;
+  padding: var(--section-heading-pad);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -356,14 +510,14 @@ kbd {
   gap: 3px;
 }
 .project-list {
-  padding: 0 10px 20px;
+  padding: var(--project-list-pad);
   overflow-y: auto;
   flex: 1;
   min-height: 0;
   scrollbar-gutter: stable;
 }
 .project-group-label {
-  margin: 16px 12px 7px;
+  margin: var(--project-group-mt) 12px var(--project-group-mb);
   font-size: 11px;
   font-weight: 550;
   color: var(--faint);
@@ -375,7 +529,7 @@ kbd {
 .project-entry {
   min-width: 0;
   position: relative;
-  margin-bottom: 6px;
+  margin-bottom: var(--project-entry-mb);
 }
 .project-header {
   display: flex;
@@ -476,7 +630,7 @@ kbd {
   width: 10px;
 }
 .project-conversations {
-  padding: 1px 0 6px 33px;
+  padding: 1px 0 6px var(--session-indent);
 }
 .project-conversations-empty,
 .project-show-more {
@@ -527,7 +681,7 @@ kbd {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 5px;
+  padding: var(--project-row-pad);
   width: 100%;
   text-align: left;
   position: relative;
@@ -597,7 +751,7 @@ kbd {
   gap: 9px;
   width: 100%;
   min-width: 0;
-  padding: 9px 10px;
+  padding: var(--session-pad);
   text-align: left;
   font-size: 12px;
   line-height: 1.4;
@@ -676,7 +830,7 @@ kbd {
 }
 .sidebar-footer {
   border-top: 1px solid var(--line-soft);
-  padding: 17px 20px 14px;
+  padding: var(--footer-pad);
   flex-shrink: 0;
 }
 .runtime-status {
@@ -685,7 +839,7 @@ kbd {
   align-items: center;
   font-size: 10px;
   color: var(--muted);
-  padding: 0 2px 13px;
+  padding: 0 2px var(--runtime-pad-b);
 }
 .status-dot {
   display: inline-block;
@@ -713,7 +867,7 @@ kbd {
   gap: 9px;
   font-size: 11px;
   width: 100%;
-  padding: 8px 3px;
+  padding: var(--settings-pad);
   color: var(--muted);
 }
 .sidebar-settings:hover {
@@ -736,13 +890,13 @@ kbd {
   flex-direction: column;
 }
 .workspace-header {
-  height: 67px;
-  min-height: 67px;
+  height: var(--header-height);
+  min-height: var(--header-height);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 0 27px;
+  padding: 0 var(--header-pad-x);
   border-bottom: 1px solid var(--line-soft);
 }
 .breadcrumb {
@@ -1152,19 +1306,48 @@ kbd {
   width: 100%;
   max-width: 940px;
   margin: 0 auto;
-  padding: 0 32px 22px;
+  padding: var(--composer-area-pad);
   flex-shrink: 0;
 }
 .composer-form {
+  position: relative;
   background: var(--surface);
   border: 1px solid #414047;
-  border-radius: 13px;
-  padding: 16px 16px 11px;
+  border-radius: var(--composer-radius);
+  padding: var(--composer-form-pad);
   box-shadow: 0 4px 16px #00000008;
   transition: border-color 0.15s;
 }
 .composer-form:focus-within {
   border-color: #8f88a9;
+}
+.composer-context {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translate(-50%, 50%);
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  max-width: calc(100% - 24px);
+  padding: 0 8px;
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--faint);
+  font-size: 10px;
+  font-weight: 550;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.03em;
+  line-height: 1.35;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.composer-context[hidden] {
+  display: none;
+}
+.composer-context > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .composer-form textarea {
   display: block;
@@ -1188,7 +1371,7 @@ kbd {
   align-items: center;
   gap: 10px;
   justify-content: space-between;
-  margin-top: 9px;
+  margin-top: var(--composer-toolbar-mt);
 }
 .model-controls {
   display: flex;
@@ -1227,8 +1410,8 @@ kbd {
 .send-button {
   display: grid;
   place-items: center;
-  width: 30px;
-  height: 30px;
+  width: var(--send-size);
+  height: var(--send-size);
   background: var(--accent);
   color: #24222f;
   border-radius: 8px;
@@ -1251,7 +1434,7 @@ kbd {
   gap: 12px;
   font-size: 8px;
   color: var(--faint);
-  margin-top: 12px;
+  margin-top: var(--composer-footnote-mt);
   padding: 0 3px;
 }
 .composer-footnote > span:first-child {
@@ -1297,7 +1480,7 @@ kbd {
   color: var(--faint);
   letter-spacing: 1.2px;
   font-weight: 650;
-  margin-bottom: 19px;
+  margin-bottom: var(--context-label-mb);
 }
 .context-project-icon {
   height: 33px;
@@ -1346,7 +1529,7 @@ kbd {
 .session-properties {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: var(--session-props-gap);
   margin: 0 0 13px;
   font-size: 10px;
 }
@@ -1465,13 +1648,13 @@ kbd {
 .messages {
   max-width: 880px;
   margin: 0 auto;
-  padding: 31px 39px 40px;
+  padding: var(--messages-pad);
 }
 .messages:empty {
   display: none;
 }
 .message {
-  margin-bottom: 30px;
+  margin-bottom: var(--message-mb);
   position: relative;
 }
 .message-heading {
@@ -1479,7 +1662,7 @@ kbd {
   align-items: center;
   gap: 9px;
   font-size: 11px;
-  margin-bottom: 14px;
+  margin-bottom: var(--message-heading-mb);
 }
 .message-avatar {
   width: 25px;
@@ -2165,6 +2348,18 @@ kbd {
   width: 20px;
   height: 20px;
 }
+.settings-group > .settings-hint {
+  margin: 4px 0 10px;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+.density-options button {
+  min-height: 44px;
+  justify-content: center;
+  padding: 12px 8px;
+  gap: 0;
+}
 .settings-row {
   display: flex;
   align-items: center;
@@ -2444,9 +2639,9 @@ kbd {
     display: flex;
     position: absolute;
     right: 0;
-    top: 67px;
+    top: var(--header-height);
     bottom: 0;
-    width: 276px;
+    width: var(--detail-width);
     z-index: 10;
     box-shadow: -10px 0 30px #0002;
   }
@@ -4062,9 +4257,9 @@ kbd {
 }
 @media (min-width: 641px) and (max-width: 1280px) {
   .workspace-header {
-    height: 48px;
-    min-height: 48px;
-    padding: 0 16px;
+    height: var(--header-height);
+    min-height: var(--header-height);
+    padding: 0 var(--header-pad-x);
     gap: 10px;
   }
   .remote-view-banner {

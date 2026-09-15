@@ -38,7 +38,7 @@ L’ordre des projets et les marqueurs de lecture partagés sont conservés dans
 
 ## Modèle de processus
 
-La gestion des fournisseurs utilise `lib/provider-service.mjs` et un processus d’arrière-plan `scripts/provider-auth-worker.mjs`. `lib/provider-auth.mjs` charge le catalogue et les flux OAuth natifs sans extension de projet. Les clés passent par stdin ; seules les informations d’affichage et les étapes de connexion reviennent au navigateur. Les écritures utilisent `FileAuthStorageBackend` et `AuthStorage`, avec une révision du fournisseur vérifiée sous verrou. La fermeture d’un parcours n’arrête que son processus de connexion. Les routes `/api/providers` et leurs sous-routes ne figurent pas dans la liste d’accès de la passerelle distante.
+La gestion des fournisseurs utilise `lib/provider-service.mjs` et un processus d’arrière-plan `scripts/provider-auth-worker.mjs`. `lib/provider-auth.mjs` charge le catalogue et les flux OAuth natifs sans extension de projet. Les clés passent par stdin ; seules les informations d’affichage et les étapes de connexion reviennent au navigateur. Les écritures utilisent `FileAuthStorageBackend` et `AuthStorage`, avec une révision du fournisseur vérifiée sous verrou. La fermeture d’un parcours n’arrête que son processus de connexion. Les routes `/api/providers` et leurs sous-routes ne figurent pas dans la liste d’accès de la passerelle distante. Le panneau Fournisseurs peut activer la préférence Studio `includeExtensionProviders` ; une fois activée, `scripts/model-catalog-worker.mjs` exécute aussi `discoverAndLoadExtensions` pour `~/.prime/agent/extensions` et enregistre les fournisseurs en attente dans le sélecteur de modèles (toujours isolé ; les passerelles distantes ne gèrent pas cette surface).
 
 `npm run test:providers` vérifie l’ajout et le retrait de clés dans un stockage natif temporaire, l’actualisation des modèles, le parcours OAuth simulé, la conservation du brouillon et le refus des routes sur mobile et PC distant. `test/providers.test.mjs` couvre les verrous, conflits, clés invalides, commandes de secrets non exécutées, annulations et délais OAuth. Aucun compte personnel n’est connecté ou déconnecté par ces tests.
 
@@ -63,6 +63,8 @@ Le Studio sert directement les fichiers du dépôt. Pour travailler pendant des 
 `npm run test:https` vérifie l’autorisation, la nouvelle tentative, l’état d’attente, le PIN, le QR et les options HTTPS sur PC/mobile. `test/https-settings.test.mjs` vérifie les conflits, l’annulation et la continuité des agents. Ces tests et l’aperçu utilisent un émulateur Tailscale : aucune commande réelle de configuration n’est exécutée.
 
 `npm run test:settings` vérifie la navigation, le focus, les changements réseau, le QR, les langues et les largeurs 390/320 px. `test/remote-network.test.mjs` vérifie la conservation du PIN, les échecs, les révisions concurrentes, les permissions et les agents toujours actifs. Les tests utilisent uniquement des données temporaires et des ports loopback. Les tests d’interface navigateur privilégient Chrome/Chromium sous Linux ; définissez `PRIME_STUDIO_TEST_BROWSER` pour remplacer le canal Playwright.
+
+Les préférences d’apparence client (`theme`, `density`) vivent dans `prime-studio.preferences`. `public/theme.js` les applique avant le premier rendu ; les jetons d’espacement répondent à `html[data-density]` dans `public/styles.css`, `conversation.css` et `inspector.css`.
 
 ## Vérifications
 

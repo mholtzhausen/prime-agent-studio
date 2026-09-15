@@ -34,6 +34,18 @@ export class ModelRegistry {
     if (!this.auth.data.enabled) return [];
     return this.models;
   }
+  registerProvider(name, config) {
+    const models = Array.isArray(config?.models) ? config.models : [];
+    for (const model of models) {
+      this.models.push({
+        id: model.id,
+        provider: name,
+        name: model.name || model.id,
+        reasoning: model.reasoning === true,
+        input: Array.isArray(model.input) ? model.input : ['text'],
+      });
+    }
+  }
   async refreshAvailableModels() {
     const spec = json(this.path);
     appendFileSync(process.env.CATALOG_FIXTURE_LOG, JSON.stringify({
@@ -48,6 +60,25 @@ export class ModelRegistry {
     if (liveModels) setTimeout(() => { this.models = liveModels; }, spec.delay || 30);
     return this.getAvailable();
   }
+}
+export async function discoverAndLoadExtensions(_configured, _cwd, agentDir) {
+  const { readdirSync, existsSync } = await import('node:fs');
+  const { join } = await import('node:path');
+  const dir = join(agentDir, 'extensions');
+  const pending = [];
+  if (existsSync(dir)) {
+    for (const file of readdirSync(dir)) {
+      if (!/\\.(?:ts|js)$/i.test(file)) continue;
+      pending.push({
+        name: file.replace(/\\.(?:ts|js)$/i, ''),
+        config: {
+          models: [{ id: 'from-extension', name: 'From extension', reasoning: false, input: ['text'] }],
+        },
+        extensionPath: join(dir, file),
+      });
+    }
+  }
+  return { runtime: { pendingProviderRegistrations: pending }, errors: [], extensions: pending };
 }
 `;
 
@@ -243,6 +274,29 @@ test('model and settings edits invalidate the native catalogue within the refres
   await writeFile(join(agentHome, 'settings.json'), JSON.stringify({ defaultProvider: 'prime-inference' }));
   await bridge.read();
   await until(requests, (value) => value.length === 3);
+});
+
+test('opt-in extension providers merge into the native catalogue without leaking paths', async (t) => {
+  const { bridge, agentHome } = await fixture(t, { models: [model('bundled')] });
+  await mkdir(join(agentHome, 'extensions'), { recursive: true });
+  await writeFile(join(agentHome, 'extensions', 'demo.ts'), 'export default () => {}');
+  const off = await bridge.read();
+  assert.deepEqual(
+    off.models.map((m) => m.id),
+    ['bundled'],
+  );
+  const on = await bridge.read({ includeExtensionProviders: true });
+  assert.deepEqual(
+    on.models.map((m) => `${m.provider}/${m.id}`).sort(),
+    ['demo/from-extension', 'prime-inference/bundled'],
+  );
+  assert.equal(JSON.stringify(on).includes(agentHome), false);
+  assert.equal(JSON.stringify(on).includes('demo.ts'), false);
+  const back = await bridge.read({ includeExtensionProviders: false });
+  assert.deepEqual(
+    back.models.map((m) => m.id),
+    ['bundled'],
+  );
 });
 
 test(

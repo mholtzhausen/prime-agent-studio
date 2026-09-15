@@ -1350,6 +1350,30 @@ export const messages = {
     fr: '{used} / {total} jetons ({percent} %)',
     en: '{used} / {total} tokens ({percent}%)',
   },
+  'ui.composer_context_cutout': {
+    fr: '{used} / {total} ꞏ {percent} %',
+    en: '{used} / {total} ꞏ {percent}%',
+  },
+  'ui.composer_context_label': {
+    fr: 'Contexte actuel : {used} sur {total} jetons, {percent} %',
+    en: 'Current context: {used} of {total} tokens, {percent}%',
+  },
+  'ui.composer_context_window': {
+    fr: '— / {total}',
+    en: '— / {total}',
+  },
+  'ui.composer_context_window_label': {
+    fr: 'Fenêtre de contexte du modèle : {total} jetons (mesure live indisponible)',
+    en: 'Model context window: {total} tokens (live measure unavailable)',
+  },
+  'ui.composer_context_pending': {
+    fr: '— / —',
+    en: '— / —',
+  },
+  'ui.composer_context_pending_label': {
+    fr: 'Taille du contexte indisponible pour le moment',
+    en: 'Context size unavailable for now',
+  },
   'ui.session_context_note': {
     fr: 'Contexte actuel / fenêtre du modèle — pas le total cumulé.',
     en: 'Current context / model window — not cumulative total.',
@@ -2642,6 +2666,42 @@ export const messages = {
     fr: 'Aucun fournisseur trouvé. Les fournisseurs personnalisés se créent dans le configurateur de modèles.',
     en: 'No providers found. Create custom providers in the model configurator.',
   },
+  'ui.fournisseurs_par_extension': {
+    fr: 'Fournisseurs par extension',
+    en: 'Extension providers',
+  },
+  'ui.fournisseurs_par_extension_intro': {
+    fr: 'Les extensions Prime Agent (~/.prime/agent/extensions) peuvent enregistrer des fournisseurs. Le Studio ne les charge dans le sélecteur de modèles que si vous l’activez ici — cela exécute ces extensions dans un processus isolé.',
+    en: 'Prime Agent extensions (~/.prime/agent/extensions) can register providers. Studio only loads them into the model picker when you enable this — that runs those extensions in an isolated process.',
+  },
+  'ui.inclure_les_fournisseurs_des_extensions': {
+    fr: 'Inclure les fournisseurs des extensions dans le catalogue',
+    en: 'Include extension providers in the model catalog',
+  },
+  'ui.fournisseurs_par_extension_actif': {
+    fr: 'Activé',
+    en: 'On',
+  },
+  'ui.fournisseurs_par_extension_inactif': {
+    fr: 'Désactivé',
+    en: 'Off',
+  },
+  'ui.catalogue_des_extensions_active': {
+    fr: 'Fournisseurs des extensions inclus dans le catalogue.',
+    en: 'Extension providers included in the catalog.',
+  },
+  'ui.catalogue_des_extensions_desactive': {
+    fr: 'Fournisseurs des extensions retirés du catalogue.',
+    en: 'Extension providers removed from the catalog.',
+  },
+  'ui.extensions_detectees': {
+    fr: 'Extensions détectées',
+    en: 'Detected extensions',
+  },
+  'ui.aucune_extension_detectee': {
+    fr: 'Aucune extension .ts/.js détectée dans le dossier d’extensions de cet agent.',
+    en: 'No .ts/.js extension found in this agent’s extensions folder.',
+  },
   'ui.modeles': {
     fr: '{value1} · {value2} modèles{value3}',
     en: '{value1} · {value2} models{value3}',
@@ -3185,6 +3245,26 @@ export const messages = {
   'ui.systeme': {
     fr: 'Système',
     en: 'System',
+  },
+  'ui.densite': {
+    fr: 'Densité',
+    en: 'Density',
+  },
+  'ui.densite_note': {
+    fr: 'Espacement de l’interface sur cet appareil.',
+    en: 'Interface spacing on this device.',
+  },
+  'ui.densite_confortable': {
+    fr: 'Confortable',
+    en: 'Comfortable',
+  },
+  'ui.densite_compacte': {
+    fr: 'Compacte',
+    en: 'Compact',
+  },
+  'ui.densite_serree': {
+    fr: 'Serrée',
+    en: 'Dense',
   },
   'ui.entree_pour_envoyer': {
     fr: 'Entrée pour envoyer',

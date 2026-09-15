@@ -9,6 +9,7 @@ import { isDirectInvocation } from './scripts/launcher-common.mjs';
 import { randomUUID } from 'node:crypto';
 import { createStore, HttpError, validateDirectory, cwdKey, validId } from './lib/store.mjs';
 import { createAgentRuntime } from './lib/agent.mjs';
+import { listAgentExtensions } from './lib/extension-providers.mjs';
 import { createRemoteNetwork } from './lib/remote-network.mjs';
 import { createRemoteAccess } from './lib/remote-access.mjs';
 import { createRemoteUpdates } from './lib/remote-updates.mjs';
@@ -136,7 +137,11 @@ export function createApp(options = {}) {
     sessionLocks = new Set();
   const desktopNotifications = createDesktopNotifications();
   const pushService = options.pushService || createPushService({ dataDir });
-  const studioPreferences = () => store.getStudioPreferences?.() || { allowQuestionsByDefault: true };
+  const studioPreferences = () =>
+    store.getStudioPreferences?.() || {
+      allowQuestionsByDefault: true,
+      includeExtensionProviders: false,
+    };
   const roadmap =
     options.roadmap || createRoadmapService({ resolveProject: (cwd) => store.knowledgeProject(cwd) });
   const roadmapBridge =
@@ -281,7 +286,13 @@ export function createApp(options = {}) {
   }
   async function models({ refresh = false } = {}) {
     if (refresh || !modelCache || Date.now() - modelsAt > (modelRefreshing ? 1000 : 5000)) {
-      const request = Promise.resolve(runtime.getModels({ refresh }));
+      const prefs = await studioPreferences();
+      const request = Promise.resolve(
+        runtime.getModels({
+          refresh,
+          includeExtensionProviders: prefs.includeExtensionProviders === true,
+        }),
+      );
       modelCache = request;
       modelsAt = Date.now();
       request.then(
@@ -708,7 +719,20 @@ export function createApp(options = {}) {
         res.end(file.data);
         return;
       }
-      if (method === 'GET' && path === '/api/providers') return json(res, 200, await providers.list());
+      if (method === 'GET' && path === '/api/providers') {
+        const [list, prefs, extensions] = await Promise.all([
+          providers.list(),
+          studioPreferences(),
+          listAgentExtensions(agentHome),
+        ]);
+        return json(res, 200, {
+          ...list,
+          extensionProviders: {
+            includeInCatalog: prefs.includeExtensionProviders === true,
+            extensions,
+          },
+        });
+      }
       // Minimal safe linkage metadata for mobile/remote quota.
       // No credentials, no full provider list. Authenticated gateway may proxy this read-only GET.
       if (method === 'GET' && path === '/api/providers/codex-link')
@@ -830,7 +854,12 @@ export function createApp(options = {}) {
         });
       if (path === '/api/studio-preferences') {
         if (method === 'GET') return json(res, 200, await studioPreferences());
-        if (method === 'PATCH') return json(res, 200, await store.setStudioPreferences(await readBody(req)));
+        if (method === 'PATCH') {
+          const body = await readBody(req);
+          const result = await store.setStudioPreferences(body);
+          if (typeof body?.includeExtensionProviders === 'boolean') invalidateModels();
+          return json(res, 200, result);
+        }
       }
       // Deliberately absent from the remote gateway's route allowlist.
       if (method === 'GET' && path === '/api/desktop-notifications')

@@ -38,7 +38,7 @@ Project order and shared read receipts are kept in `workspace.json`, without mod
 
 ## Process model
 
-Provider management uses `lib/provider-service.mjs` and a background `scripts/provider-auth-worker.mjs` process. `lib/provider-auth.mjs` loads the native catalog and OAuth flows without project extensions. Keys pass through stdin; only display information and sign-in steps return to the browser. Writes use `FileAuthStorageBackend` and `AuthStorage`, checking the provider revision under a lock. Closing a flow stops only its sign-in process. `/api/providers` and its subroutes are not in the remote gateway’s allowlist.
+Provider management uses `lib/provider-service.mjs` and a background `scripts/provider-auth-worker.mjs` process. `lib/provider-auth.mjs` loads the native catalog and OAuth flows without project extensions. Keys pass through stdin; only display information and sign-in steps return to the browser. Writes use `FileAuthStorageBackend` and `AuthStorage`, checking the provider revision under a lock. Closing a flow stops only its sign-in process. `/api/providers` and its subroutes are not in the remote gateway’s allowlist. The Providers panel can opt in to Studio preference `includeExtensionProviders`; when enabled, `scripts/model-catalog-worker.mjs` also runs `discoverAndLoadExtensions` for `~/.prime/agent/extensions` and registers pending providers into the model picker (still isolated; remote gateways never manage this preference surface).
 
 `npm run test:providers` checks adding and removing keys in temporary native storage, model refresh, the simulated OAuth flow, draft preservation and rejection of routes on phones and remote PCs. `test/providers.test.mjs` covers locks, conflicts, invalid keys, secret commands not being executed, cancellations and OAuth timeouts. These tests connect or disconnect no personal accounts.
 
@@ -63,6 +63,8 @@ Studio serves repository files directly. Use a separate worktree when sessions a
 `npm run test:https` checks approval, retry, pending state, PIN, QR and HTTPS options on desktop/mobile. `test/https-settings.test.mjs` checks conflicts, rollback and agent continuity. These tests and the preview use a Tailscale emulator: no real configuration command runs.
 
 `npm run test:settings` checks navigation, focus, network changes, QR codes, languages and 390/320 px widths. `test/remote-network.test.mjs` checks PIN preservation, failures, concurrent revisions, permissions and agents remaining active. Tests use only temporary data and loopback ports. Browser UI tests prefer Chrome/Chromium on Linux; set `PRIME_STUDIO_TEST_BROWSER` to override the Playwright channel.
+
+Client appearance preferences (`theme`, `density`) live in `prime-studio.preferences`. `public/theme.js` applies them before paint; spacing tokens respond to `html[data-density]` in `public/styles.css`, `conversation.css` and `inspector.css`.
 
 ## Checks
 

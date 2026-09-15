@@ -112,6 +112,76 @@ function el(tag, className, text) {
   if (text != null) bindText(n, () => text);
   return n;
 }
+function compactTokens(value) {
+  const n = Math.round(Number(value));
+  if (!Number.isFinite(n) || n < 0) return '—';
+  if (n < 1000) return String(n);
+  if (n < 1_000_000) {
+    const k = n / 1000;
+    const rounded = k >= 100 || Number.isInteger(k) ? String(Math.round(k)) : k.toFixed(1).replace(/\.0$/, '');
+    return `${rounded}K`;
+  }
+  const m = n / 1_000_000;
+  const rounded = m >= 100 || Number.isInteger(m) ? String(Math.round(m)) : m.toFixed(1).replace(/\.0$/, '');
+  return `${rounded}M`;
+}
+let composerLiveContext = null;
+function selectedModelContextWindow() {
+  const id = $('model-select')?.value;
+  if (!id) return null;
+  const model = state.models?.find((entry) => entry.id === id);
+  const windowSize = model?.contextWindow;
+  return typeof windowSize === 'number' && Number.isFinite(windowSize) && windowSize > 0
+    ? Math.round(windowSize)
+    : null;
+}
+function applyComposerContext(usage) {
+  composerLiveContext = usage && typeof usage === 'object' ? usage : null;
+  refreshComposerContext();
+}
+function refreshComposerContext() {
+  const root = $('composer-context');
+  const value = $('composer-context-value');
+  if (!root || !value) return;
+  const live =
+    composerLiveContext &&
+    Number.isFinite(composerLiveContext.tokens) &&
+    Number.isFinite(composerLiveContext.percent)
+      ? composerLiveContext
+      : null;
+  const contextWindow =
+    (live && Number.isFinite(live.contextWindow) && live.contextWindow > 0
+      ? Math.round(live.contextWindow)
+      : null) ||
+    (composerLiveContext &&
+    Number.isFinite(composerLiveContext.contextWindow) &&
+    composerLiveContext.contextWindow > 0
+      ? Math.round(composerLiveContext.contextWindow)
+      : null) ||
+    selectedModelContextWindow();
+  // Always show on an open session so the cutout is discoverable; fill numbers as data arrives.
+  if (!state.sessionId) {
+    root.hidden = true;
+    value.textContent = '';
+    root.removeAttribute('aria-label');
+    return;
+  }
+  if (live && contextWindow) {
+    const used = compactTokens(live.tokens);
+    const total = compactTokens(contextWindow);
+    const percent = Math.round(live.percent);
+    bindText(value, () => tr('ui.composer_context_cutout', { used, total, percent }));
+    bindAttribute(root, 'aria-label', () => tr('ui.composer_context_label', { used, total, percent }));
+  } else if (contextWindow) {
+    const total = compactTokens(contextWindow);
+    bindText(value, () => tr('ui.composer_context_window', { total }));
+    bindAttribute(root, 'aria-label', () => tr('ui.composer_context_window_label', { total }));
+  } else {
+    bindText(value, () => tr('ui.composer_context_pending'));
+    bindAttribute(root, 'aria-label', () => tr('ui.composer_context_pending_label'));
+  }
+  root.hidden = false;
+}
 function readStorage(key, fallback) {
   try {
     return JSON.parse(localStorage.getItem(`prime-studio.${key}`)) ?? fallback;
@@ -134,6 +204,7 @@ function savePreferences(patch) {
 }
 const prefs = {
   theme: 'dark',
+  density: 'compact',
   enterToSend: true,
   reasoningMode: reasoningMode(storedPreferences()),
   details: true,
@@ -357,6 +428,7 @@ function setSelectedModel(value, persist = false, render = true) {
   if (persist) void saveGenerationSettings({ model: id });
   if (render && $('model-dialog').open) renderModelList();
   renderConfigurationWarning();
+  refreshComposerContext();
 }
 function renderConfigurationWarning() {
   const providerMissing = Array.isArray(state.configuredProviders) && state.configuredProviders.length === 0;
@@ -684,6 +756,9 @@ function applyPreferences() {
         ? 'light'
         : 'dark'
       : prefs.theme;
+  const density = ['comfortable', 'compact', 'dense'].includes(prefs.density) ? prefs.density : 'compact';
+  prefs.density = density;
+  document.documentElement.dataset.density = density;
   $('enter-to-send').checked = prefs.enterToSend;
   document.querySelectorAll('[name="reasoning-mode"]').forEach((input) => {
     input.checked = input.value === reasoningMode(prefs);
@@ -691,6 +766,9 @@ function applyPreferences() {
   document
     .querySelectorAll('[data-theme-choice]')
     .forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.themeChoice === prefs.theme)));
+  document
+    .querySelectorAll('[data-density-choice]')
+    .forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.densityChoice === density)));
   bindText($('send-hint'), () =>
     prefs.enterToSend
       ? tr('ui.entree_pour_envoyer_maj_entree_pour_un_saut_de_ligne')
@@ -1530,6 +1608,8 @@ function resetView() {
   state.projectOverview = false;
   state.requestId++;
   messageNodes.clear();
+  composerLiveContext = null;
+  refreshComposerContext();
 }
 function newSession() {
   if (state.readOnly) return;
@@ -1580,6 +1660,8 @@ async function selectSession(id, cwd) {
   state.viewRunId = null;
   state.history = [];
   state.loading = true;
+  composerLiveContext = null;
+  refreshComposerContext();
   restoreGenerationSettings(
     session(id),
     [...state.runs.values()].find((r) => r.sessionId === id && isRunning(r)),
@@ -2269,6 +2351,7 @@ function populateModels(catalog, { preserveSelection = false } = {}) {
   if ($('model-dialog').open) renderModelList({ preserveFocus: true });
   renderModelRefresh();
   renderConfigurationWarning();
+  refreshComposerContext();
 }
 function selectNewConversationModel() {
   restoreGenerationSettings(null, null);
@@ -2712,6 +2795,7 @@ inspectorUI = createInspector({
     online: state.online,
     mainModel: $('model-select').value || state.modelCatalogDefault || '',
   }),
+  onContextUsage: applyComposerContext,
   onClose: () => {
     $('toggle-details').click();
     $('toggle-details').focus();
@@ -3150,6 +3234,13 @@ document.querySelectorAll('[data-theme-choice]').forEach(
       applyPreferences();
     }),
 );
+document.querySelectorAll('[data-density-choice]').forEach(
+  (b) =>
+    (b.onclick = () => {
+      savePreferences({ density: b.dataset.densityChoice });
+      applyPreferences();
+    }),
+);
 document
   .querySelectorAll('[data-close-dialog]')
   .forEach((b) => (b.onclick = () => b.closest('dialog').close()));
@@ -3233,6 +3324,9 @@ window.addEventListener('storage', (event) => {
   if (event.key !== 'prime-studio.preferences') return;
   const latest = storedPreferences();
   prefs.modelFavorites = Array.isArray(latest.modelFavorites) ? latest.modelFavorites : [];
+  if (['comfortable', 'compact', 'dense'].includes(latest.density)) prefs.density = latest.density;
+  if (['dark', 'light', 'system'].includes(latest.theme)) prefs.theme = latest.theme;
+  applyPreferences();
   if ($('model-dialog').open) renderModelList();
 });
 window.addEventListener('beforeunload', saveDraft);
@@ -3240,6 +3334,7 @@ onLanguageChange(() => {
   if (!state.initialized) return;
   applyAccessMode();
   applyPreferences();
+  applyComposerContext(composerLiveContext);
   setConnection(state.online);
   renderNavigation();
   setSelectedModel($('model-select').value);

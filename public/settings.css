@@ -255,6 +255,10 @@
   border-radius: 8px;
   padding: 18px 10px;
 }
+.settings-modal .density-options button {
+  padding: 12px 8px;
+  min-height: 44px;
+}
 .settings-modal .reasoning-settings {
   align-items: flex-start;
   flex-direction: column;

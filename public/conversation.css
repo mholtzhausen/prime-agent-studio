@@ -10,17 +10,17 @@
 .activity-stack {
   border: 1px solid var(--line);
   background: var(--surface);
-  border-radius: 11px;
+  border-radius: var(--activity-radius);
   overflow: hidden;
-  margin: 14px 0;
+  margin: var(--activity-margin);
 }
 .activity-stack > summary {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto auto;
   align-items: center;
-  gap: 11px;
-  padding: 14px;
-  min-height: 62px;
+  gap: var(--activity-summary-gap);
+  padding: var(--activity-summary-pad);
+  min-height: var(--activity-summary-min-h);
   cursor: pointer;
   list-style: none;
 }
@@ -158,13 +158,13 @@
 }
 .activity-content {
   border-top: 1px solid var(--line);
-  padding: 3px 14px 14px;
+  padding: var(--activity-content-pad);
 }
 .activity-step {
-  padding-top: 14px;
+  padding-top: var(--activity-step-pt);
 }
 .activity-step + .activity-step {
-  margin-top: 14px;
+  margin-top: var(--activity-step-gap);
   border-top: 1px solid var(--line);
 }
 .activity-step-label {

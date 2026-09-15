@@ -63,6 +63,8 @@ Default listen: `127.0.0.1` port `PORT` or **3088**. Product surfaces are Linux-
 - **Secrets stay on the host**: provider keys and MCP OAuth live in Prime Agent storage; the browser never receives raw secrets.
 - **Remote gateway allowlists** matter: provider/config routes stay loopback-only; do not widen without an explicit security review.
 - **Translations**: add strings to `public/translations.js` (one row, both languages). `make check` validates params and references.
+- **Appearance density**: client-only preference (`comfortable` / `compact` / `dense`, default `compact`) in `prime-studio.preferences`; applied as `html[data-density]` by `public/theme.js` and spacing tokens in CSS. Do not send density to the server.
+- **Extension providers in the model catalog**: opt-in Studio preference `includeExtensionProviders` (server store / `/api/studio-preferences`), toggled on the Providers panel. When on, `scripts/model-catalog-worker.mjs` loads `~/.prime/agent/extensions` via native `discoverAndLoadExtensions` and registers their providers. Default off — extensions are arbitrary code.
 - **Tests**: default suite uses temp dirs and simulated engines. Native/Luna smokes are opt-in and may consume model quota — do not run them unless asked.
 - **Active sessions**: Studio serves the checkout live. Prefer a separate git worktree when changing UI while a real Studio instance is running from the same tree.
 

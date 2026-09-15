@@ -8,6 +8,8 @@ Le panneau **Préférences** regroupe les réglages en sept catégories : **Appa
 
 Une indication sous chaque titre rappelle la portée sans ajouter de contrôles : l’apparence et la saisie concernent ce navigateur et cette adresse ; les comptes, MCP et modèles par défaut concernent Prime Agent sur ce PC. Les défauts des sous-agents du Studio peuvent être remplacés pour un projet. Le modèle choisi pour une conversation reste distinct du modèle par défaut.
 
+**Apparence → Densité** choisit l’espacement Confortable, Compacte (par défaut) ou Serrée pour la coque, la conversation et l’inspecteur. Le choix est enregistré dans `prime-studio.preferences` avec le thème et s’applique immédiatement via l’attribut `data-density` sur la racine du document, sans rechargement.
+
 **Outils** donne accès aux MCP et aux catalogues Skills/Prompts, avec leurs dossiers globaux et du projet sélectionné. **Accès distant**, réservé au PC, active le LAN et Tailscale sans interrompre les agents et propose les liens et QR codes : voir [le guide mobile](lan.md). **Système** affiche les versions, la disponibilité du moteur et le nombre d’agents en cours ; le diagnostic copiable exclut les clés et conversations. L’ouverture des journaux est réservée au PC.
 
 La carte **Tailscale HTTPS** configure aussi l’adresse privée nécessaire à [l’installation PWA](pwa.md), avec un lien d’autorisation Tailscale si nécessaire et une nouvelle tentative depuis le panneau. Elle conserve le PIN et les autres accès.
@@ -75,7 +77,7 @@ Le [gestionnaire MCP](mcp.md), distinct du configurateur de modèles, est égale
 | `.local/attachments/`                                      | Fichiers joints originaux et métadonnées de téléchargement ; à conserver pour pouvoir les relire depuis les sessions                                          |
 | `~/.prime/agent/sessions/.studio-images/`                  | Images transmises au CLI, également enregistrées dans les messages natifs                                                                                     |
 | IndexedDB du navigateur                                    | Pièces jointes des brouillons, séparées par session ou nouveau projet                                                                                         |
-| Stockage local du navigateur                               | Brouillons, thème et préférences de saisie                                                                                                                    |
+| Stockage local du navigateur                               | Brouillons, thème, densité d’interface et préférences de saisie                                                                           |
 | Cache Storage du navigateur                                | Icônes et écran de reconnexion de la PWA ; aucune conversation ni pièce jointe envoyée                                                                        |
 | `.local/lan-access.json`                                   | Code d’accès haché et passerelles LAN, Tailscale et HTTPS PWA                                                                                                 |
 | `.local/logs/server.log`                                   | Journal du serveur lancé en arrière-plan                                                                                                                      |

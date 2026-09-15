@@ -99,6 +99,7 @@ export function createProviderSettings({ api, toast, allowed, onChanged }) {
         tr('ui.connectez_un_compte_ou_ajoutez_une_cle_api_pour_retrouver_ses_mod'),
       ),
     );
+    section.append(extensionProvidersBlock());
     if (translateKnown(data.warning))
       section.append(node('p', 'provider-notice', () => translateKnown(data.warning)));
     if (data.busy)
@@ -147,6 +148,73 @@ export function createProviderSettings({ api, toast, allowed, onChanged }) {
     show(section);
     draw();
     search.focus();
+  }
+  function extensionProvidersBlock() {
+    const info = data.extensionProviders || { includeInCatalog: false, extensions: [] };
+    const wrap = node('section', 'provider-extensions');
+    wrap.append(
+      node('h3', 'provider-extensions-title', () => tr('ui.fournisseurs_par_extension')),
+      node('p', 'providers-note', () => tr('ui.fournisseurs_par_extension_intro')),
+    );
+    const row = node('label', 'provider-extensions-toggle');
+    const control = node('input');
+    control.type = 'checkbox';
+    control.checked = info.includeInCatalog === true;
+    control.disabled = acting;
+    const status = node('span', 'provider-extensions-status');
+    bindText(status, () =>
+      control.checked
+        ? tr('ui.fournisseurs_par_extension_actif')
+        : tr('ui.fournisseurs_par_extension_inactif'),
+    );
+    row.append(control, node('span', '', () => tr('ui.inclure_les_fournisseurs_des_extensions')), status);
+    control.onchange = async () => {
+      if (acting) return;
+      acting = true;
+      control.disabled = true;
+      error();
+      const value = control.checked;
+      try {
+        await api('/api/studio-preferences', {
+          method: 'PATCH',
+          body: { includeExtensionProviders: value },
+        });
+        data.extensionProviders = {
+          ...info,
+          includeInCatalog: value,
+        };
+        await api('/api/models/refresh', { method: 'POST', body: {} });
+        await changed();
+        toast(() =>
+          value
+            ? tr('ui.catalogue_des_extensions_active')
+            : tr('ui.catalogue_des_extensions_desactive'),
+        );
+        bindText(status, () =>
+          value ? tr('ui.fournisseurs_par_extension_actif') : tr('ui.fournisseurs_par_extension_inactif'),
+        );
+      } catch (e) {
+        control.checked = !value;
+        error(translateKnown(e.message));
+      } finally {
+        acting = false;
+        control.disabled = false;
+      }
+    };
+    wrap.append(row);
+    const files = Array.isArray(info.extensions) ? info.extensions : [];
+    if (files.length) {
+      const list = node('ul', 'provider-extensions-list');
+      bindAttribute(list, 'aria-label', () => tr('ui.extensions_detectees'));
+      for (const entry of files) {
+        const item = node('li', '', () => entry.file || entry.id);
+        list.append(item);
+      }
+      wrap.append(list);
+    } else {
+      wrap.append(node('p', 'providers-note', () => tr('ui.aucune_extension_detectee')));
+    }
+    return wrap;
   }
   function card(entry) {
     const item = node('article', 'provider-card'),

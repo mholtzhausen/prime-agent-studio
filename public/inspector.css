@@ -1,15 +1,15 @@
 #details-panel {
   padding: 0;
-  width: 310px;
+  width: var(--detail-width);
   min-width: 0;
   overflow: hidden;
 }
 .inspector-heading {
-  min-height: 56px;
+  min-height: var(--inspector-heading-min-h);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 18px;
+  padding: var(--inspector-heading-pad);
   gap: 10px;
 }
 .inspector-heading strong {
@@ -26,11 +26,11 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 3px;
-  padding: 0 12px 12px;
+  padding: var(--inspector-tabs-pad);
   border-bottom: 1px solid var(--line);
 }
 .inspector-tabs button {
-  min-height: 40px;
+  min-height: var(--inspector-tab-min-h);
   border-radius: 8px;
   color: var(--muted);
   font-size: 12px;
@@ -50,7 +50,7 @@
   background: var(--surface);
 }
 .inspector-content {
-  padding: 20px 18px;
+  padding: var(--inspector-content-pad);
   flex: 1;
   min-height: 0;
   overflow-y: auto;
@@ -61,11 +61,11 @@
   flex-direction: column;
 }
 .inspector-content .context-section {
-  margin-bottom: 20px;
-  padding-bottom: 20px;
+  margin-bottom: var(--context-section-mb);
+  padding-bottom: var(--context-section-pad-b);
 }
 .inspector-content .context-bottom {
-  padding-top: 12px;
+  padding-top: var(--context-bottom-pt);
 }
 .inspector-content .session-properties {
   font-size: 12px;

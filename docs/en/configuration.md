@@ -8,6 +8,8 @@
 
 A note below each title explains scope without adding controls: appearance and typing preferences apply to this browser and address; accounts, MCP and model defaults apply to Prime Agent on this PC. Studio subagent defaults can be overridden for a project. The conversation model remains separate from the default model.
 
+**Appearance → Density** chooses Comfortable, Compact (default) or Dense spacing for the shell, conversation and inspector. The choice is stored in `prime-studio.preferences` with the theme and applies immediately via the `data-density` attribute on the document root—no reload.
+
 **Tools** opens MCP and Skills/Prompts catalogs, with their global and selected-project folders. **Remote access**, restricted to the PC, enables LAN and Tailscale without interrupting agents and provides links and QR codes: see [the mobile guide](lan.md). **System** shows versions, engine availability and the running agent count; copied diagnostics exclude keys and conversations. Opening logs is restricted to the PC.
 
 The **Tailscale HTTPS** card also configures the private address needed for [PWA installation](pwa.md), with a Tailscale approval link when needed and a retry action in the panel. It preserves the PIN and other access channels.
@@ -75,7 +77,7 @@ The [MCP manager](mcp.md), separate from the model configurator, is also availab
 | `.local/attachments/`                                      | Original attached files and download metadata; keep them to reopen files from sessions                                                  |
 | `~/.prime/agent/sessions/.studio-images/`                  | Images passed to the CLI, also recorded in native messages                                                                              |
 | Browser IndexedDB                                          | Draft attachments, separated by session or new project                                                                                  |
-| Browser local storage                                      | Drafts, theme and input preferences                                                                                                     |
+| Browser local storage                                      | Drafts, theme, layout density and input preferences                                                                                     |
 | Browser Cache Storage                                      | PWA icons and reconnection screen; no conversations or sent attachments                                                                 |
 | `.local/lan-access.json`                                   | Hashed access code and LAN, Tailscale and HTTPS PWA gateways                                                                            |
 | `.local/logs/server.log`                                   | Background server log                                                                                                                   |

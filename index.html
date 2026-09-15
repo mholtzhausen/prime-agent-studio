@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="fr" data-theme="dark">
+<html lang="fr" data-theme="dark" data-density="compact">
   <head>
     <meta charset="utf-8" />
     <meta
@@ -533,6 +533,15 @@
                     disabled
                     data-icon="arrow-up"
                   ></button>
+                </div>
+                <div
+                  id="composer-context"
+                  class="composer-context"
+                  role="status"
+                  aria-live="polite"
+                  hidden
+                >
+                  <span id="composer-context-value"></span>
                 </div>
               </form>
               <div class="composer-footnote">
@@ -1173,6 +1182,23 @@
                   <span data-icon="sun"></span><span data-i18n="ui.clair">Clair</span></button
                 ><button data-theme-choice="system">
                   <span data-icon="monitor"></span><span data-i18n="ui.systeme">Système</span>
+                </button>
+              </div>
+            </div>
+            <div class="settings-group">
+              <label data-i18n="ui.densite">Densité</label>
+              <p class="settings-hint" data-i18n="ui.densite_note">
+                Espacement de l’interface sur cet appareil.
+              </p>
+              <div class="theme-options density-options">
+                <button type="button" data-density-choice="comfortable">
+                  <span data-i18n="ui.densite_confortable">Confortable</span>
+                </button>
+                <button type="button" data-density-choice="compact" aria-pressed="true">
+                  <span data-i18n="ui.densite_compacte">Compacte</span>
+                </button>
+                <button type="button" data-density-choice="dense">
+                  <span data-i18n="ui.densite_serree">Serrée</span>
                 </button>
               </div>
             </div>

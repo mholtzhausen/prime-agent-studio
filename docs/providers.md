@@ -16,6 +16,12 @@ Avec Prime Agent 0.9.2, les parcours par compte disponibles sont ceux d’OpenAI
 
 Azure et Cloudflare demandent des paramètres d’environnement complémentaires. Bedrock et Vertex utilisent leurs réglages cloud existants ; une indication dans leur carte explique où les configurer. Les fournisseurs personnalisés doivent d’abord être définis dans **Modèles et valeurs par défaut**.
 
+## Fournisseurs par extension
+
+Les extensions Prime Agent dans `~/.prime/agent/extensions` (`.ts` / `.js`) peuvent appeler `registerProvider` et exposer des modèles au CLI. Le catalogue de modèles du Studio **ne charge pas** ces extensions par défaut.
+
+Dans le même panneau **Fournisseurs**, la section **Fournisseurs par extension** liste les fichiers détectés et propose **Inclure les fournisseurs des extensions dans le catalogue**. Une fois activée, le choix est enregistré dans les préférences locales du Studio ; le worker isolé du catalogue charge alors les extensions globales de l’agent comme une session native, puis fusionne leurs fournisseurs enregistrés dans le sélecteur. Désactiver l’option les retire du catalogue. Activer cette option exécute le code des extensions dans ce worker ; gardez-la désactivée sauf si vous faites confiance aux extensions installées.
+
 ## Catalogue et disponibilité
 
 Avec Prime Agent **0.9.4**, le sélecteur utilise le registre natif des modèles disponibles pour les fournisseurs configurés. Son actualisation inclut les modèles publics et les modèles privés Prime Inference accessibles à votre compte. Si le moteur est plus ancien ou si ce registre est indisponible, le Studio utilise le catalogue intégré à l’installation et les modèles personnalisés.

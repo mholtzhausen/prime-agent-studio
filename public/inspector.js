@@ -67,6 +67,7 @@ export function createInspector({
   openModelPicker,
   icon,
   toast,
+  onContextUsage = () => {},
 }) {
   let tab = 'session',
     fileMode = 'changes',
@@ -408,16 +409,25 @@ export function createInspector({
     }
     return parts.join('\n');
   }
+  function publishContextUsage(usage) {
+    try {
+      onContextUsage(usage || null);
+    } catch {
+      /* ignore consumer errors */
+    }
+  }
   function renderContext() {
     ensureSessionExtras();
     if (!current.enabled) {
       contextSection.hidden = true;
       contextSection.replaceChildren();
+      publishContextUsage(null);
       return;
     }
     const raw = agentData?.contextUsage ?? agentData?.session?.contextUsage;
     const usage = validContextUsage(raw);
     if (!usage) {
+      publishContextUsage(null);
       // Honest unknown UI: keep the section visible instead of disappearing.
       // Idle/no native data -> idle message; null placeholders -> generic pending
       // (compaction-specific text only with proven compaction, never inferred here).
@@ -457,6 +467,7 @@ export function createInspector({
       contextSection.append(line, note);
       return;
     }
+    publishContextUsage(usage);
     contextSection.hidden = false;
     contextSection.replaceChildren();
     const label = document.createElement('div');
@@ -1161,6 +1172,7 @@ export function createInspector({
       agentData = fileData = null;
       lastAgents = '';
       directory = '';
+      publishContextUsage(null);
       if (viewer.open) viewer.close();
       $('inspector-agent-count').hidden = true;
       $('inspector-usage').hidden = true;
@@ -1205,10 +1217,12 @@ export function createInspector({
       renderContext();
     } catch {}
     if (!current.enabled) return;
-    if (!visible() || document.hidden || !current.online) return;
-    if (tab === 'files') {
-      if (fileMode === 'changes' || !fileData) void loadFiles();
-    } else void loadAgents();
+    if (document.hidden || !current.online) return;
+    // Keep agent/context polling while a session is open so the composer cutout
+    // stays live even when the inspector panel is closed.
+    if (current.sessionId) void loadAgents();
+    if (!visible()) return;
+    if (tab === 'files' && (fileMode === 'changes' || !fileData)) void loadFiles();
   }
   const timer = setInterval(update, 2500);
   document.addEventListener('visibilitychange', update);

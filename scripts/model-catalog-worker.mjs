@@ -1,5 +1,5 @@
 // Native provider registries are process-global; this persistent worker owns its own copy.
-import { stat } from 'node:fs/promises';
+import { readdir, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -7,12 +7,14 @@ const REFRESH_TTL = 5 * 60_000;
 const OBSERVATION_WINDOW = 12_000;
 const POLL_INTERVAL = 250;
 const THINKING = new Set(['off', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max']);
+const EXTENSION_FILE = /^(?!.*\.d\.ts$)[^.].*\.(?:ts|js)$/i;
 const text = (value, limit = 400) => (typeof value === 'string' ? value.slice(0, limit) : '');
 const number = (value) => (Number.isFinite(value) && value >= 0 ? value : undefined);
 let native;
 let thinkingLevels;
 let auth;
 let modelsPath;
+let agentHomePath;
 let configPaths;
 let state;
 let initializing;
@@ -32,6 +34,7 @@ async function initialize({ packageDir, agentHome }) {
   )
     throw new Error('Unsupported native catalogue');
   thinkingLevels = ai.getSupportedThinkingLevels;
+  agentHomePath = agentHome;
   auth = native.AuthStorage.create(join(agentHome, 'auth.json'), { usePrimeCliConfig: true });
   if (auth.drainErrors?.().length) throw new Error('Native auth could not be read');
   modelsPath = join(agentHome, 'models.json');
@@ -40,20 +43,32 @@ async function initialize({ packageDir, agentHome }) {
   if (primeConfigPath) configPaths.push(primeConfigPath);
 }
 
-async function fingerprint() {
-  return JSON.stringify(
-    await Promise.all(
-      configPaths.map(async (path) => {
-        try {
-          const info = await stat(path, { bigint: true });
-          return [path, `${info.mtimeNs}:${info.ctimeNs}:${info.size}:${info.ino}`];
-        } catch (error) {
-          if (error.code !== 'ENOENT') throw new Error('Native configuration could not be inspected');
-          return [path, 'missing'];
-        }
-      }),
-    ),
-  );
+async function pathStamp(path) {
+  try {
+    const info = await stat(path, { bigint: true });
+    return [path, `${info.mtimeNs}:${info.ctimeNs}:${info.size}:${info.ino}`];
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw new Error('Native configuration could not be inspected');
+    return [path, 'missing'];
+  }
+}
+
+async function fingerprint(includeExtensionProviders) {
+  const stamps = await Promise.all(configPaths.map(pathStamp));
+  if (includeExtensionProviders) {
+    const dir = join(agentHomePath, 'extensions');
+    stamps.push(await pathStamp(dir));
+    try {
+      const entries = await readdir(dir, { withFileTypes: true });
+      for (const entry of entries) {
+        if (!entry.isFile() || !EXTENSION_FILE.test(entry.name)) continue;
+        stamps.push(await pathStamp(join(dir, entry.name)));
+      }
+    } catch (error) {
+      if (error.code !== 'ENOENT') throw new Error('Native configuration could not be inspected');
+    }
+  }
+  return JSON.stringify([includeExtensionProviders ? 1 : 0, ...stamps]);
 }
 
 function snapshot(registry) {
@@ -97,6 +112,25 @@ function publish(current) {
   current.catalog = snapshot(current.registry);
 }
 
+async function applyExtensionProviders(registry) {
+  // Same flush path as createAgentSessionServices: load global agent extensions, then register.
+  // cwd = agentHome only discovers agentHome/.prime/agent/extensions (usually empty) plus agentHome/extensions.
+  if (
+    typeof native.discoverAndLoadExtensions !== 'function' ||
+    typeof registry.registerProvider !== 'function'
+  )
+    return;
+  const loaded = await native.discoverAndLoadExtensions([], agentHomePath, agentHomePath);
+  for (const registration of loaded.runtime?.pendingProviderRegistrations || []) {
+    try {
+      registry.registerProvider(registration.name, registration.config);
+    } catch {
+      // Keep the rest of the catalogue; never surface extension errors or config.
+    }
+  }
+  if (loaded.runtime) loaded.runtime.pendingProviderRegistrations = [];
+}
+
 function beginRefresh(current) {
   if (current.refreshing) return;
   current.lastRefresh = Date.now();
@@ -129,7 +163,8 @@ function beginRefresh(current) {
 async function read(message) {
   initializing ??= initialize(message);
   await initializing;
-  const stamp = await fingerprint();
+  const includeExtensionProviders = message.includeExtensionProviders === true;
+  const stamp = await fingerprint(includeExtensionProviders);
   if (!state || stamp !== state.stamp) {
     clearInterval(state?.timer);
     auth.drainErrors?.();
@@ -137,6 +172,7 @@ async function read(message) {
     if (auth.drainErrors?.().length) throw new Error('Native auth could not be read');
     // A previous in-flight refresh keeps its own registry, so its result cannot restore an old team.
     const registry = native.ModelRegistry.create(auth, modelsPath);
+    if (includeExtensionProviders) await applyExtensionProviders(registry);
     const current = { registry, stamp, refreshing: false, lastRefresh: 0 };
     state = current;
     publish(current);

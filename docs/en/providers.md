@@ -16,6 +16,12 @@ With Prime Agent 0.9.2, available account flows are OpenAI Codex, Anthropic and 
 
 Azure and Cloudflare require additional environment settings. Bedrock and Vertex use their existing cloud settings; guidance in each card explains where to configure them. Custom providers must first be defined in **Models and defaults**.
 
+## Extension providers
+
+Prime Agent extensions under `~/.prime/agent/extensions` (`.ts` / `.js`) may call `registerProvider` and expose models to the CLI. Studio’s model catalog does **not** load those extensions by default.
+
+On the same **Providers** panel, **Extension providers** lists detected extension files and offers **Include extension providers in the model catalog**. When enabled, Studio stores the choice in its local preferences and the isolated model-catalog worker loads global agent extensions the same way a native session does, then merges their registered providers into the picker. Turning the option off removes them from the catalog again. Enabling this runs extension code in that worker; keep it off unless you trust the installed extensions.
+
 ## Catalog and availability
 
 With Prime Agent **0.9.4**, the model picker uses the native registry of available models for configured providers. Refreshing includes public models and private Prime Inference models accessible to your account. If the engine is older or this registry is unavailable, Studio uses the catalog bundled with the installation and custom models.
