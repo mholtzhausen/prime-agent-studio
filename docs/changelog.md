@@ -4,6 +4,12 @@
 
 Les changements par version. Retrouvez les installateurs et les archives du code source dans les [releases GitHub](https://github.com/mholtzhausen/prime-agent-studio/releases).
 
+## 4.1.1
+
+- **Identité du daemon avec superviseur forké** : accepter `daemon_hello` lorsque `supervisorPid` est le processus lancé par Studio ou un de ses descendants, et lorsque le hello annonce la socket privée du Studio. Corrige le démarrage du moteur avec prime-agent 0.9.5+ (« ne correspond pas au processus lancé par le Studio »).
+- **Erreurs de probe honnêtes** : les échecs du probe renvoient `{ error, check, detail }` structurés pour qu’une dérive d’API reste `engine_incompatible` avec l’export nommé, au lieu du message générique de chemin.
+- **Après installation** : redémarrez le serveur depuis les préférences une fois les agents terminés.
+
 ## 4.1.0
 
 - **Composants système dans Préférences** : choisissez le binaire Prime Agent sous Préférences → Système (même interface dans le navigateur et le webview du bureau Linux). Un chemin vide se découvre depuis le PATH et des répertoires connus ; validation des capacités uniquement — Studio ne gère plus le téléchargement de Prime Agent, uv ou Python.

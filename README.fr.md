@@ -44,7 +44,7 @@
 
 Prime Agent Studio Nix réunit les sessions de votre **Prime Agent local** dans une application de bureau Linux et une interface accessible depuis le navigateur. Suivez les réponses en direct, retrouvez vos projets et continuez une conversation sans ouvrir de terminal. Les agents et leurs outils s’exécutent comme des processus Linux ordinaires tant que le serveur reste actif.
 
-**Version 4.1.0** · [Télécharger l’AppImage ou le deb](https://github.com/mholtzhausen/prime-agent-studio/releases/latest) · [Historique des versions](docs/changelog.md).
+**Version 4.1.1** · [Télécharger l’AppImage ou le deb](https://github.com/mholtzhausen/prime-agent-studio/releases/latest) · [Historique des versions](docs/changelog.md).
 
 ## Images et questions dans la conversation
 
@@ -139,7 +139,7 @@ Téléchargez l’[AppImage ou le deb](https://github.com/mholtzhausen/prime-age
 
 Les mises à jour portent une signature cryptographique Tauri.
 
-**Après la mise à jour :** l’application peut continuer à utiliser l’ancien serveur pendant que les agents terminent leur travail. Une fois leurs exécutions terminées, utilisez **Préférences → Mise à jour → Redémarrer le serveur** dans l’application Linux pour activer la version 4.1.0. [Guide de mise à jour](docs/desktop.md).
+**Après la mise à jour :** l’application peut continuer à utiliser l’ancien serveur pendant que les agents terminent leur travail. Une fois leurs exécutions terminées, utilisez **Préférences → Mise à jour → Redémarrer le serveur** dans l’application Linux pour activer la version 4.1.1. [Guide de mise à jour](docs/desktop.md).
 
 ### Depuis le code source
 

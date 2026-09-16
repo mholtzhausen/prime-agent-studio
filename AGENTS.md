@@ -4,7 +4,7 @@ Guidance for LLM / coding agents working in this repository.
 
 ## Project summary
 
-**Prime Agent Studio Nix** (v4.1.0) is a local French/English workspace UI around [Prime Agent](https://github.com/PrimeIntellect-ai/prime-agent). It serves a vanilla browser client from this repo, drives the installed Prime Agent CLI/supervisor, and optionally wraps that stack in a Linux Tauri app (AppImage/deb).
+**Prime Agent Studio Nix** (v4.1.1) is a local French/English workspace UI around [Prime Agent](https://github.com/PrimeIntellect-ai/prime-agent). It serves a vanilla browser client from this repo, drives the installed Prime Agent CLI/supervisor, and optionally wraps that stack in a Linux Tauri app (AppImage/deb).
 
 **Engine compatibility:** Studio expects Prime Agent **0.9.4+** (daemon hello on a private socket; `utils/shell#resolveKernelBashShell`). From **0.9.5** the daemon may fork a supervisor child — Studio accepts that descendant when it listens on the Studio-owned socket. An incompatible engine reports `engine_incompatible` with a probe `check`/`detail`, not a path error.
 
