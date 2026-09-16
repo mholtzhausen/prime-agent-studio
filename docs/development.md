@@ -33,7 +33,9 @@ La gestion des fournisseurs utilise `lib/provider-service.mjs` et un processus d
 
 Le serveur appelle directement le fichier JavaScript du CLI avec Node.
 
-Le Studio démarre son propre superviseur Prime Agent en arrière-plan, sur une adresse de communication privée. Il ne réutilise pas le superviseur d’un terminal externe. Les demandes partagent ce moteur, mais chacune garde son client : **Arrêter** demande au client concerné de fermer proprement sa session et ses sous-agents. L’arrêt forcé de son processus reste un recours si le client ne répond plus.
+Le Studio démarre son propre superviseur Prime Agent en arrière-plan, sur une adresse de communication privée. Il ne réutilise pas le superviseur d’un terminal externe. À partir de prime-agent 0.9.5, le processus lancé peut créer un enfant superviseur ; le Studio l’accepte lorsque `daemon_hello` annonce la socket privée du Studio. Les demandes partagent ce moteur, mais chacune garde son client : **Arrêter** demande au client concerné de fermer proprement sa session et ses sous-agents. L’arrêt forcé de son processus reste un recours si le client ne répond plus.
+
+Préférences → Système valide le moteur avec `scripts/component-probe.mjs`. Les échecs du probe renvoient `{ error, check, detail }` structurés pour qu’une dérive d’API apparaisse comme `engine_incompatible` (export nommé), et non comme une erreur de chemin générique.
 
 Le chargeur local `runtime/headless-loader.mjs` active l’attente native de fin des sous-agents avant que le client JSON ferme sa session. La réponse du parent ne coupe donc pas les tâches qu’il vient de déléguer. Le changement s’applique en mémoire, uniquement au mode d’exécution utilisé par le Studio ; les fichiers installés de Prime Agent restent intacts. Si une mise à jour du CLI change ce point d’intégration, le Studio affiche une erreur explicite plutôt que d’appliquer une transformation incertaine.
 

@@ -120,7 +120,10 @@ export function createComponentsSettings({
   function render(result) {
     latest = result;
     if (result?.failure) {
-      bindText(live, () => translateKnown(result.failure.error || 'validation_failed'));
+      bindText(live, () => {
+        const base = translateKnown(result.failure.error || 'validation_failed');
+        return result.failure.detail ? `${base} (${result.failure.detail})` : base;
+      });
       return;
     }
     for (const tool of TOOLS) {
@@ -136,7 +139,10 @@ export function createComponentsSettings({
             : tr('components.state_error');
       if (info?.error) {
         field.error.hidden = false;
-        bindText(field.error, () => translateKnown(info.error));
+        bindText(field.error, () => {
+          const base = translateKnown(info.error);
+          return info.detail ? `${base} (${info.detail})` : base;
+        });
       } else {
         field.error.hidden = true;
         field.error.textContent = '';

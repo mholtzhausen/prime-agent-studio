@@ -73,6 +73,7 @@ flowchart TB
 - **Loopback server** binds `127.0.0.1` (default port **3088**, override with `PORT`).
 - **Remote access** is an explicit gateway with PIN auth; it does not expose provider credential routes.
 - Studio starts **its own** supervisor; it does not attach to an unrelated terminal session.
+- Ownership is the private per-run socket path plus process link: the hello `supervisorPid` may be the spawned process or a **descendant** (prime-agent 0.9.5+ forks a supervisor child). A hello claiming a different socket is rejected.
 - Closing a browser tab does not stop agents; **Stop** or shutting down the server does.
 
 ## Data flow (conversation turn)

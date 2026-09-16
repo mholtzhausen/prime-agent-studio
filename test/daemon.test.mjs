@@ -1,7 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { EventEmitter } from 'node:events';
-import { createOwnedDaemon } from '../lib/daemon.mjs';
+import {
+  createOwnedDaemon,
+  verifySupervisorIdentity,
+  isOwnedSupervisorProcess,
+} from '../lib/daemon.mjs';
 
 function fixture(overrides = {}) {
   const children = [];
@@ -25,7 +29,20 @@ function fixture(overrides = {}) {
       }
     }
     async waitForHello() {
-      return { supervisorPid: overrides.wrongPid ? 7 : (overrides.replacementPid ?? children.at(-1).pid) };
+      if (typeof overrides.hello === 'function') return overrides.hello(children, sockets);
+      const launcher = children.at(-1);
+      return {
+        supervisorPid: overrides.wrongPid
+          ? 7
+          : (overrides.replacementPid ?? overrides.supervisorPid ?? launcher?.pid),
+        supervisorSocketPath: overrides.foreignSocket
+          ? '/tmp/foreign-daemon.sock'
+          : overrides.omitSocket
+            ? undefined
+            : sockets.at(-1),
+        supervisorOwnerToken: 'token',
+        supervisorProcessStartId: 'start-id',
+      };
     }
     async request(command) {
       commands.push(command);
@@ -37,6 +54,7 @@ function fixture(overrides = {}) {
     }
     close() {}
   }
+  const parents = overrides.parents || {};
   const daemon = createOwnedDaemon(
     {
       cli: { packageDir: '/fake/package', path: '/fake/package/cli.js', node: true },
@@ -64,6 +82,7 @@ function fixture(overrides = {}) {
     },
     {
       loadClient: async () => Client,
+      readProcessParentPid: (pid) => (Object.hasOwn(parents, pid) ? parents[pid] : null),
       spawnProcess(command, args, options) {
         const child = Object.assign(new EventEmitter(), {
           pid: 51000 + children.length,
@@ -126,6 +145,39 @@ test('startup refuses a different supervisor and terminates only its own child',
   assert.deepEqual(f.terminated, [51000]);
   await f.daemon.close();
   assert.deepEqual(f.commands, []);
+});
+
+test('startup accepts a forked supervisor child of the launched process (prime-agent 0.9.5+)', async () => {
+  const f = fixture({
+    supervisorPid: 51999,
+    parents: { 51999: 51000 },
+  });
+  const ready = await f.daemon.ensureReady();
+  assert.equal(ready.pid, 51999);
+  assert.equal(f.daemon.pid, 51999);
+  assert.equal(ready.socketPath, f.daemon.socketPath);
+  await f.daemon.close();
+});
+
+test('startup refuses a hello that claims a different socket path even with a matching pid', async () => {
+  const f = fixture({ foreignSocket: true });
+  await assert.rejects(f.daemon.ensureReady(), /ne correspond pas/);
+  assert.deepEqual(f.terminated, [51000]);
+});
+
+test('verifySupervisorIdentity rejects an unrelated pid without a process link', () => {
+  assert.equal(
+    verifySupervisorIdentity(
+      { supervisorPid: 99, supervisorSocketPath: '/tmp/studio.sock' },
+      { socketPath: '/tmp/studio.sock', launcherPid: 10, requireProcessLink: true },
+    ).ok,
+    false,
+  );
+  assert.equal(isOwnedSupervisorProcess(10, 99, { readProcessParentPid: () => null }), false);
+  assert.equal(
+    isOwnedSupervisorProcess(10, 42, { readProcessParentPid: (pid) => (pid === 42 ? 10 : null) }),
+    true,
+  );
 });
 
 test('a startup timeout cleans up the owned process and remains retryable', async () => {

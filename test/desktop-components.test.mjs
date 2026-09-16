@@ -15,6 +15,8 @@ import {
   inspectEngineStatic,
   resetComponentLaunchEnv,
   captureComponentLaunchEnv,
+  classifyComponentError,
+  parseProbeFailure,
 } from '../lib/desktop-components.mjs';
 
 async function fixture(t) {
@@ -186,4 +188,39 @@ test('listEngineCandidates includes nvm-style paths when present', async (t) => 
   const root = await fixture(t);
   const listed = await listEngineCandidates(root, { PRIME_AGENT_CLI: '/explicit/cli' });
   assert.ok(listed.includes('/explicit/cli'));
+});
+
+test('probe failures keep engine_incompatible instead of degrading to validation_failed', () => {
+  const payload = JSON.stringify({
+    error: 'engine_incompatible',
+    check: 'utils/shell#resolveKernelBashShell',
+    detail: 'TypeError: shell.resolveKernelBashShell is not a function',
+  });
+  const wrapped = new Error(`/usr/bin/node : ${payload}`);
+  const classified = classifyComponentError(wrapped);
+  assert.equal(classified.code, 'engine_incompatible');
+  assert.match(classified.detail, /resolveKernelBashShell/);
+  assert.equal(parseProbeFailure(payload).error, 'engine_incompatible');
+  assert.equal(classifyComponentError(new Error('engine_incompatible')).code, 'engine_incompatible');
+});
+
+test('diagnoseComponents preserves probe detail on engine errors', async (t) => {
+  const dataRoot = await fixture(t);
+  const payload = JSON.stringify({
+    error: 'engine_incompatible',
+    check: 'utils/shell#resolveKernelBashShell',
+    detail: 'TypeError: shell.resolveKernelBashShell is not a function',
+  });
+  const deps = {
+    validateEngine: async () => {
+      throw new Error(`${process.execPath} : ${payload}`);
+    },
+    execute: async () => 'studio-shell-ok',
+    checkNode: () => {},
+  };
+  await atomicJson(join(dataRoot, 'engine/selection.json'), { engine: '/some/engine' });
+  const result = await diagnoseComponents({ dataRoot, env: {} }, deps);
+  assert.equal(result.components.engine.status, 'error');
+  assert.equal(result.components.engine.error, 'engine_incompatible');
+  assert.match(result.components.engine.detail, /TypeError/);
 });

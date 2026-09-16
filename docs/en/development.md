@@ -33,7 +33,9 @@ Provider management uses `lib/provider-service.mjs` and a background `scripts/pr
 
 The server invokes the CLI’s JavaScript file directly with Node.
 
-Studio starts its own Prime Agent supervisor in the background at a private communication address. It does not reuse an external terminal’s supervisor. Requests share this engine, but each keeps its client: **Stop** asks the relevant client to cleanly close its session and subagents. Forcibly terminating its process remains a fallback if the client stops responding.
+Studio starts its own Prime Agent supervisor in the background at a private communication address. It does not reuse an external terminal’s supervisor. From prime-agent 0.9.5 the launched process may fork a supervisor child; Studio accepts that descendant when `daemon_hello` reports Studio’s private socket. Requests share this engine, but each keeps its client: **Stop** asks the relevant client to cleanly close its session and subagents. Forcibly terminating its process remains a fallback if the client stops responding.
+
+Preferences → System validates the engine with `scripts/component-probe.mjs`. Probe failures return structured `{ error, check, detail }` so an API mismatch surfaces as `engine_incompatible` (with the failing export named), not a generic path error.
 
 The local `runtime/headless-loader.mjs` loader enables native waiting for subagent completion before the JSON client closes its session. A parent response therefore does not stop newly delegated tasks. The change applies in memory, only to Studio’s execution mode; installed Prime Agent files stay intact. If a CLI update changes this integration point, Studio reports an explicit error instead of applying an uncertain transformation.
 

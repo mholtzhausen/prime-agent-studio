@@ -2,6 +2,7 @@ import {
   applySelection,
   activateComponents,
   diagnoseComponents,
+  classifyComponentError,
 } from '../lib/desktop-components.mjs';
 import { isDirectInvocation } from './launcher-common.mjs';
 
@@ -49,10 +50,12 @@ if (isDirectInvocation(import.meta.url)) {
       result: await runComponents(options, { signal: abort.signal }),
     });
   } catch (error) {
+    const classified = classifyComponentError(error);
     output({
       type: 'failure',
       component: error.component,
-      error: /^[a-z_]+$/.test(error.message) ? error.message : 'validation_failed',
+      error: classified.code,
+      detail: classified.detail,
     });
   } finally {
     process.stdin.destroy();

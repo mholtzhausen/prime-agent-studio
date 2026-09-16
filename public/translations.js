@@ -668,8 +668,8 @@ export const messages = {
     en: 'uv is incompatible or could not report a version.',
   },
   engine_incompatible: {
-    fr: 'Ce chemin n’est pas une installation Prime Agent utilisable.',
-    en: 'This path is not a usable Prime Agent installation.',
+    fr: 'Cette installation Prime Agent ne correspond pas à l’API attendue par Studio (version incompatible ou exports manquants). Ce n’est en général pas un problème de chemin.',
+    en: 'This Prime Agent install does not match the API Studio expects (incompatible version or missing exports). This is usually not a path problem.',
   },
   bash_missing: {
     fr: 'bash est introuvable ou ne répond pas.',
