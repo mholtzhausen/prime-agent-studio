@@ -8,6 +8,7 @@ Changes by version. See [GitHub releases](https://github.com/mholtzhausen/prime-
 
 - **Daemon identity with forked supervisors**: accept `daemon_hello` when `supervisorPid` is the Studio-spawned process or a descendant of it, and when the hello claims Studio’s private socket. Fixes engine start against prime-agent 0.9.5+ (“does not match the process started by Studio”).
 - **Honest component probe errors**: probe failures return structured `{ error, check, detail }` so API mismatches stay `engine_incompatible` with the failing export named, instead of the generic path validation message.
+- **RPC / headless loaders across the npm bridge**: keep `PRIME_GUI_CLI_ROOT` until `cli-node.js` so `studio_wait_for_completion` and the print-mode child barrier still patch after prime-agent 0.9.5’s `cli.js` re-exec.
 - **After installation**: restart the server from preferences once your agents have finished.
 
 ## 4.1.0

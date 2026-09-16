@@ -3,10 +3,15 @@ import assert from 'node:assert/strict';
 import { readFile, readdir, mkdtemp, mkdir, writeFile, rm, symlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, dirname, resolve } from 'node:path';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 import { createNativeInteractions } from '../lib/native-interactions.mjs';
 import { transformStudioRpc } from '../runtime/studio-rpc-hook.mjs';
+import { isPrimeAgentNpmBridge } from '../runtime/npm-bridge.mjs';
 import { discoverCli } from '../lib/agent.mjs';
 import { createProjectFiles } from '../lib/project-files.mjs';
+
+const exec = promisify(execFile);
 
 test('native answers are correlated, validated and only accepted once after acknowledgement', async () => {
   const events = [],
@@ -79,6 +84,144 @@ test('RPC adapter matches actual packaged and source modules and fails on incomp
   }
   assert.ok(checked >= 2);
 });
+
+test('npm bridge detection only matches dist/bundle/cli.js', () => {
+  assert.equal(isPrimeAgentNpmBridge('/opt/prime-agent/dist/bundle/cli.js'), true);
+  assert.equal(isPrimeAgentNpmBridge('/opt/prime-agent/dist/bundle/cli-node.js'), false);
+  assert.equal(isPrimeAgentNpmBridge('/opt/prime-agent/dist/modes/rpc/rpc-mode.js'), false);
+});
+
+test('studio-rpc loader keeps the role marker across cli.js → cli-node.js re-exec', async (t) => {
+  const root = await mkdtemp(join(tmpdir(), 'prime-studio-rpc-bridge-'));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const bridgeDir = join(root, 'dist/bundle');
+  await mkdir(bridgeDir, { recursive: true });
+  const bridge = join(bridgeDir, 'cli.js');
+  const realEntry = join(bridgeDir, 'cli-node.js');
+  await writeFile(
+    bridge,
+    `import { spawn } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+const child = spawn(process.execPath, [...process.execArgv, fileURLToPath(new URL('./cli-node.js', import.meta.url))], {
+  stdio: 'inherit',
+  env: process.env,
+});
+child.on('exit', (code, signal) => {
+  if (signal) process.kill(process.pid, signal);
+  else process.exitCode = code ?? 1;
+});
+`,
+  );
+  await writeFile(
+    realEntry,
+    `console.log(JSON.stringify({
+  marker: process.env.PRIME_GUI_CLI_ROOT ?? null,
+  entry: process.argv[1],
+}));
+`,
+  );
+  const loader = new URL('../runtime/studio-rpc-loader.mjs', import.meta.url).href;
+  const { stdout, stderr } = await exec(process.execPath, ['--import', loader, bridge], {
+    env: { ...process.env, PRIME_GUI_CLI_ROOT: root },
+    windowsHide: true,
+    timeout: 10000,
+  });
+  assert.equal(stderr, '');
+  const payload = JSON.parse(stdout);
+  assert.equal(payload.marker, null, 'cli-node must consume and clear the marker');
+  assert.match(payload.entry, /cli-node\.js$/);
+});
+
+test(
+  'installed CLI accepts studio_wait_for_completion after the rpc loader',
+  { skip: !discoverCli()?.node || !discoverCli()?.packageDir, timeout: 45000 },
+  async (t) => {
+    const { spawn } = await import('node:child_process');
+    const { stat } = await import('node:fs/promises');
+    const cli = discoverCli();
+    const root = await mkdtemp(join(tmpdir(), 'prime-studio-wait-'));
+    t.after(async () => {
+      await rm(root, { recursive: true, force: true });
+    });
+    const socket = join(root, 'daemon.sock');
+    const sessionDir = join(root, 'sessions');
+    const project = join(root, 'project');
+    await mkdir(sessionDir);
+    await mkdir(project);
+    await writeFile(join(project, 'README.md'), 'wait probe\n');
+    const daemon = spawn(process.execPath, [cli.path, '--mode', 'daemon', '--daemon-socket', socket], {
+      stdio: 'ignore',
+      windowsHide: true,
+    });
+    t.after(() => {
+      try {
+        daemon.kill('SIGTERM');
+      } catch {
+        /* already exited */
+      }
+    });
+    for (let i = 0; i < 50; i++) {
+      try {
+        await stat(socket);
+        break;
+      } catch {
+        await new Promise((resolvePromise) => setTimeout(resolvePromise, 100));
+      }
+    }
+    await stat(socket);
+    const loader = new URL('../runtime/studio-rpc-loader.mjs', import.meta.url).href;
+    const child = spawn(
+      process.execPath,
+      [
+        '--import',
+        loader,
+        cli.path,
+        '-p',
+        '--mode',
+        'rpc',
+        '--cwd',
+        project,
+        '--session-dir',
+        sessionDir,
+        '--daemon-socket',
+        socket,
+        '--no-session',
+      ],
+      {
+        env: { ...process.env, PRIME_GUI_CLI_ROOT: cli.packageDir, PRIME_GUI_SILENT: '1' },
+        stdio: ['pipe', 'pipe', 'pipe'],
+        windowsHide: true,
+      },
+    );
+    const stdout = [];
+    const stderr = [];
+    child.stdout.on('data', (chunk) => stdout.push(chunk));
+    child.stderr.on('data', (chunk) => stderr.push(chunk));
+    child.stdin.write(JSON.stringify({ type: 'get_state', id: 'studio-state' }) + '\n');
+    child.stdin.write(JSON.stringify({ type: 'studio_wait_for_completion', id: 'studio-complete' }) + '\n');
+    child.stdin.end();
+    const code = await new Promise((resolvePromise, reject) => {
+      child.on('error', reject);
+      child.on('close', resolvePromise);
+      setTimeout(() => {
+        child.kill('SIGTERM');
+        reject(new Error('studio_wait probe timed out'));
+      }, 30000).unref();
+    });
+    const out = Buffer.concat(stdout).toString('utf8');
+    const err = Buffer.concat(stderr).toString('utf8');
+    assert.equal(code, 0, err || out);
+    assert.equal(err.includes('Unknown command: studio_wait_for_completion'), false, err);
+    const lines = out
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((line) => JSON.parse(line));
+    const complete = lines.find((line) => line.id === 'studio-complete');
+    assert.equal(complete?.success, true, JSON.stringify(complete || lines));
+    assert.equal(complete?.command, 'studio_wait_for_completion');
+  },
+);
 
 test('referenced images read current project files, detect deletion and reject private/outside paths', async (t) => {
   const root = await mkdtemp(join(tmpdir(), 'prime-images-'));

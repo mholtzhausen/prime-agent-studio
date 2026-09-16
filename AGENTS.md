@@ -57,7 +57,7 @@ Default listen: `127.0.0.1` port `PORT` or **3088**. Product surfaces are Linux-
 | `lib/kernel.mjs` | Legacy helpers (`localKernelPython` marker / `execute`); Studio does not prep kernels |
 | `public/app.js` | Main client orchestration |
 | `public/translations.js` | Single FR/EN message table |
-| `runtime/*-loader.mjs` | Env-only hooks for Studio child processes |
+| `runtime/*-loader.mjs` | Env-only hooks for Studio child processes; keep `PRIME_GUI_CLI_ROOT` across PA 0.9.5+ `cli.js` → `cli-node.js` (`runtime/npm-bridge.mjs`) |
 | `.local/` | Studio data (gitignored): workspace, attachments; legacy kernel markers may exist |
 
 ## Conventions

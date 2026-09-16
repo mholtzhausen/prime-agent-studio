@@ -92,7 +92,7 @@ flowchart TB
 | Origin | Host/Origin checks on local and gateway traffic |
 | Path access | Project file APIs stay inside registered project roots |
 | Remote | Read-only vs full-control permissions; config/provider routes stay off the remote allowlist |
-| Runtime hooks | Applied only to processes Studio spawns; global npm install of Prime Agent is untouched |
+| Runtime hooks | Applied only to processes Studio spawns; global npm install of Prime Agent is untouched. On prime-agent 0.9.5+, loaders survive the `cli.js` → `cli-node.js` npm bridge re-exec (`runtime/npm-bridge.mjs`). |
 | PWA cache | Icons, shell, offline page only — never conversations or attachments |
 
 ## Key subsystems
@@ -100,7 +100,7 @@ flowchart TB
 | Concern | Primary modules |
 | --- | --- |
 | Workspace / sessions | `lib/store.mjs`, `lib/pastudio-sessions.mjs` |
-| Agent execution | `lib/agent.mjs`, `lib/daemon.mjs`, `runtime/headless-loader.mjs` |
+| Agent execution | `lib/agent.mjs`, `lib/daemon.mjs`, `runtime/headless-loader.mjs`, `runtime/studio-rpc-loader.mjs` |
 | Live messaging | `lib/live-messages.mjs`, `lib/live-session-client.mjs` |
 | Attachments | `lib/images.mjs`, `lib/files.mjs` |
 | Inspector / files | `lib/session-inspector.mjs`, `lib/project-files.mjs` |

@@ -8,6 +8,7 @@ Les changements par version. Retrouvez les installateurs et les archives du code
 
 - **Identité du daemon avec superviseur forké** : accepter `daemon_hello` lorsque `supervisorPid` est le processus lancé par Studio ou un de ses descendants, et lorsque le hello annonce la socket privée du Studio. Corrige le démarrage du moteur avec prime-agent 0.9.5+ (« ne correspond pas au processus lancé par le Studio »).
 - **Erreurs de probe honnêtes** : les échecs du probe renvoient `{ error, check, detail }` structurés pour qu’une dérive d’API reste `engine_incompatible` avec l’export nommé, au lieu du message générique de chemin.
+- **Chargeurs RPC / headless à travers le pont npm** : conserver `PRIME_GUI_CLI_ROOT` jusqu’à `cli-node.js` pour que `studio_wait_for_completion` et la barrière des sous-agents en mode print restent appliqués après le ré-exéc de `cli.js` de prime-agent 0.9.5.
 - **Après installation** : redémarrez le serveur depuis les préférences une fois les agents terminés.
 
 ## 4.1.0
