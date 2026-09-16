@@ -213,10 +213,17 @@ test('remote gateways forbid local settings APIs and permission changes revoke c
       },
       ...(body ? { method: 'POST', body: JSON.stringify(body) } : {}),
     });
-  for (const path of ['/api/remote-access/network', '/api/remote-access/qr?channel=lan', '/api/system'])
+  for (const path of [
+    '/api/remote-access/network',
+    '/api/remote-access/qr?channel=lan',
+    '/api/system',
+    '/api/system/components',
+  ])
     assert.equal((await remote(path)).status, 404);
   assert.equal((await remote('/api/remote-access/network', { channel: 'lan', enabled: false })).status, 404);
   assert.equal((await remote('/api/system/logs', {})).status, 404);
+  assert.equal((await remote('/api/system/components/discover', {})).status, 404);
+  assert.equal((await remote('/api/system/components', { engine: '/x' })).status, 404);
   assert.equal((await f.change({ channel: 'permissions', readOnly: true })).status, 200);
   assert.equal((await remote('/api/bootstrap')).status, 401);
   cookie = (await login()).headers['set-cookie'][0].split(';')[0];

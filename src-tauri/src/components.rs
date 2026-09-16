@@ -30,11 +30,11 @@ pub fn desktop_components_cancel(window: WebviewWindow, app: tauri::AppHandle) -
 
 #[tauri::command]
 pub async fn desktop_components(
-    window: WebviewWindow, app: tauri::AppHandle, action: String, component: Option<String>,
+    window: WebviewWindow, app: tauri::AppHandle, action: String, component: Option<String>, path: Option<String>,
 ) -> Result<serde_json::Value, String> {
     // No download, path, command, or URL can be supplied by a remote Studio/LAN page.
     super::native_only(&window)?;
-    if !["diagnose", "install", "select", "activate"].contains(&action.as_str()) { return Err("action_invalid".into()); }
+    if !["diagnose", "install", "select", "activate", "discover"].contains(&action.as_str()) { return Err("action_invalid".into()); }
     let state = app.state::<Components>();
     if state.busy.swap(true, Ordering::SeqCst) { return Err("setup_busy".into()); }
     let worker_app = app.clone();
@@ -47,8 +47,12 @@ pub async fn desktop_components(
         if action == "select" {
             let kind = component.as_deref().unwrap_or("engine");
             if !["engine", "uv", "python"].contains(&kind) { return Err("selection_invalid".into()); }
-            let picker = rfd::FileDialog::new().set_parent(&window);
-            let selected = if kind == "engine" { picker.pick_folder() } else { picker.pick_file() };
+            let selected = if let Some(value) = path.filter(|p| !p.is_empty()) {
+                Some(std::path::PathBuf::from(value))
+            } else {
+                let picker = rfd::FileDialog::new().set_parent(&window);
+                if kind == "engine" { picker.pick_folder() } else { picker.pick_file() }
+            };
             let Some(path) = selected else { return Ok(serde_json::json!({"cancelled":true})); };
             options["component"] = kind.into();
             options["path"] = path.to_string_lossy().to_string().into();

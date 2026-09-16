@@ -124,6 +124,7 @@ flowchart TB
 
 - **No compile step** for the web UI; edit and refresh. Use a separate worktree if a live Studio is serving the same checkout.
 - **Desktop builds** (`make desktop-build`) package Node + Studio for Linux (AppImage/deb); updates use Tauri minisign against `mholtzhausen/prime-agent-studio` (`make desktop-release-bootstrap` syncs the nix signing pubkey).
+- **Component binaries** (Prime Agent / uv / Python) are configured under Preferences → System and the desktop launcher via shared HTTP APIs (`/api/system/components*`, loopback-only) and `engine/selection.json` under `componentsDataRoot()`.
 - **Checks**: `make check` covers JS syntax, translation table integrity, and bilingual doc fingerprints.
 - **Platform**: end-user product targets Linux; the Node server and unit tests also run on that host.
 

@@ -20,6 +20,16 @@ import { createSubagentDefaultsStore } from './lib/subagent-defaults.mjs';
 import { validPolicy } from './runtime/subagent-policy.mjs';
 import { openDirectory } from './lib/open-directory.mjs';
 import { createDirectoryPicker, detectDirectoryPicker } from './lib/pick-directory.mjs';
+import {
+  COMPONENT_POLICY,
+  componentsDataRoot,
+  applySelection,
+  diagnoseComponents,
+  prepareComponents,
+  listCandidates,
+  selectedEnvironment,
+  activateComponents,
+} from './lib/desktop-components.mjs';
 import { createMcpService } from './lib/mcp-service.mjs';
 import { createProviderService } from './lib/provider-service.mjs';
 import { createCommandService, parseCommand, validateCommand } from './lib/commands.mjs';
@@ -200,6 +210,14 @@ export function createApp(options = {}) {
   const modelDefaults = options.modelDefaults || createModelDefaultsStore({ agentHome });
   const mcp = options.mcp || createMcpService({ agentHome });
   const directoryPicker = options.directoryPicker || createDirectoryPicker();
+  async function syncRuntimeComponents(dataRoot = componentsDataRoot()) {
+    const selected = await selectedEnvironment(dataRoot, process.env);
+    // Keep process-level path env stable for other fixtures/tests; only refresh the runtime
+    // and the components-required gate.
+    process.env.PRIME_STUDIO_COMPONENTS_REQUIRED = selected.PRIME_STUDIO_COMPONENTS_REQUIRED || '0';
+    runtime.reloadComponents?.(selected);
+    return selected;
+  }
   const providers =
     options.providers ||
     createProviderService({
@@ -617,6 +635,83 @@ export function createApp(options = {}) {
         await mkdir(logs, { recursive: true });
         await (options.openDirectory || openDirectory)(logs);
         return json(res, 200, { opened: true });
+      }
+      // Component paths: loopback only (absent from LAN gateway allowlist).
+      if (path === '/api/system/components' && method === 'GET') {
+        const dataRoot = componentsDataRoot();
+        const result = await diagnoseComponents({ dataRoot, autoDiscover: false });
+        result.candidates = await listCandidates({ dataRoot });
+        result.selection = result.selection || {};
+        result.policy = { ...COMPONENT_POLICY };
+        return json(res, 200, result);
+      }
+      if (path === '/api/system/components' && method === 'PUT') {
+        const body = await readBody(req);
+        const dataRoot = componentsDataRoot();
+        const paths = {};
+        for (const key of ['engine', 'uv', 'python']) {
+          if (!(key in body)) continue;
+          if (body[key] !== null && body[key] !== undefined && typeof body[key] !== 'string')
+            throw new HttpError(400, tr('server.la_demande_json_est_invalide'));
+          paths[key] = body[key];
+        }
+        const result = await applySelection({ dataRoot, paths });
+        await syncRuntimeComponents(dataRoot);
+        return json(res, 200, result);
+      }
+      if (path === '/api/system/components/discover' && method === 'POST') {
+        await readBody(req);
+        const dataRoot = componentsDataRoot();
+        const result = await applySelection({ dataRoot, discover: true });
+        await syncRuntimeComponents(dataRoot);
+        return json(res, 200, result);
+      }
+      if (path === '/api/system/components/recheck' && method === 'POST') {
+        await readBody(req);
+        const dataRoot = componentsDataRoot();
+        let diagnosed = await diagnoseComponents({ dataRoot, autoDiscover: true });
+        if (diagnosed.ready) diagnosed = (await activateComponents({ dataRoot, result: diagnosed })) || diagnosed;
+        diagnosed.candidates = await listCandidates({ dataRoot });
+        diagnosed.selection = diagnosed.selection || {};
+        diagnosed.policy = { ...COMPONENT_POLICY };
+        await syncRuntimeComponents(dataRoot);
+        return json(res, 200, diagnosed);
+      }
+      if (path === '/api/system/components/pick' && method === 'POST') {
+        const body = await readBody(req);
+        const component = body.component;
+        if (!['engine', 'uv', 'python'].includes(component))
+          throw new HttpError(400, tr('server.la_demande_json_est_invalide'));
+        const controller = new AbortController();
+        const abort = () => controller.abort();
+        res.once('close', abort);
+        if (res.destroyed) abort();
+        try {
+          const picked = await directoryPicker.pick({
+            mode: component === 'engine' ? 'directory' : 'file',
+            title: tr(
+              component === 'engine' ? 'components.pick_engine' : 'components.pick_binary',
+              {},
+              requestLanguage(req.headers),
+            ),
+            signal: controller.signal,
+          });
+          if (!picked.path && !picked.cwd) return json(res, 200, { cancelled: true });
+          const pathValue = component === 'engine' ? picked.cwd || picked.path : picked.path;
+          const dataRoot = componentsDataRoot();
+          const result = await applySelection({ dataRoot, paths: { [component]: pathValue } });
+          await syncRuntimeComponents(dataRoot);
+          return json(res, 200, result);
+        } finally {
+          res.off('close', abort);
+        }
+      }
+      if (path === '/api/system/components/install' && method === 'POST') {
+        await readBody(req);
+        const dataRoot = componentsDataRoot();
+        const result = await prepareComponents({ dataRoot });
+        await syncRuntimeComponents(dataRoot);
+        return json(res, 200, result);
       }
       if (path === '/api/remote-access/network' && method === 'GET')
         return json(res, 200, await remoteNetwork.get());

@@ -1,51 +1,42 @@
 import { join } from 'node:path';
 import { appendFile, mkdir } from 'node:fs/promises';
-import { atomicJson, diagnoseComponents, prepareComponents } from '../lib/desktop-components.mjs';
-import { isDirectInvocation, acquireLock, readJson } from './launcher-common.mjs';
+import {
+  applySelection,
+  activateComponents,
+  diagnoseComponents,
+  prepareComponents,
+} from '../lib/desktop-components.mjs';
+import { isDirectInvocation } from './launcher-common.mjs';
 import { desktopServerStatus, restartDesktop } from './desktop-control.mjs';
 
 export async function runComponents(options, { signal, onProgress = () => {} } = {}) {
-  if (!['diagnose', 'install', 'select', 'activate'].includes(options.action))
+  if (!['diagnose', 'install', 'select', 'activate', 'discover'].includes(options.action))
     throw new Error('action_invalid');
   if (options.action === 'select') {
     if (!['engine', 'uv', 'python'].includes(options.component) || typeof options.path !== 'string')
       throw new Error('selection_invalid');
-    const base = join(options.dataRoot, 'engine');
-    await mkdir(base, { recursive: true });
-    const release = await acquireLock({ lock: join(base, 'install.lock') }, { timeout: 1200 });
-    try {
-      const current = (await readJson(join(base, 'selection.json'))) || {};
-      await atomicJson(join(base, 'selection.json'), { ...current, [options.component]: options.path });
-    } finally {
-      await release();
-    }
+    return applySelection({
+      dataRoot: options.dataRoot,
+      env: options.env,
+      signal,
+      paths: { [options.component]: options.path },
+    });
+  }
+  if (options.action === 'discover') {
+    return applySelection({
+      dataRoot: options.dataRoot,
+      env: options.env,
+      signal,
+      discover: true,
+    });
   }
   const result =
     options.action === 'install'
       ? await prepareComponents({ ...options, signal, onProgress })
-      : await diagnoseComponents({ ...options, signal });
+      : await diagnoseComponents({ ...options, signal, autoDiscover: options.action === 'diagnose' });
   // Reuse a fully working external installation without authorizing any download.
-  if (options.action === 'activate' && result.ready) {
-    const base = join(options.dataRoot, 'engine');
-    await mkdir(base, { recursive: true });
-    const release = await acquireLock({ lock: join(base, 'install.lock') }, { timeout: 1200 });
-    try {
-      const current = (await readJson(join(base, 'installation.json'))) || {};
-      if (
-        current.shellValidated !== true ||
-        current.components?.engine?.path !== result.components.engine.path ||
-        current.components?.python?.path !== result.components.python.path
-      )
-        await atomicJson(join(base, 'installation.json'), {
-          schema: 1,
-          validatedAt: new Date().toISOString(),
-          shellValidated: true,
-          components: result.components,
-        });
-    } finally {
-      await release();
-    }
-  }
+  if ((options.action === 'activate' || options.action === 'diagnose') && result.ready)
+    await activateComponents({ dataRoot: options.dataRoot, result, env: options.env });
   if (options.action === 'install') {
     if (!result.ready) {
       result.activation = 'incomplete';

@@ -7,11 +7,16 @@ const messages = {
       'Cette version de Studio utilise Prime Agent 0.9.4. Le bouton télécharge les composants manquants ou la version requise du moteur, npm privé, uv et Python 3.11 si nécessaire. Une connexion Internet est nécessaire. Bash doit être disponible pour les commandes shell.',
     componentsInstall: 'Installer les composants manquants',
     componentsDiagnose: 'Vérifier à nouveau',
-    componentsExisting: 'Choisir une installation existante',
+    componentsExisting: 'Chemins existants',
     componentsExistingNote:
-      'Sélectionnez la racine du paquet Prime Agent (avec package.json), uv ou python. Les chemins définis dans les variables d’environnement restent prioritaires.',
+      'Indiquez la racine du paquet Prime Agent (avec package.json), uv ou python, ou utilisez Parcourir. Les variables d’environnement restent prioritaires.',
+    componentsDiscover: 'Détecter les installations',
+    componentsApply: 'Appliquer',
+    componentsBrowse: 'Parcourir',
     componentsLater: 'Plus tard — ouvrir le Studio',
     componentsReady: 'Tous les composants sont prêts.',
+    componentsVersionWarn:
+      'Version différente de la politique Studio ; les contrôles de compatibilité ont réussi.',
     componentsDeferred:
       'Préparation enregistrée. Activation différée : attendez la fin des agents puis utilisez Redémarrer le serveur. Un serveur externe doit être arrêté depuis son lanceur.',
     componentsBusy: 'Une préparation est déjà en cours. Réessayez après sa fin.',
@@ -21,12 +26,12 @@ const messages = {
     componentsBash:
       'Bash est requis pour les commandes shell. Installez bash, ou configurez shellPath dans les réglages Prime Agent, puis vérifiez à nouveau.',
     componentsUnsupported:
-      'Cette préparation nécessite Linux (x64 ou arm64) et le Node compatible fourni avec Studio.',
+      'Cette préparation nécessite Linux x64 et le Node compatible fourni avec Studio.',
     componentsChecksum:
       'L’intégrité ou la structure du téléchargement est invalide. Aucun composant altéré n’est activé.',
     componentsCancelled: 'Préparation annulée. Vous pouvez réessayer.',
     componentsEngineVersion:
-      'Cette version de Studio nécessite Prime Agent 0.9.4 avec ses modules et ressources complets. Installez la version proposée, ou choisissez un paquet compatible.',
+      'Ce paquet Prime Agent est incompatible (structure, modules ou probe). Installez la version proposée, ou choisissez un autre chemin.',
     componentsNetwork: 'Le téléchargement a échoué. Vérifiez la connexion réseau et réessayez.',
     componentsDisk:
       'L’espace disque est insuffisant. Libérez de l’espace dans le dossier de données du Studio, puis réessayez.',
@@ -113,11 +118,16 @@ const messages = {
       'This Studio version uses Prime Agent 0.9.4. The button downloads missing components or the required engine version, private npm, uv and Python 3.11 when needed. An Internet connection is required. Bash must be available for shell commands.',
     componentsInstall: 'Install missing components',
     componentsDiagnose: 'Check again',
-    componentsExisting: 'Choose an existing installation',
+    componentsExisting: 'Existing paths',
     componentsExistingNote:
-      'Select the Prime Agent package root (with package.json), uv or python. Environment variable paths take precedence.',
+      'Enter the Prime Agent package root (with package.json), uv or python, or use Browse. Environment variable paths take precedence.',
+    componentsDiscover: 'Detect installed',
+    componentsApply: 'Apply',
+    componentsBrowse: 'Browse',
     componentsLater: 'Later — open Studio',
     componentsReady: 'All components are ready.',
+    componentsVersionWarn:
+      'Version differs from Studio policy; compatibility checks passed.',
     componentsDeferred:
       'Preparation saved. Activation deferred: wait for agents to finish, then use Restart server. Stop an external server through its own launcher.',
     componentsBusy: 'Another preparation is in progress. Try again when it finishes.',
@@ -126,12 +136,12 @@ const messages = {
       'The explicitly configured path is invalid or incompatible. Correct the environment variable or choose another installation.',
     componentsBash:
       'Bash is required for shell commands. Install bash, or configure shellPath in Prime Agent settings, then check again.',
-    componentsUnsupported: 'Setup requires Linux (x64 or arm64) and the compatible Node supplied with Studio.',
+    componentsUnsupported: 'Setup requires Linux x64 and the compatible Node supplied with Studio.',
     componentsChecksum:
       'The download integrity or archive structure is invalid. No altered component is activated.',
     componentsCancelled: 'Preparation cancelled. You can try again.',
     componentsEngineVersion:
-      'This Studio version requires Prime Agent 0.9.4 with complete modules and resources. Install the proposed version, or select a compatible package.',
+      'This Prime Agent package is incompatible (layout, modules, or probe). Install the proposed version, or choose another path.',
     componentsNetwork: 'Download failed. Check your network connection and try again.',
     componentsDisk:
       'There is not enough disk space. Free space in the Studio data directory, then try again.',
@@ -222,8 +232,7 @@ for (const [id, key] of Object.entries({
   'components-note': 'componentsNote',
   'components-install': 'componentsInstall',
   'components-diagnose': 'componentsDiagnose',
-  'components-existing': 'componentsExisting',
-  'components-existing-note': 'componentsExistingNote',
+  'components-discover': 'componentsDiscover',
   'components-cancel': 'restartCancel',
   'startup-note': 'startupNote',
   import: 'import',
@@ -247,6 +256,10 @@ for (const [id, key] of Object.entries({
   'restart-proceed': 'restartProceed',
 }))
   $(id).textContent = t[key];
+for (const name of ['engine', 'uv', 'python']) {
+  $('components-' + name).textContent = t.componentsBrowse;
+  $('components-apply-' + name).textContent = t.componentsApply;
+}
 const invoke = window.__TAURI__?.core?.invoke;
 let componentsBusy = false;
 let latestComponents;
@@ -272,6 +285,18 @@ function componentError(code) {
   if (code === 'cancelled') return t.componentsCancelled;
   if (code === 'setup_busy') return t.componentsBusy;
   return t.componentsFailed;
+}
+function pathFor(result, key) {
+  const info = result?.components?.[key];
+  if (info?.path) return info.path;
+  if (key === 'engine' && info?.packageDir) return info.packageDir;
+  return result?.selection?.[key] || '';
+}
+function iconState(info) {
+  if (!info || info.status === 'missing' || info.status === 'pending' || info.status === 'error') return 'error';
+  if (info.status === 'ready' && info.warning) return 'warn';
+  if (info.status === 'ready' || info.status === 'not_required') return 'ready';
+  return 'error';
 }
 function renderComponents(result) {
   if (!result || result.cancelled) {
@@ -308,12 +333,26 @@ function renderComponents(result) {
       source.textContent = info.provenance;
       row.append(source);
     }
+    if (info.warning) {
+      const warn = document.createElement('small');
+      warn.textContent = t.componentsVersionWarn;
+      row.append(warn);
+    }
     if (info.error && info.error !== 'missing') {
       const error = document.createElement('small');
       error.textContent = componentError(info.explicit ? 'explicit_invalid' : info.error);
       row.append(error);
     }
     $('components-detail-list').append(row);
+  }
+  for (const key of ['engine', 'uv', 'python']) {
+    const row = document.querySelector(`.components-path-row[data-component="${key}"]`);
+    if (!row) continue;
+    const input = $('components-path-' + key);
+    const icon = row.querySelector('.components-status-icon');
+    const info = result.components?.[key];
+    if (input && document.activeElement !== input) input.value = pathFor(result, key);
+    if (icon) icon.dataset.state = iconState(info);
   }
   $('components-status').textContent =
     result.activation === 'deferred'
@@ -328,17 +367,17 @@ function renderComponents(result) {
             )
             .join(' ');
   $('components-install').hidden = result.ready;
-  $('components-actions').hidden = result.ready;
   $('start').textContent = result.ready ? t.start : t.componentsLater;
 }
-$('components-toggle').textContent = t.componentsDetails;
+$('components-toggle').textContent = t.componentsHideDetails;
+$('components-details').hidden = false;
 $('components-toggle').onclick = () => {
-  const expanded = $('components-details').hidden;
-  $('components-details').hidden = !expanded;
-  $('components-toggle').setAttribute('aria-expanded', String(expanded));
-  $('components-toggle').textContent = expanded ? t.componentsHideDetails : t.componentsDetails;
+  const open = !$('components-details').hidden;
+  $('components-details').hidden = open;
+  $('components-toggle').setAttribute('aria-expanded', String(!open));
+  $('components-toggle').textContent = open ? t.componentsDetails : t.componentsHideDetails;
 };
-async function componentsAction(action, component) {
+async function componentsAction(action, component, path) {
   if (componentsBusy) return;
   componentsBusy = true;
   $('components').hidden = false;
@@ -348,7 +387,11 @@ async function componentsAction(action, component) {
   $('start').disabled = true;
   let result;
   try {
-    result = await invoke('desktop_components', { action, component: component || null });
+    result = await invoke('desktop_components', {
+      action,
+      component: component || null,
+      path: path || null,
+    });
     renderComponents(result);
     if (action === 'install' && result.ready && result.activation === 'active') await start();
     return result;
@@ -364,9 +407,19 @@ async function componentsAction(action, component) {
 }
 $('components-install').onclick = () => componentsAction('install');
 $('components-diagnose').onclick = () => componentsAction('diagnose');
+$('components-discover').onclick = () => componentsAction('discover');
 $('components-cancel').onclick = () => invoke('desktop_components_cancel');
-for (const name of ['engine', 'uv', 'python'])
+for (const name of ['engine', 'uv', 'python']) {
   $('components-' + name).onclick = () => componentsAction('select', name);
+  $('components-apply-' + name).onclick = () => {
+    const value = $('components-path-' + name).value.trim();
+    if (!value) {
+      $('components-status').textContent = t.componentsExistingNote;
+      return;
+    }
+    void componentsAction('select', name, value);
+  };
+}
 void window.__TAURI__?.event?.listen('components-progress', ({ payload }) => {
   const received =
     payload.received === undefined

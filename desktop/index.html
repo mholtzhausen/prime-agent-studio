@@ -11,7 +11,7 @@
     <main>
       <header>
         <img src="icon.png" alt="" width="48" height="48" /><span>Prime Agent Studio Nix</span
-        ><span class="platform">WINDOWS</span>
+        ><span class="platform">LINUX</span>
       </header>
       <section class="intro">
         <p class="eyebrow" id="eyebrow"></p>
@@ -35,29 +35,56 @@
           <button
             id="components-toggle"
             class="text-button"
-            aria-expanded="false"
+            aria-expanded="true"
             aria-controls="components-details"
           ></button>
         </div>
         <ul id="components-list"></ul>
         <p id="components-status" role="status" aria-live="polite"></p>
+        <div id="components-paths" class="components-paths">
+          <div class="components-path-row" data-component="engine">
+            <div class="components-path-head">
+              <label for="components-path-engine">Prime Agent</label>
+              <span class="components-status-icon" data-state="error" aria-hidden="true"></span>
+            </div>
+            <input id="components-path-engine" type="text" spellcheck="false" autocomplete="off" />
+            <div class="update-actions">
+              <button id="components-engine" class="text-button" type="button">Parcourir</button>
+              <button id="components-apply-engine" class="text-button" type="button">Appliquer</button>
+            </div>
+          </div>
+          <div class="components-path-row" data-component="uv">
+            <div class="components-path-head">
+              <label for="components-path-uv">uv</label>
+              <span class="components-status-icon" data-state="error" aria-hidden="true"></span>
+            </div>
+            <input id="components-path-uv" type="text" spellcheck="false" autocomplete="off" />
+            <div class="update-actions">
+              <button id="components-uv" class="text-button" type="button">Parcourir</button>
+              <button id="components-apply-uv" class="text-button" type="button">Appliquer</button>
+            </div>
+          </div>
+          <div class="components-path-row" data-component="python">
+            <div class="components-path-head">
+              <label for="components-path-python">Python</label>
+              <span class="components-status-icon" data-state="error" aria-hidden="true"></span>
+            </div>
+            <input id="components-path-python" type="text" spellcheck="false" autocomplete="off" />
+            <div class="update-actions">
+              <button id="components-python" class="text-button" type="button">Parcourir</button>
+              <button id="components-apply-python" class="text-button" type="button">Appliquer</button>
+            </div>
+          </div>
+        </div>
         <div id="components-actions" class="update-actions">
+          <button id="components-discover" class="text-button" type="button"></button>
           <button id="components-install" class="primary"></button>
           <button id="components-cancel" class="text-button" hidden></button>
         </div>
-        <div id="components-details" hidden>
+        <div id="components-details">
           <p id="components-note"></p>
           <ul id="components-detail-list"></ul>
           <button id="components-diagnose" class="text-button"></button>
-          <details>
-            <summary id="components-existing"></summary>
-            <p id="components-existing-note"></p>
-            <div class="update-actions">
-              <button id="components-engine" class="text-button">Prime Agent</button>
-              <button id="components-uv" class="text-button">uv</button>
-              <button id="components-python" class="text-button">Python</button>
-            </div>
-          </details>
         </div>
       </section>
       <section id="updates" class="updates" aria-labelledby="update-heading" hidden>

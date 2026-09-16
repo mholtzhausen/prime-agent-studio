@@ -448,7 +448,7 @@ footer svg {
     accent-color: #62588f;
   }
 }
-/* Component states remain readable with long Windows paths and at narrow sizes. */
+/* Component states remain readable with long Linux paths and at narrow sizes. */
 .component-heading {
   display: flex;
   align-items: center;
@@ -527,4 +527,48 @@ footer svg {
   #components-details {
     border-color: #d4d2d9;
   }
+  .components-path-row input {
+    background: #fff;
+    color: #222;
+    border-color: #d4d2d9;
+  }
+}
+/* Path fields match Preferences → System binary editor. */
+.components-paths {
+  display: grid;
+  gap: 14px;
+  margin: 14px 0 18px;
+}
+.components-path-row {
+  display: grid;
+  gap: 8px;
+}
+.components-path-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+  font-weight: 500;
+}
+.components-status-icon {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #c44;
+}
+.components-status-icon[data-state='ready'] {
+  background: #2f9e44;
+}
+.components-status-icon[data-state='warn'] {
+  background: #c98a1a;
+}
+.components-path-row input {
+  width: 100%;
+  font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  padding: 10px 12px;
+  border: 1px solid #48494f;
+  border-radius: 10px;
+  background: #242528;
+  color: #ededea;
 }

@@ -2,6 +2,7 @@ import { t as tr, translateKnown, translateDOM, onLanguageChange, bindText } fro
 import { createDesktopUpdates } from './desktop-updates.js';
 import { createInteractionSettings } from './interaction-settings.js';
 import { isDesktopComponentsAvailable, openDesktopComponents } from './desktop-components-action.js';
+import { createComponentsSettings } from './components-settings.js';
 
 export function createSettings({
   api,
@@ -18,6 +19,13 @@ export function createSettings({
     $('settings-components-row').hidden = false;
     $('settings-components').onclick = () => void openDesktopComponents({ toast });
   }
+  let components = createComponentsSettings({
+    root: $('settings-components-editor'),
+    api,
+    remote: false,
+    toast,
+  });
+  let componentsRemote = false;
   const dialog = $('settings-dialog'),
     tabs = [...dialog.querySelectorAll('[data-settings-tab]')];
   if (window.__PRIME_STUDIO_DESKTOP__ === true) {
@@ -492,6 +500,17 @@ export function createSettings({
           dd.textContent = String(value);
           list.append(dt, dd);
         }
+      const remote = Boolean(context.remote);
+      if (remote !== componentsRemote) {
+        componentsRemote = remote;
+        components = createComponentsSettings({
+          root: $('settings-components-editor'),
+          api,
+          remote,
+          toast,
+        });
+      }
+      if (!remote) await components.refresh();
     } catch (e) {
       if (turn === generation) error('settings-system-error', e.message);
     }

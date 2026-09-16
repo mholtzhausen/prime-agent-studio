@@ -91,9 +91,10 @@ export async function startDesktop(
     const dataDir = join(dataRoot, 'data');
     if (!existsSync(dataDir) && legacyRoot) await importLegacyData(resolve(legacyRoot), dataDir);
     const childEnv = {
-      ...(await selectedEnvironment(dataRoot, env)),
+      ...(await selectedEnvironment(dataRoot, { ...env, PRIME_STUDIO_DESKTOP_DATA_ROOT: dataRoot })),
       PRIME_AGENT_GUI_DATA_DIR: dataDir,
       PRIME_AGENT_GUI_KERNEL_ROOT: dataRoot,
+      PRIME_STUDIO_DESKTOP_DATA_ROOT: dataRoot,
       PRIME_AGENT_GUI_INITIAL_CWD: homedir(),
       PATH: `${generation}:${env.PATH || ''}`,
     };

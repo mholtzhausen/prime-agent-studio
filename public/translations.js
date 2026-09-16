@@ -606,10 +606,67 @@ export const messages = {
   },
   'settings.components': { fr: 'Composants du Studio', en: 'Studio components' },
   'settings.components_note': {
-    fr: 'Vérifier ou préparer Prime Agent, uv et Python dans les réglages de l’application de bureau.',
-    en: 'Check or prepare Prime Agent, uv and Python in the desktop application settings.',
+    fr: 'Chemins de Prime Agent, uv et Python. Le bouton ouvre aussi les réglages du lanceur de bureau.',
+    en: 'Paths for Prime Agent, uv and Python. The button also opens the desktop launcher settings.',
   },
-  'settings.components_open': { fr: 'Configurer', en: 'Set up' },
+  'settings.components_open': { fr: 'Lanceur', en: 'Launcher' },
+  'components.note': {
+    fr: 'Studio détecte les installations Linux locales et valide chaque chemin avant de l’utiliser. Une version différente de la politique peut fonctionner (avertissement ambre).',
+    en: 'Studio detects local Linux installs and validates each path before using it. A version outside the policy may still work (amber warning).',
+  },
+  'components.remote_only': {
+    fr: 'La configuration des binaires se fait uniquement sur le PC local.',
+    en: 'Binary paths can only be configured on the local PC.',
+  },
+  'components.engine': { fr: 'Prime Agent', en: 'Prime Agent' },
+  'components.uv': { fr: 'uv', en: 'uv' },
+  'components.python': { fr: 'Python', en: 'Python' },
+  'components.node': { fr: 'Node', en: 'Node' },
+  'components.bash': { fr: 'Bash', en: 'Bash' },
+  'components.path_placeholder': {
+    fr: 'Chemin absolu…',
+    en: 'Absolute path…',
+  },
+  'components.browse': { fr: 'Parcourir', en: 'Browse' },
+  'components.apply': { fr: 'Appliquer', en: 'Apply' },
+  'components.discover': { fr: 'Détecter les installations', en: 'Detect installed' },
+  'components.recheck': { fr: 'Vérifier à nouveau', en: 'Recheck' },
+  'components.install': { fr: 'Installer les manquants', en: 'Install missing' },
+  'components.ready': {
+    fr: 'Tous les composants requis sont prêts.',
+    en: 'All required components are ready.',
+  },
+  'components.incomplete': {
+    fr: 'Corrigez les chemins en rouge, détectez une installation, ou installez les composants manquants.',
+    en: 'Fix paths marked in red, detect an install, or install missing components.',
+  },
+  'components.server_stale': {
+    fr: 'Ce serveur ne propose pas encore la configuration des binaires. Quittez l’application de bureau sur le port 3088, ou lancez le code à jour avec PORT=3090 make dev, puis rouvrez les réglages.',
+    en: 'This server does not expose binary configuration yet. Quit the desktop app on port 3088, or run the updated checkout with PORT=3090 make dev, then reopen Settings.',
+  },
+  'components.state_ready': { fr: 'Chemin valide', en: 'Path valid' },
+  'components.state_error': { fr: 'Chemin invalide ou manquant', en: 'Path invalid or missing' },
+  'components.state_not_required': { fr: 'Non nécessaire', en: 'Not required' },
+  'components.engine_version_mismatch': {
+    fr: 'Version différente de la politique Studio ; le moteur a passé les contrôles de compatibilité.',
+    en: 'Version differs from Studio policy; the engine passed compatibility checks.',
+  },
+  'components.uv_version_mismatch': {
+    fr: 'Version de uv différente de la politique ; le binaire a été accepté.',
+    en: 'uv version differs from policy; the binary was accepted.',
+  },
+  'components.pick_engine': {
+    fr: 'Choisir la racine du paquet Prime Agent',
+    en: 'Choose the Prime Agent package root',
+  },
+  'components.pick_binary': {
+    fr: 'Choisir l’exécutable',
+    en: 'Choose the executable',
+  },
+  'folders.choose_file': {
+    fr: 'Choisir un fichier',
+    en: 'Choose a file',
+  },
   'settings.scope_agent': {
     fr: 'Prime Agent sur ce PC · Configuration partagée',
     en: 'Prime Agent on this PC · Shared configuration',
@@ -3961,8 +4018,8 @@ export const messages = {
     en: 'Mobile access unavailable: {value1}',
   },
   'server.le_port_est_deja_utilise_ouvrez_http_127_0_0_1_ou_definissez_por': {
-    fr: 'Le port {value1} est déjà utilisé. Ouvrez http://127.0.0.1:{value2} ou définissez PORT.',
-    en: 'Port {value1} is already in use. Open http://127.0.0.1:{value2} or set PORT.',
+    fr: 'Le port {value1} est déjà utilisé (souvent par l’application de bureau). Quittez-la, ou lancez : PORT=3090 make dev',
+    en: 'Port {value1} is already in use (often by the desktop app). Quit that app, or run: PORT=3090 make dev',
   },
   'server.ce_dossier_est_introuvable_ou_inaccessible': {
     fr: 'Ce dossier est introuvable ou inaccessible.',

@@ -16,6 +16,35 @@ test('server health and system settings report the packaged release version', as
   assert.equal((await api('/api/system')).json.studio, version);
 });
 
+test('local system components API returns diagnosis without remote exposure', async (t) => {
+  const f = await fixture(t);
+  const previous = {
+    PRIME_AGENT_GUI_DATA_DIR: process.env.PRIME_AGENT_GUI_DATA_DIR,
+    PRIME_AGENT_CLI: process.env.PRIME_AGENT_CLI,
+    PRIME_GUI_UV: process.env.PRIME_GUI_UV,
+    PRIME_AGENT_KERNEL_PYTHON: process.env.PRIME_AGENT_KERNEL_PYTHON,
+    PRIME_STUDIO_COMPONENTS_REQUIRED: process.env.PRIME_STUDIO_COMPONENTS_REQUIRED,
+  };
+  process.env.PRIME_AGENT_GUI_DATA_DIR = join(f.root, 'local');
+  t.after(() => {
+    for (const [key, value] of Object.entries(previous)) {
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
+  });
+  const result = await f.api('/api/system/components');
+  assert.equal(result.status, 200);
+  assert.equal(typeof result.json.ready, 'boolean');
+  assert.ok(result.json.components);
+  assert.ok(result.json.policy?.engine);
+  const put = await f.api('/api/system/components', {
+    method: 'PUT',
+    body: { engine: join(f.root, 'missing-engine') },
+  });
+  assert.equal(put.status, 200);
+  assert.equal(put.json.components?.engine?.explicit, true);
+});
+
 test('retired model choices are rejected for messages and defaults without switching to a paid model', async (t) => {
   const runtime = fakeRuntime();
   runtime.getModels = async () => ({

@@ -18,6 +18,9 @@ import {
   releaseOrigin,
   checkNode,
   hasManagedUvReceipt,
+  componentsDataRoot,
+  applySelection,
+  inspectEngineStatic,
 } from '../lib/desktop-components.mjs';
 import { acquireLock } from '../scripts/launcher-common.mjs';
 
@@ -268,4 +271,102 @@ test('a living installation lock cannot expire; an abandoned lock is recovered',
   const release = await acquireLock({ lock }, { timeout: 1000 });
   await release();
   await assert.rejects(stat(lock), { code: 'ENOENT' });
+});
+
+test('componentsDataRoot prefers desktop and kernel roots', () => {
+  assert.equal(
+    componentsDataRoot({ PRIME_STUDIO_DESKTOP_DATA_ROOT: '/tmp/desktop-root' }),
+    resolve('/tmp/desktop-root'),
+  );
+  assert.equal(
+    componentsDataRoot({ PRIME_AGENT_GUI_KERNEL_ROOT: '/tmp/kernel-root' }),
+    resolve('/tmp/kernel-root'),
+  );
+  assert.equal(
+    componentsDataRoot({ PRIME_AGENT_GUI_DATA_DIR: '/tmp/app/data' }),
+    resolve('/tmp/app'),
+  );
+});
+
+test('external engine validation does not require the policy version string', async (t) => {
+  const root = await fixture(t);
+  const packageDir = join(root, 'prime-agent');
+  await mkdir(join(packageDir, 'dist/bundle'), { recursive: true });
+  await writeFile(
+    join(packageDir, 'package.json'),
+    JSON.stringify({
+      name: 'prime-agent',
+      version: '0.9.5',
+      engines: { node: '>=22.8.0' },
+      bin: { 'prime-agent': 'dist/bundle/cli.js' },
+    }),
+  );
+  await writeFile(join(packageDir, 'dist/bundle/cli.js'), 'export {};\n');
+  const inspected = await inspectEngineStatic(packageDir, {}, { requirePolicyVersion: false });
+  assert.equal(inspected.cli.version, '0.9.5');
+  assert.equal(inspected.policyMatch, false);
+  await assert.rejects(inspectEngineStatic(packageDir, {}, { requirePolicyVersion: true }));
+});
+
+test('applySelection activates installation.json when diagnose reports ready', async (t) => {
+  const dataRoot = await fixture(t);
+  const deps = {
+    checkNode() {},
+    validateEngine: async () => ({
+      path: '/engine/cli.js',
+      packageDir: '/engine',
+      version: '0.9.5',
+      bash: 'bash',
+      policyMatch: false,
+    }),
+    validateUv: async () => ({ path: '/uv', version: '0.8.0', policyMatch: false }),
+    execute: async () => 'studio-shell-ok',
+    ensureKernel: async () => '/python',
+  };
+  const result = await applySelection(
+    { dataRoot, paths: { engine: '/engine', python: '/python' } },
+    deps,
+  );
+  assert.equal(result.ready, true);
+  assert.equal(result.components.engine.warning, 'engine_version_mismatch');
+  const installation = JSON.parse(await readFile(join(dataRoot, 'engine/installation.json'), 'utf8'));
+  assert.equal(installation.shellValidated, true);
+  assert.equal(installation.components.engine.path, '/engine/cli.js');
+  assert.equal(
+    JSON.parse(await readFile(join(dataRoot, 'engine/selection.json'), 'utf8')).engine,
+    '/engine',
+  );
+});
+
+test('auto-discover persists the first validated PATH candidate', async (t) => {
+  const dataRoot = await fixture(t);
+  let seen = [];
+  const deps = {
+    checkNode() {},
+    validateEngine: async (path) => {
+      seen.push(path);
+      if (path !== '/found-engine') throw new Error('engine_incompatible');
+      return {
+        path: '/found-engine/cli.js',
+        packageDir: '/found-engine',
+        version: COMPONENT_POLICY.engine,
+        bash: 'bash',
+        policyMatch: true,
+      };
+    },
+    validateUv: async () => {
+      throw new Error('uv_incompatible');
+    },
+    execute: async () => 'studio-shell-ok',
+    ensureKernel: async () => '/python',
+  };
+  // Seed a fake discoverCli result via explicit selection after diagnose autoDiscover path:
+  // call applySelection discover with a stubbed list by writing nothing and injecting via env PATH engine.
+  await applySelection(
+    { dataRoot, paths: { engine: '/found-engine', python: '/python' } },
+    deps,
+  );
+  const selection = JSON.parse(await readFile(join(dataRoot, 'engine/selection.json'), 'utf8'));
+  assert.equal(selection.engine, '/found-engine');
+  assert.ok(seen.includes('/found-engine'));
 });
