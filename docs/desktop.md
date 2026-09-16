@@ -18,19 +18,13 @@ Les préférences d’apparence et les brouillons du navigateur ne sont pas copi
 
 ## Préparation, réparation et compatibilité
 
-**Préférences → Système** (et les champs composants du lanceur de bureau) partagent le même éditeur de chemins pour Prime Agent, `uv` et Python. La sélection d’une installation existante accepte la racine du paquet Prime Agent, `uv` ou `python`. Studio détecte les installations Linux courantes et les valide avant enregistrement. `PRIME_AGENT_CLI`, `PRIME_GUI_UV` et `PRIME_AGENT_KERNEL_PYTHON` ont priorité, suivis des sélections enregistrées, de l’installation gérée, puis des emplacements externes habituels. Un chemin explicite invalide doit être corrigé ; il n’est jamais remplacé en silence. Un Python externe valide n’est que validé, sans y installer quoi que ce soit ni exiger uv. Les choix externes passent des contrôles de capacité (structure + probe) sans exiger la chaîne de version exacte de la politique — un avertissement ambre s’affiche en cas d’écart. Une sélection réussie qui diagnostique « prêt » écrit immédiatement `installation.json` (activation), ce qui lève l’exigence de configuration des composants.
+**Préférences → Système** est le seul éditeur de chemins pour Prime Agent, `uv` et Python (identique dans le navigateur et le webview Studio de bureau). Le lanceur de bureau n’héberge plus de panneau de configuration des composants. Les champs vides sont détectés automatiquement (PATH et emplacements usuels : `~/.local`, pyenv, nvm) ; un chemin enregistré ou saisi n’est jamais écrasé. Les changements s’appliquent immédiatement avec un indicateur de statut ; **Réinitialiser** vide un champ et le redétecte. Installez les binaires vous-même — Studio ne télécharge ni Prime Agent, ni npm, ni uv.
 
-La politique versionnée dans `lib/desktop-components.mjs` associe Studio à **Prime Agent 0.9.4**, **npm 10.9.4** et **uv 0.8.22** pour les **téléchargements gérés**, avec Python 3.11. Le packaging cible Linux x86_64 avec Node 22 ≥ 22.16 ou Node 24 ; le moteur exige ≥ 22.8. Une prochaine version de Studio peut demander un autre moteur précis pour le bouton d’installation : le bouton installe alors cette version après accord explicite. Aucun suivi périodique, sélection aveugle de « stable », ni mise à jour des installations externes.
+`PRIME_AGENT_CLI`, `PRIME_GUI_UV` et `PRIME_AGENT_KERNEL_PYTHON` ont priorité, suivis des sélections dans `engine/selection.json`. Un chemin explicite invalide doit être corrigé ; il n’est jamais remplacé en silence. Les contrôles de capacité couvrent la structure et les probes du moteur, et `uv --version` pour uv (les shims pyenv/shell sont acceptés s’ils fonctionnent). Un diagnostic prêt écrit `installation.json` (activation) et lève la barrière des composants requis.
 
-La préparation lit le contrat d’origine dans [l’installateur officiel](https://app.primeintellect.ai/prime-agent/install.sh), sans exécuter ce script. L’archive du moteur et les trois paquets Prime associés sont contrôlés contre l’inventaire `releases/v<version>/SHA256SUMS`. npm provient du [registre officiel versionné](https://registry.npmjs.org/npm/10.9.4), vérifié par son intégrité SHA-512 avant extraction ; il est exécuté avec le Node Studio par `npm-cli.js`. L’archive [uv Linux x86_64](https://github.com/astral-sh/uv/releases/tag/0.8.22) est vérifiée contre son fichier `.sha256`. Ces références HTTPS de même origine assurent l’intégrité du transfert, pas une signature indépendante. Les hôtes autorisés sont fixes et toute rotation d’origine échoue de façon fermée. La détection automatique valide un outil trouvé avant de l’enregistrer comme sélection par défaut.
+Le packaging cible Linux x86_64 avec Node 22 ≥ 22.16 ou Node 24 ; le moteur exige ≥ 22.8. Aucun suivi périodique ni mise à jour automatique des installations externes.
 
-Les scripts npm sont désactivés (`--ignore-scripts`). Le postinstall de Prime ne prépare des outils optionnels et son propre kernel que sur demande ; le Studio utilise `ensureLocalKernel`. L’installation conserve les ressources et dépendances complètes, vérifie les imports natifs fournisseur, modèle, commande, MCP et Photon avant validation. npm conserve son lockfile pour diagnostiquer les dépendances transitives. uv télécharge le Python géré si besoin (`UV_PYTHON_DOWNLOADS=automatic`, `UV_PYTHON_PREFERENCE=only-managed`). Le code existant valide les imports Python, le protocole du kernel et les skills essentielles. Les outils optionnels, dont fd/rg et les intégrations de comptes, ne sont pas tous installés par cette préparation.
-
-Les composants résident dans `engine/prime-agent/<version-id>`, `engine/uv/<version-id>`, `engine/npm/<version-id>` et `engine/python`, sous le dossier de données de l’application. `engine/prepared.json` conserve les composants validés pour une reprise ; `engine/installation.json` sélectionne atomiquement les chemins, versions, provenances et empreintes après validation Python. `engine/selection.json` contient les sélections explicites. Les noyaux restent dans `.local`. Les archives passent par un staging neuf, avec limites de taille et refus des traversées et liens. Les versions précédentes et les installations externes ne sont jamais supprimées.
-
-La progression expose les étapes réelles et les octets reçus, sans pourcentage global inventé. Une annulation ou une erreur permet de réessayer sans perdre les composants déjà validés. Un verrou empêche deux préparations simultanées et récupère un propriétaire arrêté. Les journaux `engine/logs/components.log` contiennent seulement étapes, codes et octets. Les téléchargements ne démarrent ni à l’ouverture d’une page distante ni à une simple connexion.
-
-Une préparation terminée ne redémarre qu’un serveur dont le Studio vérifie la propriété et l’inactivité. Si des agents travaillent ou qu’un autre lanceur possède le serveur, l’activation reste différée jusqu’à un redémarrage approprié. Aucun processus Node global n’est arrêté. Les générations de moteur et de kernel restent disponibles pour les processus existants.
+Les kernels restent sous `.local` via `ensureLocalKernel` lorsque uv est disponible et qu’aucun Python externe n’est sélectionné.
 
 ## Fenêtre et travail en arrière-plan
 
@@ -74,21 +68,18 @@ Les mises à jour portent une signature cryptographique Tauri (minisign). Ce por
 
 ## Construire et vérifier
 
-`npm run test:components` vérifie le résolveur, les téléchargements par serveur local, les empreintes, les archives hostiles, les verrous et le parcours FR/EN dans Chrome/Chromium sans installation réelle. `npm run test:components:download` exige les ressources `.desktop-build` : il lance le Node embarqué dans un dossier temporaire isolé avec un PATH local réduit, télécharge réellement les composants, prépare Python, vérifie `/api/version` et refuse tout téléchargement à la seconde préparation. Il conserve son dossier de diagnostic et ne masque ni ne supprime les outils de l’utilisateur. Il n’utilise aucun compte ni modèle payant. Pour valider les sessions avec un fournisseur simulé, exécutez `scripts/test-commands-native.mjs` avec `PRIME_AGENT_CLI` et `PRIME_AGENT_KERNEL_PYTHON` issus de ce manifeste isolé.
-
-Ces contrôles ne remplacent pas une validation de l’assistant dans le binaire Tauri empaqueté, en FR/EN, sur une machine Linux x86_64 propre. Cette étape nécessite la chaîne Rust et les paquets de développement WebKitGTK.
+`npm run test:components` vérifie la résolution des chemins, la détection automatique, la validation de capacité et l’UI du lanceur (sans panneau de composants) dans Chrome/Chromium. Aucun compte ni modèle payant n’est utilisé.
 
 Sous Linux, installez Rust et les [prérequis Tauri 2 pour Linux](https://v2.tauri.app/start/prerequisites/) (notamment `libwebkit2gtk-4.1-dev`, `libappindicator3-dev`, `librsvg2-dev`, `patchelf`), puis :
 
 ```sh
-npm ci
-npm run desktop:build
-# AppImage/deb locaux sans signatures d’updater :
-make desktop-build-unsigned
-# ou : npm run desktop:build -- --unsigned
+make init
+make build            # AppImage/deb locaux sans signatures d’updater
+make build-release    # clé de signature + paquets signés + catalogue .local/desktop-release
+# notes de release optionnelles : make build-release NOTES=chemin/notes.md
 ```
 
-Les paquets se trouvent dans `src-tauri/target/release/bundle/appimage` et `…/bundle/deb`. `npm run desktop:dev` prépare les ressources et démarre la compilation de développement. `npm run desktop:icons` régénère les icônes à partir du SVG.
+Les paquets se trouvent dans `src-tauri/target/release/bundle/appimage` et `…/bundle/deb`. Une arborescence de release signée est aussi copiée dans `.local/desktop-release/v<version>` (AppImage sans espace, `.sig`, `latest.json`, et en général le `.deb` correspondant). `npm run desktop:dev` prépare les ressources et démarre la compilation de développement. `npm run desktop:icons` régénère les icônes à partir du SVG.
 
 La construction vérifie les références des modules, workers et assistants natifs avant de créer les paquets. `npm run test:desktop-runtime` teste les ressources préparées dans `.desktop-build` avec les vrais workers Prime Agent, un projet et des comptes isolés : skills Python, prompts et fournisseurs.
 
@@ -102,17 +93,21 @@ Pour les tests natifs en parallèle de votre application, compilez une identité
 
 ## Préparer une release de mise à jour
 
-Amorcez une fois la machine de release (génère ou réutilise `~/.tauri/prime-agent-studio-nix.key`, synchronise la clé publique d’updater et l’URL du catalogue, et peut envoyer les secrets GitHub Actions) :
+`make build-release` suffit pour une arborescence signée complète : il assure l’existence de `~/.tauri/prime-agent-studio-nix.key`, synchronise la clé publique d’updater et l’URL du catalogue dans `src-tauri/tauri.conf.json`, construit l’AppImage/deb signés, et prépare `.local/desktop-release/v<version>`. Optionnel : `SET_SECRETS=1` envoie les secrets de signature GitHub Actions ; `NOTES=chemin/notes.md` remplit les notes dans `latest.json`.
+
+Les étapes de bas niveau restent disponibles séparément :
 
 ```sh
 make desktop-release-bootstrap
 # optionnel : make desktop-release-bootstrap SET_SECRETS=1
 make desktop-release-check
+make desktop-build
+make desktop-manifest
 ```
 
-La clé privée de signature reste hors du dépôt. Sauvegardez-la de façon sûre : les applications installées font confiance à la clé publique embarquée, et une clé de remplacement incompatible empêcherait les mises à jour. `desktop:build` utilise cette clé locale ou `TAURI_SIGNING_PRIVATE_KEY` (chemin ou contenu) et `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`. Pour une installation locale, `make desktop-build-unsigned` (ou `npm run desktop:build -- --unsigned`) produit l’AppImage et le deb sans artefacts `.sig` d’updater. Sans clé et sans `--unsigned`, `npm run desktop:build -- --no-bundle` ne construit que l’exécutable.
+La clé privée de signature reste hors du dépôt. Sauvegardez-la de façon sûre : les applications installées font confiance à la clé publique embarquée, et une clé de remplacement incompatible empêcherait les mises à jour. Les builds signés utilisent cette clé locale ou `TAURI_SIGNING_PRIVATE_KEY` (chemin ou contenu) et `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`. Pour une installation locale sans artefacts d’updater, utilisez `make build` (alias : `make desktop-build-unsigned`). Sans clé et sans `--unsigned`, `npm run desktop:build -- --no-bundle` ne construit que l’exécutable.
 
-Après une compilation signée, lancez `npm run desktop:manifest -- chemin/notes.md` (les notes sont optionnelles), ou `make desktop-manifest`. `.local/desktop-release/v<version>` contient les fichiers à joindre ensemble à la release stable `v<version>` : l’AppImage au nom sans espace, sa signature `.sig`, `latest.json`, et en général le `.deb` correspondant. Ne renommez pas l’AppImage ensuite : le catalogue contient son URL exacte.
+Ne renommez pas l’AppImage après le packaging : le catalogue contient son URL exacte.
 
 Les téléchargements de release et le catalogue de mise à jour in-app sont publiés depuis [mholtzhausen/prime-agent-studio](https://github.com/mholtzhausen/prime-agent-studio/releases). Le workflow GitHub **Linux desktop release** s’exécute manuellement avec une balise stable existante correspondant à `package.json`. Il teste, compile, signe et prépare une **release brouillon** contenant ces fichiers. Configurez les secrets du dépôt `TAURI_SIGNING_PRIVATE_KEY` et, pour une clé chiffrée, `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` (le bootstrap peut les définir). Il refuse d’écraser une release publiée. Les workflows ne signent jamais un paquet téléversé manuellement : ils reconstruisent toujours depuis la balise avant de signer. Relisez le brouillon, puis publiez-le comme dernière release stable pour rendre la mise à jour disponible. Ne publiez pas ensuite une release stable sans son catalogue et son AppImage.
 

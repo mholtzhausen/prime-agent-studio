@@ -430,7 +430,6 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             desktop_state,
             components::desktop_components,
-            components::desktop_components_cancel,
             components::desktop_components_open,
             desktop_autostart,
             desktop_choose_legacy,

@@ -7,10 +7,10 @@ export const languages = [
 export const messages = {
   'configuration.connect': { fr: 'Configurer un fournisseur', en: 'Configure a provider' },
   'configuration.choose': { fr: 'Choisir un modèle', en: 'Choose a model' },
-  'configuration.components': { fr: 'Configurer les composants', en: 'Set up components' },
+  'configuration.components': { fr: 'Préférences → Système', en: 'Preferences → System' },
   'configuration.components_hint': {
-    fr: 'Ouvrir les réglages de l’application pour préparer Prime Agent, uv et Python (aucune installation automatique)',
-    en: 'Open the application settings to prepare Prime Agent, uv and Python (no automatic install)',
+    fr: 'Ouvrir Préférences → Système pour indiquer les chemins de Prime Agent, uv et Python.',
+    en: 'Open Preferences → System to set paths for Prime Agent, uv and Python.',
   },
   'configuration.providerMissing': { fr: 'Aucun fournisseur configuré.', en: 'No provider configured.' },
   'configuration.modelMissing': { fr: 'Aucun modèle sélectionné.', en: 'No model selected.' },
@@ -605,14 +605,9 @@ export const messages = {
     en: 'This application · Appearance and conversation',
   },
   'settings.components': { fr: 'Composants du Studio', en: 'Studio components' },
-  'settings.components_note': {
-    fr: 'Chemins de Prime Agent, uv et Python. Le bouton ouvre aussi les réglages du lanceur de bureau.',
-    en: 'Paths for Prime Agent, uv and Python. The button also opens the desktop launcher settings.',
-  },
-  'settings.components_open': { fr: 'Lanceur', en: 'Launcher' },
   'components.note': {
-    fr: 'Studio détecte les installations Linux locales et valide chaque chemin avant de l’utiliser. Une version différente de la politique peut fonctionner (avertissement ambre).',
-    en: 'Studio detects local Linux installs and validates each path before using it. A version outside the policy may still work (amber warning).',
+    fr: 'Chemins locaux pour Prime Agent et uv. Python est préparé automatiquement par uv (noyau Studio). Les champs vides sont détectés automatiquement ; un chemin saisi n’est jamais écrasé.',
+    en: 'Local paths for Prime Agent and uv. Python is prepared automatically by uv (Studio kernel). Empty fields are detected automatically; a path you enter is never overwritten.',
   },
   'components.remote_only': {
     fr: 'La configuration des binaires se fait uniquement sur le PC local.',
@@ -621,6 +616,18 @@ export const messages = {
   'components.engine': { fr: 'Prime Agent', en: 'Prime Agent' },
   'components.uv': { fr: 'uv', en: 'uv' },
   'components.python': { fr: 'Python', en: 'Python' },
+  'components.python_managed': {
+    fr: 'Python (noyau uv)',
+    en: 'Python (uv kernel)',
+  },
+  'components.python_external': {
+    fr: 'Python (externe)',
+    en: 'Python (external)',
+  },
+  'components.python_pending': {
+    fr: 'Python (en préparation)',
+    en: 'Python (preparing)',
+  },
   'components.node': { fr: 'Node', en: 'Node' },
   'components.bash': { fr: 'Bash', en: 'Bash' },
   'components.path_placeholder': {
@@ -628,17 +635,14 @@ export const messages = {
     en: 'Absolute path…',
   },
   'components.browse': { fr: 'Parcourir', en: 'Browse' },
-  'components.apply': { fr: 'Appliquer', en: 'Apply' },
-  'components.discover': { fr: 'Détecter les installations', en: 'Detect installed' },
-  'components.recheck': { fr: 'Vérifier à nouveau', en: 'Recheck' },
-  'components.install': { fr: 'Installer les manquants', en: 'Install missing' },
+  'components.reset': { fr: 'Réinitialiser (redétecter)', en: 'Reset to detected' },
   'components.ready': {
     fr: 'Tous les composants requis sont prêts.',
     en: 'All required components are ready.',
   },
   'components.incomplete': {
-    fr: 'Corrigez les chemins en rouge, détectez une installation, ou installez les composants manquants.',
-    en: 'Fix paths marked in red, detect an install, or install missing components.',
+    fr: 'Corrigez les chemins en rouge, ou utilisez Réinitialiser pour redétecter. Installez les binaires vous-même si besoin.',
+    en: 'Fix paths marked in red, or use Reset to rediscover. Install any missing binaries yourself.',
   },
   'components.server_stale': {
     fr: 'Ce serveur ne propose pas encore la configuration des binaires. Quittez l’application de bureau sur le port 3088, ou lancez le code à jour avec PORT=3090 make dev, puis rouvrez les réglages.',
@@ -647,13 +651,49 @@ export const messages = {
   'components.state_ready': { fr: 'Chemin valide', en: 'Path valid' },
   'components.state_error': { fr: 'Chemin invalide ou manquant', en: 'Path invalid or missing' },
   'components.state_not_required': { fr: 'Non nécessaire', en: 'Not required' },
-  'components.engine_version_mismatch': {
-    fr: 'Version différente de la politique Studio ; le moteur a passé les contrôles de compatibilité.',
-    en: 'Version differs from Studio policy; the engine passed compatibility checks.',
+  missing: {
+    fr: 'Introuvable. Installez l’outil ou choisissez un autre chemin.',
+    en: 'Not found. Install the tool or choose another path.',
   },
-  'components.uv_version_mismatch': {
-    fr: 'Version de uv différente de la politique ; le binaire a été accepté.',
-    en: 'uv version differs from policy; the binary was accepted.',
+  validation_failed: {
+    fr: 'Vérification impossible. Contrôlez le chemin et les droits d’exécution.',
+    en: 'Validation failed. Check the path and that it is executable.',
+  },
+  python_unprepared: {
+    fr: 'Le Python externe (PRIME_AGENT_KERNEL_PYTHON) n’a pas le runtime Studio. Retirez la variable pour laisser uv préparer le noyau.',
+    en: 'External Python (PRIME_AGENT_KERNEL_PYTHON) is missing the Studio runtime. Unset that variable so uv can prepare the kernel.',
+  },
+  uv_incompatible: {
+    fr: 'uv incompatible ou illisible (version attendue).',
+    en: 'uv is incompatible or could not report a version.',
+  },
+  engine_incompatible: {
+    fr: 'Ce chemin n’est pas une installation Prime Agent utilisable.',
+    en: 'This path is not a usable Prime Agent installation.',
+  },
+  bash_missing: {
+    fr: 'bash est introuvable ou ne répond pas.',
+    en: 'bash is missing or did not respond.',
+  },
+  disk_full: {
+    fr: 'Espace disque insuffisant.',
+    en: 'Not enough disk space.',
+  },
+  write_denied: {
+    fr: 'Écriture refusée pour ce chemin.',
+    en: 'Write permission denied for this path.',
+  },
+  cancelled: {
+    fr: 'Opération annulée.',
+    en: 'Cancelled.',
+  },
+  node_incompatible: {
+    fr: 'Node.js 22.16+ ou 24.x (linux x64) requis.',
+    en: 'Node.js 22.16+ or 24.x on linux x64 is required.',
+  },
+  architecture_unsupported: {
+    fr: 'Architecture non prise en charge (linux x64 uniquement).',
+    en: 'Unsupported architecture (linux x64 only).',
   },
   'components.pick_engine': {
     fr: 'Choisir la racine du paquet Prime Agent',
@@ -1628,8 +1668,8 @@ export const messages = {
     en: 'Prime Agent {value1} · native sessions preserved',
   },
   'ui.prime_agent_est_introuvable_installez_ou_configurez_le_cli_puis_r': {
-    fr: 'Prime Agent est introuvable. Installez ou configurez le CLI puis relancez le Studio.',
-    en: 'Prime Agent was not found. Install or configure the CLI, then restart the Studio.',
+    fr: 'Prime Agent est introuvable. Indiquez son chemin dans Préférences → Système, ou installez le CLI puis rouvrez le Studio.',
+    en: 'Prime Agent was not found. Set its path in Preferences → System, or install the CLI and reopen Studio.',
   },
   'ui.impossible_de_joindre_le_serveur': {
     fr: 'Impossible de joindre le serveur. {value1}',

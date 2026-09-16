@@ -36,7 +36,7 @@ test('local system components API returns diagnosis without remote exposure', as
   assert.equal(result.status, 200);
   assert.equal(typeof result.json.ready, 'boolean');
   assert.ok(result.json.components);
-  assert.ok(result.json.policy?.engine);
+  assert.ok(Array.isArray(result.json.candidates?.engine) || result.json.candidates);
   const put = await f.api('/api/system/components', {
     method: 'PUT',
     body: { engine: join(f.root, 'missing-engine') },

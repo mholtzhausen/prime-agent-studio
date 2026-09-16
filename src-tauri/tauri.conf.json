@@ -24,7 +24,6 @@
             "core:default",
             "allow-desktop-state",
             "allow-desktop-components",
-            "allow-desktop-components-cancel",
             "allow-desktop-components-open",
             "allow-desktop-autostart",
             "allow-desktop-choose-legacy",
@@ -68,7 +67,7 @@
       "endpoints": [
         "https://github.com/mholtzhausen/prime-agent-studio/releases/latest/download/latest.json"
       ],
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDhBQTVENDlDRTY5QjRERDMKUldUVFRadm1uTlNsaXVORFo4dkFSYjJ3SSs0YlZkSE9LUE1MUXl6VDVvZHdKTkZKQmxZLy9EUjIK\n"
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDhBQTVENDlDRTY5QjRERDMKUldUVFRadm1uTlNsaXVORFo4dkFSYjJ3SSs0YlZkSE9LUE1MUXl6VDVvZHdKTkZKQmxZLy9EUjIK"
     }
   }
 }

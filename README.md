@@ -135,7 +135,7 @@ Connection tests discover tools without executing them. New settings apply to ne
 
 ### Linux application
 
-Download the [AppImage or deb](https://github.com/mholtzhausen/prime-agent-studio/releases/latest) for amd64, then open **Prime Agent Studio Nix**. The AppImage is portable; the deb installs system integration. Node.js is included in the package. Builds with guided setup offer **Install missing components** at first launch and in application settings: Prime Agent **0.9.4**, private npm, uv and Python download on demand after your click. Compatible external installations are reused; a working `bash` is required for engine shell commands. Configure your provider afterward. If you previously used a source checkout, select **Use an existing installation**. [Full guide](docs/en/desktop.md).
+Download the [AppImage or deb](https://github.com/mholtzhausen/prime-agent-studio/releases/latest) for amd64, then open **Prime Agent Studio Nix**. The AppImage is portable; the deb installs system integration. Node.js is included in the package. Install **Prime Agent**, **uv** and **Python** yourself if needed, then set or confirm their paths under **Preferences → System** (empty fields are detected automatically). A working `bash` is required for engine shell commands. Configure your provider afterward. If you previously used a source checkout, select **Use an existing installation**. [Full guide](docs/en/desktop.md).
 
 Updates carry a Tauri cryptographic signature.
 
@@ -160,6 +160,7 @@ make init            # npm ci
 make setup-runtime   # optional; needs Prime Agent + uv
 make dev             # foreground server → http://127.0.0.1:3088
 make check && make test
+make build            # optional: Linux AppImage/deb without updater signatures
 ```
 
 See [AGENTS.md](AGENTS.md) for coding-agent conventions and [ARCHITECTURE.md](ARCHITECTURE.md) for the system map. `make help` lists all targets.

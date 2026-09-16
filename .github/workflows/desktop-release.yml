@@ -43,8 +43,6 @@ jobs:
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
       - run: rustup default stable
       - run: npm ci
-      - name: Prepare isolated compatible engine for integration tests
-        run: node scripts/prepare-release-test-engine.mjs
       - run: node --test --test-concurrency=2 test/*.test.mjs
       - run: npm run check
       - run: cargo test --manifest-path src-tauri/Cargo.toml --locked

@@ -1,7 +1,6 @@
 import { t as tr, translateKnown, translateDOM, onLanguageChange, bindText } from './i18n.js';
 import { createDesktopUpdates } from './desktop-updates.js';
 import { createInteractionSettings } from './interaction-settings.js';
-import { isDesktopComponentsAvailable, openDesktopComponents } from './desktop-components-action.js';
 import { createComponentsSettings } from './components-settings.js';
 
 export function createSettings({
@@ -15,10 +14,6 @@ export function createSettings({
   const updates = createDesktopUpdates({ api, getContext });
   const interactions = createInteractionSettings({ api, getContext, onStudioPreferences });
   const $ = (id) => document.getElementById(id);
-  if (isDesktopComponentsAvailable()) {
-    $('settings-components-row').hidden = false;
-    $('settings-components').onclick = () => void openDesktopComponents({ toast });
-  }
   let components = createComponentsSettings({
     root: $('settings-components-editor'),
     api,
@@ -555,5 +550,11 @@ export function createSettings({
     url.searchParams.delete('settings');
     history.replaceState(null, '', url);
   }
-  return { open: () => dialog.showModal() };
+  return {
+    open(tabId) {
+      if (typeof tabId === 'string' && tabId) selected = tabId;
+      dialog.showModal();
+      if (typeof tabId === 'string' && tabId) select(tabId);
+    },
+  };
 }

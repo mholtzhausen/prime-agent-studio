@@ -78,6 +78,7 @@ const templates = Object.entries(messages)
   .sort((a, b) => b.specificity - a.specificity);
 export function knownMessage(text, language = fallbackLanguage) {
   if (typeof text !== 'string') return text;
+  if (Object.hasOwn(messages, text)) return formatMessage(text, {}, language);
   const key = sourceKeys.get(text);
   if (key) return formatMessage(key, {}, language);
   if (text.length > 16000) return text;

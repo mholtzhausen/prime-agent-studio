@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { startServer } from './start-server.mjs';
 import { acquireLock, probeHealth, parsePort, isDirectInvocation } from './launcher-common.mjs';
 import { repairDesktop280Resources } from './desktop-runtime-resources.mjs';
-import { selectedEnvironment } from '../lib/desktop-components.mjs';
+import { selectedEnvironment, diagnoseComponents, activateComponents, captureComponentLaunchEnv } from '../lib/desktop-components.mjs';
 
 const resources = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const importedFiles = ['workspace.json', 'subagent-defaults.json', 'lan-access.json', 'attachments'];
@@ -90,12 +90,22 @@ export async function startDesktop(
     }
     const dataDir = join(dataRoot, 'data');
     if (!existsSync(dataDir) && legacyRoot) await importLegacyData(resolve(legacyRoot), dataDir);
+    const startEnv = { ...env, PRIME_STUDIO_DESKTOP_DATA_ROOT: dataRoot };
+    const launch = captureComponentLaunchEnv(startEnv) || {
+      PRIME_AGENT_CLI: undefined,
+      PRIME_GUI_UV: undefined,
+      PRIME_AGENT_KERNEL_PYTHON: undefined,
+    };
+    let diagnosed = await diagnoseComponents({ dataRoot, env: startEnv, autoDiscover: true });
+    if (diagnosed.ready)
+      diagnosed = (await activateComponents({ dataRoot, result: diagnosed, env: startEnv })) || diagnosed;
     const childEnv = {
-      ...(await selectedEnvironment(dataRoot, { ...env, PRIME_STUDIO_DESKTOP_DATA_ROOT: dataRoot })),
+      ...(await selectedEnvironment(dataRoot, startEnv)),
       PRIME_AGENT_GUI_DATA_DIR: dataDir,
       PRIME_AGENT_GUI_KERNEL_ROOT: dataRoot,
       PRIME_STUDIO_DESKTOP_DATA_ROOT: dataRoot,
       PRIME_AGENT_GUI_INITIAL_CWD: homedir(),
+      PRIME_STUDIO_COMPONENT_LAUNCH: JSON.stringify(launch),
       PATH: `${generation}:${env.PATH || ''}`,
     };
     return await (deps.start || startServer)({

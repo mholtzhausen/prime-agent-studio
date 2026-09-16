@@ -135,7 +135,7 @@ Les tests découvrent les outils sans en exécuter. Les nouveaux réglages s’a
 
 ### Application Linux
 
-Téléchargez l’[AppImage ou le deb](https://github.com/mholtzhausen/prime-agent-studio/releases/latest) pour amd64, puis ouvrez **Prime Agent Studio Nix**. L’AppImage est portable ; le deb installe l’intégration système. Node.js est inclus dans le paquet. Les builds avec préparation guidée proposent **Installer les composants manquants** au premier lancement et dans les réglages de l’application : Prime Agent **0.9.4**, npm privé, uv et Python sont téléchargés à la demande après votre clic. Les installations externes compatibles sont réutilisées ; un `bash` fonctionnel est requis pour les commandes shell du moteur. Configurez ensuite votre fournisseur. Si vous utilisiez déjà un checkout source, choisissez **Reprendre une installation existante**. [Guide complet](docs/desktop.md).
+Téléchargez l’[AppImage ou le deb](https://github.com/mholtzhausen/prime-agent-studio/releases/latest) pour amd64, puis ouvrez **Prime Agent Studio Nix**. L’AppImage est portable ; le deb installe l’intégration système. Node.js est inclus dans le paquet. Installez **Prime Agent**, **uv** et **Python** vous-même si besoin, puis confirmez leurs chemins dans **Préférences → Système** (les champs vides sont détectés automatiquement). Un `bash` fonctionnel est requis pour les commandes shell du moteur. Configurez ensuite votre fournisseur. Si vous utilisiez déjà un checkout source, choisissez **Reprendre une installation existante**. [Guide complet](docs/desktop.md).
 
 Les mises à jour portent une signature cryptographique Tauri.
 
@@ -160,6 +160,7 @@ make init            # npm ci
 make setup-runtime   # optionnel ; nécessite Prime Agent + uv
 make dev             # serveur au premier plan → http://127.0.0.1:3088
 make check && make test
+make build            # optionnel : AppImage/deb Linux sans signatures d’updater
 ```
 
 Voir [AGENTS.md](AGENTS.md) pour les conventions des agents de code et [ARCHITECTURE.md](ARCHITECTURE.md) pour la carte système. `make help` liste toutes les cibles.

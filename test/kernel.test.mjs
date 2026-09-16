@@ -120,7 +120,7 @@ test('diagnosis never creates a kernel, and a skipped desktop setup never instal
       { ...f.options, env: { ...f.options.env, PRIME_STUDIO_COMPONENTS_REQUIRED: '1' } },
       f.deps,
     ),
-    /Finish component setup/,
+    /Finish setup in Preferences/,
   );
   assert.equal(f.calls.length, 0);
   const python = await f.prepare();

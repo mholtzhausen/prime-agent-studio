@@ -1,9 +1,9 @@
 import { t as tr, bindText, translateKnown } from './i18n.js';
 
+/** User-editable paths. Python is prepared by uv — shown as a status chip only. */
 const TOOLS = [
   { id: 'engine', labelKey: 'components.engine', pathKey: 'engine' },
   { id: 'uv', labelKey: 'components.uv', pathKey: 'uv' },
-  { id: 'python', labelKey: 'components.python', pathKey: 'python' },
 ];
 
 function statusOf(components, id) {
@@ -23,16 +23,36 @@ function pathOf(result, id) {
 function iconState(info) {
   if (!info || info.status === 'missing' || info.status === 'pending') return 'error';
   if (info.status === 'error') return 'error';
-  if (info.status === 'ready' && info.warning) return 'warn';
   if (info.status === 'ready' || info.status === 'not_required') return 'ready';
   return 'error';
 }
 
+function chipLabel(key, info) {
+  if (key === 'node') return `${tr('components.node')}${info.version ? ` ${info.version}` : ''}`;
+  if (key === 'bash') return tr('components.bash');
+  if (key === 'python') {
+    if (info.status === 'ready')
+      return info.source === 'explicit'
+        ? tr('components.python_external')
+        : tr('components.python_managed');
+    if (info.status === 'pending' || info.status === 'missing') return tr('components.python_pending');
+    if (info.error) return `${tr('components.python')} · ${translateKnown(info.error)}`;
+    return tr('components.python');
+  }
+  return key;
+}
+
 /**
- * Shared binary path editor for Settings → System and the desktop setup page.
- * @param {{ root: HTMLElement, api: Function, remote?: boolean, toast?: Function, onChange?: Function }} options
+ * Binary path editor for Preferences → System (desktop and browser).
+ * Soft-fills empty slots on refresh; auto-applies on field change; Reset rediscovers one tool.
  */
-export function createComponentsSettings({ root, api, remote = false, toast = () => {}, onChange = () => {} }) {
+export function createComponentsSettings({
+  root,
+  api,
+  remote = false,
+  toast = () => {},
+  onChange = () => {},
+}) {
   if (!root) return { refresh: async () => {}, destroy() {} };
   root.innerHTML = '';
   root.classList.add('components-settings');
@@ -51,6 +71,7 @@ export function createComponentsSettings({ root, api, remote = false, toast = ()
   }
 
   const fields = {};
+  const timers = {};
   for (const tool of TOOLS) {
     const row = document.createElement('div');
     row.className = 'components-row';
@@ -81,49 +102,30 @@ export function createComponentsSettings({ root, api, remote = false, toast = ()
     browse.className = 'secondary-button';
     bindText(browse, () => tr('components.browse'));
 
-    const save = document.createElement('button');
-    save.type = 'button';
-    save.className = 'secondary-button';
-    bindText(save, () => tr('components.apply'));
+    const reset = document.createElement('button');
+    reset.type = 'button';
+    reset.className = 'secondary-button components-reset';
+    reset.title = tr('components.reset');
+    reset.setAttribute('aria-label', tr('components.reset'));
+    reset.textContent = '↺';
 
     const actions = document.createElement('div');
     actions.className = 'components-row-actions';
-    actions.append(browse, save);
+    actions.append(browse, reset);
 
     const error = document.createElement('p');
     error.className = 'form-error components-row-error';
     error.hidden = true;
     error.setAttribute('role', 'status');
 
-    const warn = document.createElement('p');
-    warn.className = 'settings-footnote components-row-warn';
-    warn.hidden = true;
-
-    row.append(head, input, actions, error, warn);
+    row.append(head, input, actions, error);
     root.appendChild(row);
-    fields[tool.id] = { input, status, error, warn, browse, save };
+    fields[tool.id] = { input, status, error, browse, reset };
   }
 
   const chips = document.createElement('ul');
   chips.className = 'components-chips';
   root.appendChild(chips);
-
-  const toolbar = document.createElement('div');
-  toolbar.className = 'components-toolbar';
-  const discover = document.createElement('button');
-  discover.type = 'button';
-  discover.className = 'secondary-button';
-  bindText(discover, () => tr('components.discover'));
-  const recheck = document.createElement('button');
-  recheck.type = 'button';
-  recheck.className = 'secondary-button';
-  bindText(recheck, () => tr('components.recheck'));
-  const install = document.createElement('button');
-  install.type = 'button';
-  install.className = 'primary-button';
-  bindText(install, () => tr('components.install'));
-  toolbar.append(discover, recheck, install);
-  root.appendChild(toolbar);
 
   const live = document.createElement('p');
   live.className = 'settings-footnote';
@@ -133,11 +135,12 @@ export function createComponentsSettings({ root, api, remote = false, toast = ()
 
   let busy = false;
   let latest = null;
+  let generation = 0;
 
   function render(result) {
     latest = result;
     if (result?.failure) {
-      bindText(live, () => translateKnown(result.failure.error || 'preparation_failed'));
+      bindText(live, () => translateKnown(result.failure.error || 'validation_failed'));
       return;
     }
     for (const tool of TOOLS) {
@@ -158,89 +161,85 @@ export function createComponentsSettings({ root, api, remote = false, toast = ()
         field.error.hidden = true;
         field.error.textContent = '';
       }
-      if (info?.warning === 'engine_version_mismatch') {
-        field.warn.hidden = false;
-        bindText(field.warn, () => tr('components.engine_version_mismatch'));
-      } else if (info?.warning === 'uv_version_mismatch') {
-        field.warn.hidden = false;
-        bindText(field.warn, () => tr('components.uv_version_mismatch'));
-      } else {
-        field.warn.hidden = true;
-        field.warn.textContent = '';
-      }
     }
     chips.innerHTML = '';
-    for (const key of ['node', 'bash']) {
+    for (const key of ['node', 'bash', 'python']) {
       const info = result?.components?.[key];
       if (!info) continue;
       const li = document.createElement('li');
       li.dataset.state = iconState(info);
-      li.textContent = `${key === 'node' ? tr('components.node') : tr('components.bash')}${info.version ? ` ${info.version}` : ''}`;
+      if (info.error) li.title = translateKnown(info.error);
+      li.textContent = chipLabel(key, info);
       chips.appendChild(li);
     }
-    install.hidden = Boolean(result?.ready);
-    bindText(live, () =>
-      result?.ready ? tr('components.ready') : tr('components.incomplete'),
-    );
+    bindText(live, () => (result?.ready ? tr('components.ready') : tr('components.incomplete')));
     onChange(result);
   }
 
   async function run(action, body) {
-    if (busy) return;
+    const gen = ++generation;
     busy = true;
     root.dataset.busy = '1';
     try {
       let result;
       if (action === 'get') result = await api('/api/system/components');
-      else if (action === 'discover')
-        result = await api('/api/system/components/discover', { method: 'POST', body: {} });
-      else if (action === 'recheck')
-        result = await api('/api/system/components/recheck', { method: 'POST', body: {} });
-      else if (action === 'install')
-        result = await api('/api/system/components/install', { method: 'POST', body: {} });
       else if (action === 'put')
         result = await api('/api/system/components', { method: 'PUT', body });
       else if (action === 'pick')
         result = await api('/api/system/components/pick', { method: 'POST', body });
+      else if (action === 'reset')
+        result = await api('/api/system/components/reset', { method: 'POST', body });
       else throw new Error('action_invalid');
+      if (gen !== generation) return latest;
       if (result?.cancelled) return latest;
       render(result);
       return result;
     } catch (error) {
+      if (gen !== generation) return latest;
       const message = error?.message || String(error);
-      const stale =
-        /404|route introuvable|not found/i.test(message) &&
-        (action === 'get' || action === 'discover' || action === 'recheck');
-      bindText(live, () =>
-        stale ? tr('components.server_stale') : translateKnown(message),
-      );
+      const stale = /404|route introuvable|not found/i.test(message);
+      bindText(live, () => (stale ? tr('components.server_stale') : translateKnown(message)));
       toast(stale ? tr('components.server_stale') : message, 'error');
       throw error;
     } finally {
-      busy = false;
-      delete root.dataset.busy;
+      if (gen === generation) {
+        busy = false;
+        delete root.dataset.busy;
+      }
     }
+  }
+
+  function schedulePut(tool) {
+    clearTimeout(timers[tool.id]);
+    timers[tool.id] = setTimeout(() => {
+      const value = fields[tool.id].input.value.trim();
+      void run('put', { [tool.pathKey]: value || null });
+    }, 300);
   }
 
   for (const tool of TOOLS) {
     const field = fields[tool.id];
-    field.browse.onclick = () => void run('pick', { component: tool.id });
-    field.save.onclick = () =>
-      void run('put', { [tool.pathKey]: field.input.value.trim() || null });
-    field.input.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter') {
-        event.preventDefault();
-        field.save.click();
-      }
+    field.browse.onclick = () => {
+      clearTimeout(timers[tool.id]);
+      void run('pick', { component: tool.id });
+    };
+    field.reset.onclick = () => {
+      clearTimeout(timers[tool.id]);
+      void run('reset', { component: tool.id });
+    };
+    field.input.addEventListener('input', () => schedulePut(tool));
+    field.input.addEventListener('change', () => {
+      clearTimeout(timers[tool.id]);
+      const value = field.input.value.trim();
+      void run('put', { [tool.pathKey]: value || null });
     });
   }
-  discover.onclick = () => void run('discover');
-  recheck.onclick = () => void run('recheck');
-  install.onclick = () => void run('install');
 
   return {
     refresh: () => run('get'),
     destroy() {
+      generation++;
+      for (const id of Object.keys(timers)) clearTimeout(timers[id]);
       root.innerHTML = '';
     },
   };

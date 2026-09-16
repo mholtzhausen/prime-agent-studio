@@ -21,14 +21,13 @@ import { validPolicy } from './runtime/subagent-policy.mjs';
 import { openDirectory } from './lib/open-directory.mjs';
 import { createDirectoryPicker, detectDirectoryPicker } from './lib/pick-directory.mjs';
 import {
-  COMPONENT_POLICY,
   componentsDataRoot,
   applySelection,
   diagnoseComponents,
-  prepareComponents,
   listCandidates,
   selectedEnvironment,
   activateComponents,
+  resetComponent,
 } from './lib/desktop-components.mjs';
 import { createMcpService } from './lib/mcp-service.mjs';
 import { createProviderService } from './lib/provider-service.mjs';
@@ -210,10 +209,16 @@ export function createApp(options = {}) {
   const modelDefaults = options.modelDefaults || createModelDefaultsStore({ agentHome });
   const mcp = options.mcp || createMcpService({ agentHome });
   const directoryPicker = options.directoryPicker || createDirectoryPicker();
-  async function syncRuntimeComponents(dataRoot = componentsDataRoot()) {
+  async function syncRuntimeComponents(dataRoot = componentsDataRoot(), { discover = true } = {}) {
+    if (discover) {
+      let result = await diagnoseComponents({ dataRoot, autoDiscover: true });
+      if (result.ready) await activateComponents({ dataRoot, result });
+    }
     const selected = await selectedEnvironment(dataRoot, process.env);
-    // Keep process-level path env stable for other fixtures/tests; only refresh the runtime
-    // and the components-required gate.
+    for (const key of ['PRIME_AGENT_CLI', 'PRIME_GUI_UV', 'PRIME_AGENT_KERNEL_PYTHON']) {
+      if (selected[key]) process.env[key] = selected[key];
+      else delete process.env[key];
+    }
     process.env.PRIME_STUDIO_COMPONENTS_REQUIRED = selected.PRIME_STUDIO_COMPONENTS_REQUIRED || '0';
     runtime.reloadComponents?.(selected);
     return selected;
@@ -639,48 +644,43 @@ export function createApp(options = {}) {
       // Component paths: loopback only (absent from LAN gateway allowlist).
       if (path === '/api/system/components' && method === 'GET') {
         const dataRoot = componentsDataRoot();
-        const result = await diagnoseComponents({ dataRoot, autoDiscover: false });
+        let result = await diagnoseComponents({ dataRoot, autoDiscover: true });
+        if (result.ready) result = (await activateComponents({ dataRoot, result })) || result;
         result.candidates = await listCandidates({ dataRoot });
         result.selection = result.selection || {};
-        result.policy = { ...COMPONENT_POLICY };
+        await syncRuntimeComponents(dataRoot, { discover: false });
         return json(res, 200, result);
       }
       if (path === '/api/system/components' && method === 'PUT') {
         const body = await readBody(req);
         const dataRoot = componentsDataRoot();
         const paths = {};
-        for (const key of ['engine', 'uv', 'python']) {
+        for (const key of ['engine', 'uv']) {
           if (!(key in body)) continue;
           if (body[key] !== null && body[key] !== undefined && typeof body[key] !== 'string')
             throw new HttpError(400, tr('server.la_demande_json_est_invalide'));
           paths[key] = body[key];
         }
+        // Python is prepared by uv; ignore legacy clients that still PUT a path (clear only).
+        if ('python' in body) paths.python = null;
         const result = await applySelection({ dataRoot, paths });
         await syncRuntimeComponents(dataRoot);
         return json(res, 200, result);
       }
-      if (path === '/api/system/components/discover' && method === 'POST') {
-        await readBody(req);
+      if (path === '/api/system/components/reset' && method === 'POST') {
+        const body = await readBody(req);
+        const component = body.component;
+        if (!['engine', 'uv'].includes(component))
+          throw new HttpError(400, tr('server.la_demande_json_est_invalide'));
         const dataRoot = componentsDataRoot();
-        const result = await applySelection({ dataRoot, discover: true });
+        const result = await resetComponent({ dataRoot, component });
         await syncRuntimeComponents(dataRoot);
         return json(res, 200, result);
-      }
-      if (path === '/api/system/components/recheck' && method === 'POST') {
-        await readBody(req);
-        const dataRoot = componentsDataRoot();
-        let diagnosed = await diagnoseComponents({ dataRoot, autoDiscover: true });
-        if (diagnosed.ready) diagnosed = (await activateComponents({ dataRoot, result: diagnosed })) || diagnosed;
-        diagnosed.candidates = await listCandidates({ dataRoot });
-        diagnosed.selection = diagnosed.selection || {};
-        diagnosed.policy = { ...COMPONENT_POLICY };
-        await syncRuntimeComponents(dataRoot);
-        return json(res, 200, diagnosed);
       }
       if (path === '/api/system/components/pick' && method === 'POST') {
         const body = await readBody(req);
         const component = body.component;
-        if (!['engine', 'uv', 'python'].includes(component))
+        if (!['engine', 'uv'].includes(component))
           throw new HttpError(400, tr('server.la_demande_json_est_invalide'));
         const controller = new AbortController();
         const abort = () => controller.abort();
@@ -705,13 +705,6 @@ export function createApp(options = {}) {
         } finally {
           res.off('close', abort);
         }
-      }
-      if (path === '/api/system/components/install' && method === 'POST') {
-        await readBody(req);
-        const dataRoot = componentsDataRoot();
-        const result = await prepareComponents({ dataRoot });
-        await syncRuntimeComponents(dataRoot);
-        return json(res, 200, result);
       }
       if (path === '/api/remote-access/network' && method === 'GET')
         return json(res, 200, await remoteNetwork.get());
@@ -1266,6 +1259,7 @@ export function createApp(options = {}) {
     projectArchives,
     runs,
     pushService,
+    syncRuntimeComponents,
     close,
   };
 }
@@ -1300,6 +1294,7 @@ if (isDirectInvocation(import.meta.url)) {
   });
   // B2: replay-or-rollback pending .pastudio imports before accepting traffic.
   await app.projectArchives.recoverPending().catch(() => {});
+  await app.syncRuntimeComponents().catch(() => {});
   app.server.listen(port, '127.0.0.1', () => {
     console.log(`Prime Agent Studio Nix ${VERSION} — http://127.0.0.1:${port}`);
     void startNetwork();

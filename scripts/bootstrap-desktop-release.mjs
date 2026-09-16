@@ -47,9 +47,11 @@ function run(command, commandArgs, options = {}) {
 }
 
 function normalizePubkey(raw) {
-  const text = String(raw || '').replace(/\r\n/g, '\n').trimEnd();
+  // Tauri expects a pure base64 pubkey string; a trailing newline fails decode
+  // ("Invalid symbol 10").
+  const text = String(raw || '').replace(/\s+/g, '').trim();
   if (!text) throw new Error(`Empty public key: ${pubPath}`);
-  return `${text}\n`;
+  return text;
 }
 
 function ensureSigningKey() {
@@ -148,7 +150,7 @@ console.log(
     '',
     'Next:',
     '  1. Commit the tauri.conf.json pubkey/endpoint change if updated',
-    '  2. make desktop-build && npm run desktop:manifest',
+    '  2. make build-release   # or: make build for unsigned local packages',
     '  3. Tag vX.Y.Z matching package.json, then run the Linux desktop release workflow',
     '  4. When cutting a version bump, use /version-bump [major|minor|patch|build]',
   ].join('\n'),

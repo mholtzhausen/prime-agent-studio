@@ -33,16 +33,13 @@ import { bindInlineImages } from './inline-images.js';
 import { createPasskeySettings } from './passkeys.js';
 import { createQuestions } from './questions.js';
 import { createPushSettings } from './push.js';
-import {
-  isDesktopComponentsAvailable,
-  openDesktopComponents,
-} from './desktop-components-action.js';
 let questionsUI;
 let imageComposer;
 let projectSorting;
 let projectNavigation;
 let liveMessagesUI;
 let commandsUI;
+let settingsUI;
 let inspectorUI;
 let roadmapUI;
 let archivesUI;
@@ -433,34 +430,27 @@ function setSelectedModel(value, persist = false, render = true) {
 function renderConfigurationWarning() {
   const providerMissing = Array.isArray(state.configuredProviders) && state.configuredProviders.length === 0;
   const modelMissing = !($('model-select').value || state.modelCatalogDefault);
+  const engineMissing = state.version?.available === false;
+  // Engine missing is shown on the global banner only (avoid duplicate banners).
   const visible =
-    state.initialized &&
-    state.online &&
-    state.version?.available !== false &&
-    (providerMissing || modelMissing);
+    state.initialized && state.online && !engineMissing && (providerMissing || modelMissing);
   $('configuration-warning').hidden = !visible;
   if (!visible) return;
   const key =
     providerMissing && modelMissing ? 'bothMissing' : providerMissing ? 'providerMissing' : 'modelMissing';
   bindText($('configuration-warning-text'), () => tr(`configuration.${key}`));
-  // Missing provider keeps its direct target (provider config). Engine
-  // components use the separate app-settings target below.
   $('configuration-provider-action').hidden =
     !providerMissing || state.remote || !state.providersAvailable || state.readOnly;
   $('configuration-model-action').hidden = !modelMissing || state.readOnly;
-  // Desktop-only shortcut to the app component settings. Browser/mobile stays
-  // hidden: no broken invoke. Opening never auto-installs.
   const componentsAction = $('configuration-components-action');
-  if (componentsAction)
-    componentsAction.hidden =
-      state.remote || state.readOnly || !isDesktopComponentsAvailable();
+  if (componentsAction) componentsAction.hidden = true;
 }
 $('configuration-provider-action').onclick = () => $('open-provider-settings').click();
 $('configuration-model-action').onclick = () => $('model-picker-button').click();
 if ($('configuration-components-action'))
-  $('configuration-components-action').onclick = () => void openDesktopComponents({ toast });
+  $('configuration-components-action').onclick = () => settingsUI?.open('system');
 if ($('global-banner-components'))
-  $('global-banner-components').onclick = () => void openDesktopComponents({ toast });
+  $('global-banner-components').onclick = () => settingsUI?.open('system');
 function modelRow(model, favorite = false) {
   const id = model.id || '',
     defaultChoice = !id,
@@ -696,15 +686,9 @@ function banner(message, error = false) {
 function renderEngineComponentsAction() {
   const action = $('global-banner-components');
   if (!action) return;
-  // Engine components target: desktop native only. Browser/mobile stays
-  // explanatory with no broken invoke. Opening never auto-installs.
   const engineMissing = state.version?.available === false;
   action.hidden =
-    $('global-banner').hidden ||
-    !engineMissing ||
-    state.remote ||
-    state.readOnly ||
-    !isDesktopComponentsAvailable();
+    $('global-banner').hidden || !engineMissing || state.remote || state.readOnly;
 }
 async function api(path, { method = 'GET', body, signal } = {}) {
   const pushWrite = path === '/api/push/subscriptions' || path === '/api/push/focus';
@@ -3058,7 +3042,7 @@ $('session-menu').onclick = (e) => {
 };
 $('export-session').onclick = () => exportSession();
 $('copy-project-path').onclick = () => copyText(state.projectCwd, () => tr('ui.chemin_du_projet_copie'));
-$('open-settings').onclick = () => $('settings-dialog').showModal();
+$('open-settings').onclick = () => settingsUI?.open();
 createRemoteAccessSettings({ api, isRemote: () => state.remote, toast });
 $('project-menu').onclick = (e) => {
   const button = e.target.closest('[data-project-action]');
@@ -3367,7 +3351,7 @@ createProviderSettings({
     updateModelsAfterConfiguration({ catalog });
   },
 });
-createSettings({
+settingsUI = createSettings({
   api,
   onStudioPreferences: applyStudioPreferences,
   getContext: () => ({

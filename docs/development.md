@@ -52,7 +52,7 @@ La fermeture d’un onglet ne tue pas l’agent. Le bouton **Arrêter**, lui, fe
 
 ## Développement des préférences sans interruption
 
-L’application native et ses paquets se construisent avec `npm run desktop:build` : voir [le guide de l’application Linux](desktop.md). Les tests natifs utilisent un dossier temporaire et un port dédié. L’interface ne possède aucun accès générique au shell Tauri ; les commandes du lanceur vérifient leur origine locale, et les liens externes s’ouvrent dans le navigateur.
+L’application native et ses paquets se construisent avec `make build` (non signé) ou `make build-release` (signé + catalogue d’updater) : voir [le guide de l’application Linux](desktop.md). Les tests natifs utilisent un dossier temporaire et un port dédié. L’interface ne possède aucun accès générique au shell Tauri ; les commandes du lanceur vérifient leur origine locale, et les liens externes s’ouvrent dans le navigateur.
 
 Le Studio sert directement les fichiers du dépôt. Pour travailler pendant des sessions actives, utilisez un worktree séparé : modifier le checkout servi pourrait changer l’interface de ces sessions. `node scripts/preview-preferences.mjs --serve` lance un aperçu avec dossiers temporaires, moteur simulé et écoute exclusivement loopback ; les adresses affichées sont de démonstration. Ce script ne lance aucun agent et ne modifie aucun compte ou accès réel.
 

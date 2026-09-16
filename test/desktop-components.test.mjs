@@ -1,61 +1,35 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, writeFile, readFile, readdir, rm, stat } from 'node:fs/promises';
+import { mkdtemp, mkdir, writeFile, rm, chmod } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, dirname, resolve } from 'node:path';
-import { gzipSync } from 'node:zlib';
-import { createServer } from 'node:http';
-import { archivePath, extractTgz, extractZip } from '../lib/component-archives.mjs';
 import {
-  COMPONENT_POLICY,
   selectedEnvironment,
   diagnoseComponents,
-  prepareComponents,
-  atomicJson,
-  download,
-  checksum,
-  verifyDigest,
-  releaseOrigin,
-  checkNode,
-  hasManagedUvReceipt,
-  componentsDataRoot,
   applySelection,
+  resetComponent,
+  listUvCandidates,
+  listPythonCandidates,
+  componentsDataRoot,
+  atomicJson,
+  checkNode,
   inspectEngineStatic,
+  resetComponentLaunchEnv,
+  captureComponentLaunchEnv,
 } from '../lib/desktop-components.mjs';
-import { acquireLock } from '../scripts/launcher-common.mjs';
 
 async function fixture(t) {
-  const root = await mkdtemp(join(tmpdir(), 'studio composants é '));
+  resetComponentLaunchEnv();
+  const root = await mkdtemp(join(tmpdir(), 'studio-components-'));
   t.after(async () => {
+    resetComponentLaunchEnv();
     assert.equal(dirname(root), resolve(tmpdir()));
     await rm(root, { recursive: true, force: true, maxRetries: 4 });
   });
   return root;
 }
-function tar(entries) {
-  const blocks = [];
-  for (const { name, type = '0', text = '' } of entries) {
-    const data = Buffer.from(text),
-      h = Buffer.alloc(512);
-    h.write(name);
-    h.write('0000644\0', 100);
-    h.write(data.length.toString(8).padStart(11, '0') + '\0', 124);
-    h.fill(32, 148, 156);
-    h.write(type, 156);
-    h.write('ustar\0', 257);
-    h.write(
-      h
-        .reduce((a, b) => a + b, 0)
-        .toString(8)
-        .padStart(6, '0') + '\0 ',
-      148,
-    );
-    blocks.push(h, data, Buffer.alloc((512 - (data.length % 512)) % 512));
-  }
-  return gzipSync(Buffer.concat([...blocks, Buffer.alloc(1024)]));
-}
-test('policy pins an exact tested engine; unsupported architectures and Node lines fail closed', () => {
-  assert.equal(COMPONENT_POLICY.engine, '0.9.4');
+
+test('unsupported architectures and Node lines fail closed', () => {
   checkNode('24.19.0', 'linux', 'x64');
   checkNode('22.16.0', 'linux', 'x64');
   for (const args of [
@@ -66,39 +40,8 @@ test('policy pins an exact tested engine; unsupported architectures and Node lin
     ['26.0.0', 'linux', 'x64'],
   ])
     assert.throws(() => checkNode(...args));
-  const linuxUv =
-    `https://github.com/astral-sh/uv/releases/download/${COMPONENT_POLICY.uv}/uv-x86_64-unknown-linux-gnu.tar.gz`;
-  assert.equal(
-    hasManagedUvReceipt('/managed/uv', {
-      installed: {
-        components: {
-          uv: {
-            path: '/managed/uv',
-            version: COMPONENT_POLICY.uv,
-            sha256: 'a'.repeat(64),
-            provenance: linuxUv,
-          },
-        },
-      },
-    }),
-    true,
-  );
-  assert.equal(
-    hasManagedUvReceipt('/managed/uv', {
-      installed: {
-        components: {
-          uv: {
-            path: '/managed/uv',
-            version: COMPONENT_POLICY.uv,
-            sha256: 'a'.repeat(64),
-            provenance: `https://github.com/astral-sh/uv/releases/download/${COMPONENT_POLICY.uv}/uv-x86_64-pc-windows-msvc.zip`,
-          },
-        },
-      },
-    }),
-    false,
-  );
 });
+
 test('explicit environment beats saved selection, which beats the managed manifest; no PATH mutation', async (t) => {
   const root = await fixture(t);
   await atomicJson(join(root, 'engine/installation.json'), {
@@ -111,262 +54,222 @@ test('explicit environment beats saved selection, which beats the managed manife
   assert.equal(env.PRIME_AGENT_KERNEL_PYTHON, 'external-python');
   assert.equal(env.PATH, 'unchanged');
   assert.equal((await selectedEnvironment(root, {})).PRIME_AGENT_CLI, 'saved');
-  assert.equal(env.UV_PYTHON_DOWNLOADS, 'automatic');
-  assert.equal(env.UV_PYTHON_PREFERENCE, 'only-managed');
 });
-test('invalid explicit CLI is reported and never replaced or downloaded', async (t) => {
+
+test('desktop clears sticky python env when selection no longer sets it', async (t) => {
+  const root = await fixture(t);
+  await atomicJson(join(root, 'engine/selection.json'), {
+    engine: '/engine',
+    uv: '/uv',
+  });
+  // Capture launch before the sticky value exists (shell had no override).
+  captureComponentLaunchEnv({ PRIME_STUDIO_DESKTOP_DATA_ROOT: root });
+  const selected = await selectedEnvironment(root, {
+    PRIME_STUDIO_DESKTOP_DATA_ROOT: root,
+    PRIME_AGENT_KERNEL_PYTHON: '/home/user/.pyenv/shims/python',
+  });
+  assert.equal(selected.PRIME_AGENT_KERNEL_PYTHON, undefined);
+});
+
+test('invalid explicit CLI is reported and never replaced', async (t) => {
   const dataRoot = await fixture(t);
-  let inspected;
   const deps = {
-    checkNode() {},
-    validateEngine(path) {
-      inspected = path;
+    validateEngine: async () => {
       throw new Error('engine_incompatible');
     },
-    validateUv() {
-      throw new Error('missing');
-    },
-  };
-  const options = {
-    dataRoot,
-    env: { PRIME_AGENT_CLI: 'bad-explicit', PRIME_AGENT_KERNEL_PYTHON: 'external' },
-  };
-  const status = await diagnoseComponents(options, deps);
-  assert.equal(inspected, 'bad-explicit');
-  assert.equal(status.components.engine.explicit, true);
-  await assert.rejects(
-    prepareComponents(options, {
-      ...deps,
-      download() {
-        throw new Error('must_not_download');
-      },
-    }),
-    /explicit_invalid/,
-  );
-  await assert.rejects(stat(join(dataRoot, 'engine/installation.json')), { code: 'ENOENT' });
-});
-test('external Python validates read-only and does not require uv; valid engine is reused', async (t) => {
-  const dataRoot = await fixture(t);
-  const options = {
-    dataRoot,
-    env: { PRIME_AGENT_CLI: 'external-engine', PRIME_AGENT_KERNEL_PYTHON: 'external-python' },
-  };
-  const deps = {
-    checkNode() {},
-    validateEngine: async () => ({
-      path: 'external-engine',
-      packageDir: 'package',
-      version: COMPONENT_POLICY.engine,
-      bash: 'bash',
-    }),
-    validateUv: async () => {
-      throw new Error('must_not_probe_uv');
-    },
+    validateUv: async () => ({ path: '/uv', version: '0.11.0' }),
+    ensureKernel: async () => '/python',
     execute: async () => 'studio-shell-ok',
-    ensureKernel: async ({ readOnly, env }) => {
-      assert.equal(readOnly, true);
-      assert.equal(env.PRIME_AGENT_KERNEL_PYTHON, 'external-python');
-      return 'external-python';
-    },
+    checkNode: () => {},
   };
-  const status = await diagnoseComponents(options, deps);
-  assert.equal(status.ready, true);
-  assert.equal(status.components.uv.status, 'not_required');
-  assert.deepEqual(await readdir(dataRoot), []);
-});
-test('tar validates all paths and types before extraction, rejects Windows aliases, links and duplicate paths', async (t) => {
-  const root = await fixture(t);
-  for (const name of [
-    '../outside',
-    '/root',
-    'C:/x',
-    'package/../../escape',
-    'package\\x',
-    'package/a:stream',
-    'package/NUL.txt',
-    'package/a.',
-    'package/a /x',
-  ])
-    assert.throws(() => archivePath(root, name), /unsafe_archive/);
-  for (const entries of [
-    [{ name: '../outside' }],
-    [{ name: 'link', type: '2' }],
-    [{ name: 'link', type: '1' }],
-    [{ name: 'package/x' }, { name: 'package/X' }],
-    [{ name: 'safe' }, { name: '../bad' }],
-  ]) {
-    await assert.rejects(extractTgz(tar(entries), join(root, 'bad')), /unsafe_archive/);
-    await assert.rejects(stat(join(root, 'bad')), { code: 'ENOENT' });
-  }
-  await extractTgz(tar([{ name: 'package/été/file.txt', text: 'verified' }]), join(root, 'good'));
-  assert.equal(await readFile(join(root, 'good/package/été/file.txt'), 'utf8'), 'verified');
-  await assert.rejects(extractTgz(tar([{ name: 'x' }]), join(root, 'good')), { code: 'EEXIST' });
-  await assert.rejects(extractZip(Buffer.from('not a zip'), join(root, 'zip')));
-  await assert.rejects(extractTgz(Buffer.from('not gzip'), join(root, 'tgz')));
-});
-test('official installer origin contract, exact inventory match and corrupt digests fail closed', () => {
-  assert.equal(
-    releaseOrigin('prime_agent_base_url="${PRIME_AGENT_DOWNLOAD_BASE_URL:-https://official.example}"'),
-    'https://official.example',
-  );
-  for (const text of [
-    'changed',
-    'prime_agent_base_url="${PRIME_AGENT_DOWNLOAD_BASE_URL:-http://example.com}"',
-  ])
-    assert.throws(() => releaseOrigin(text));
-  assert.equal(checksum('a'.repeat(64) + '  engine.tgz\n', 'engine.tgz'), 'a'.repeat(64));
-  assert.throws(() => checksum('a'.repeat(64) + '  other.tgz', 'engine.tgz'), /checksum_missing/);
-  assert.throws(
-    () => checksum(('a'.repeat(64) + '  engine.tgz\n').repeat(2), 'engine.tgz'),
-    /checksum_missing/,
-  );
-  assert.throws(() => verifyDigest(Buffer.from('corrupt'), '0'.repeat(64)), /checksum_mismatch/);
-});
-test('local network fixtures cover byte progress, size limits, redirect downgrade and cancellation', async (t) => {
-  const server = createServer((req, res) => {
-    if (req.url === '/large') {
-      res.writeHead(200, { 'content-length': 1000 }).end('x');
-      return;
-    }
-    if (req.url === '/slow') {
-      res.writeHead(200);
-      res.write('start');
-      return;
-    }
-    res.writeHead(200, { 'content-length': 4 }).end('done');
-  });
-  await new Promise((done) => server.listen(0, '127.0.0.1', done));
-  t.after(() => {
-    server.closeAllConnections();
-    server.close();
-  });
-  const url = `http://127.0.0.1:${server.address().port}`;
-  const progress = [];
-  assert.equal(
-    (await download(url, { allowLocal: true, onProgress: (p) => progress.push(p) })).toString(),
-    'done',
-  );
-  assert.equal(progress.at(-1).received, 4);
-  assert.equal(progress.at(-1).total, 4);
-  await assert.rejects(download(url), /source_invalid/);
-  await assert.rejects(download(url + '/large', { allowLocal: true, limit: 10 }), /download_too_large/);
-  await assert.rejects(
-    download('https://official.test', {
-      fetchImpl: async () => new Response(null, { status: 302, headers: { location: url } }),
-    }),
-    /source_invalid/,
-  );
-  const abort = new AbortController();
-  await assert.rejects(
-    download(url + '/slow', { allowLocal: true, signal: abort.signal, onProgress: () => abort.abort() }),
-  );
-});
-test('a living installation lock cannot expire; an abandoned lock is recovered', async (t) => {
-  const root = await fixture(t),
-    lock = join(root, 'install.lock');
-  await writeFile(lock, JSON.stringify({ pid: process.pid, createdAt: Date.now() - 999999 }));
-  await assert.rejects(acquireLock({ lock }, { timeout: 150 }), /cours/);
-  assert.equal(JSON.parse(await readFile(lock)).pid, process.pid);
-  await writeFile(lock, JSON.stringify({ pid: 2147483647, createdAt: Date.now() - 999999 }));
-  const release = await acquireLock({ lock }, { timeout: 1000 });
-  await release();
-  await assert.rejects(stat(lock), { code: 'ENOENT' });
+  await atomicJson(join(dataRoot, 'engine/selection.json'), { engine: '/bad-engine' });
+  const result = await diagnoseComponents({ dataRoot, env: {} }, deps);
+  assert.equal(result.components.engine.status, 'error');
+  assert.equal(result.components.engine.explicit, true);
+  assert.equal(result.ready, false);
 });
 
-test('componentsDataRoot prefers desktop and kernel roots', () => {
+test('componentsDataRoot prefers desktop data root then kernel root', () => {
   assert.equal(
-    componentsDataRoot({ PRIME_STUDIO_DESKTOP_DATA_ROOT: '/tmp/desktop-root' }),
-    resolve('/tmp/desktop-root'),
+    componentsDataRoot({ PRIME_STUDIO_DESKTOP_DATA_ROOT: '/desktop/root' }),
+    resolve('/desktop/root'),
   );
   assert.equal(
-    componentsDataRoot({ PRIME_AGENT_GUI_KERNEL_ROOT: '/tmp/kernel-root' }),
-    resolve('/tmp/kernel-root'),
-  );
-  assert.equal(
-    componentsDataRoot({ PRIME_AGENT_GUI_DATA_DIR: '/tmp/app/data' }),
-    resolve('/tmp/app'),
+    componentsDataRoot({ PRIME_AGENT_GUI_KERNEL_ROOT: '/kernel/root' }),
+    resolve('/kernel/root'),
   );
 });
 
-test('external engine validation does not require the policy version string', async (t) => {
+test('external engine validation does not require a policy version string', async (t) => {
   const root = await fixture(t);
   const packageDir = join(root, 'prime-agent');
   await mkdir(join(packageDir, 'dist/bundle'), { recursive: true });
   await writeFile(
     join(packageDir, 'package.json'),
-    JSON.stringify({
-      name: 'prime-agent',
-      version: '0.9.5',
-      engines: { node: '>=22.8.0' },
-      bin: { 'prime-agent': 'dist/bundle/cli.js' },
-    }),
+    JSON.stringify({ name: 'prime-agent', version: '9.9.9', bin: { 'prime-agent': 'dist/bundle/cli.js' } }),
   );
   await writeFile(join(packageDir, 'dist/bundle/cli.js'), 'export {};\n');
-  const inspected = await inspectEngineStatic(packageDir, {}, { requirePolicyVersion: false });
-  assert.equal(inspected.cli.version, '0.9.5');
-  assert.equal(inspected.policyMatch, false);
-  await assert.rejects(inspectEngineStatic(packageDir, {}, { requirePolicyVersion: true }));
+  const inspected = await inspectEngineStatic(packageDir, {});
+  assert.equal(inspected.pkg.version, '9.9.9');
 });
 
-test('applySelection activates installation.json when diagnose reports ready', async (t) => {
+test('applySelection soft-discovers empty slots and activates when ready', async (t) => {
   const dataRoot = await fixture(t);
   const deps = {
-    checkNode() {},
-    validateEngine: async () => ({
-      path: '/engine/cli.js',
-      packageDir: '/engine',
-      version: '0.9.5',
-      bash: 'bash',
-      policyMatch: false,
+    validateEngine: async (path) => ({
+      path: join(path, 'dist/bundle/cli.js'),
+      packageDir: path,
+      version: '0.9.4',
+      bash: '/bin/bash',
     }),
-    validateUv: async () => ({ path: '/uv', version: '0.8.0', policyMatch: false }),
+    validateUv: async (path) => ({ path, version: '0.11.0' }),
+    ensureKernel: async () => '/managed/python',
     execute: async () => 'studio-shell-ok',
-    ensureKernel: async () => '/python',
+    checkNode: () => {},
   };
   const result = await applySelection(
-    { dataRoot, paths: { engine: '/engine', python: '/python' } },
+    { dataRoot, paths: { engine: '/found-engine', uv: '/found-uv' } },
     deps,
   );
   assert.equal(result.ready, true);
-  assert.equal(result.components.engine.warning, 'engine_version_mismatch');
-  const installation = JSON.parse(await readFile(join(dataRoot, 'engine/installation.json'), 'utf8'));
-  assert.equal(installation.shellValidated, true);
-  assert.equal(installation.components.engine.path, '/engine/cli.js');
-  assert.equal(
-    JSON.parse(await readFile(join(dataRoot, 'engine/selection.json'), 'utf8')).engine,
-    '/engine',
-  );
+  assert.equal(result.components.engine.status, 'ready');
+  assert.equal(result.selection.engine, '/found-engine');
+  assert.equal(result.selection.uv, '/found-uv');
+  assert.equal(result.components.engine.warning, undefined);
+  assert.equal(result.components.uv.warning, undefined);
 });
 
-test('auto-discover persists the first validated PATH candidate', async (t) => {
+test('list candidates include bare python and pyenv-style paths when present', async (t) => {
+  const root = await fixture(t);
+  const bin = join(root, 'bin');
+  await mkdir(bin, { recursive: true });
+  const python = join(bin, 'python');
+  await writeFile(python, '#!/bin/sh\necho ok\n');
+  await chmod(python, 0o755);
+  const listed = await listPythonCandidates({ PATH: bin });
+  assert.ok(listed.includes(python));
+});
+
+test('uv shim that reports a version is accepted without ELF magic', async (t) => {
   const dataRoot = await fixture(t);
-  let seen = [];
+  const shim = join(dataRoot, 'uv-shim');
+  await writeFile(shim, '#!/bin/sh\necho uv 0.11.6\n');
+  await chmod(shim, 0o755);
   const deps = {
-    checkNode() {},
-    validateEngine: async (path) => {
-      seen.push(path);
-      if (path !== '/found-engine') throw new Error('engine_incompatible');
-      return {
-        path: '/found-engine/cli.js',
-        packageDir: '/found-engine',
-        version: COMPONENT_POLICY.engine,
-        bash: 'bash',
-        policyMatch: true,
-      };
+    validateEngine: async () => ({
+      path: '/e/cli.js',
+      packageDir: '/e',
+      version: '0.9.4',
+      bash: '/bin/bash',
+    }),
+    validateUv: async (path) => {
+      if (path !== shim) throw new Error('uv_incompatible');
+      return { path, version: '0.11.6' };
     },
-    validateUv: async () => {
+    ensureKernel: async () => '/py',
+    execute: async () => 'studio-shell-ok',
+    checkNode: () => {},
+  };
+  const result = await applySelection({ dataRoot, paths: { engine: '/e', uv: shim } }, deps);
+  assert.equal(result.components.uv.status, 'ready');
+  assert.equal(result.components.uv.path, shim);
+});
+
+test('resetComponent clears one tool and rediscovers it', async (t) => {
+  const dataRoot = await fixture(t);
+  const uvBin = join(dataRoot, 'uv');
+  await writeFile(uvBin, '#!/bin/sh\necho uv 0.11.6\n');
+  await chmod(uvBin, 0o755);
+  await atomicJson(join(dataRoot, 'engine/selection.json'), {
+    engine: '/old-engine',
+    uv: '/stale-uv',
+  });
+  const deps = {
+    validateEngine: async (path) => ({
+      path: join(path, 'cli.js'),
+      packageDir: path,
+      version: '1.0.0',
+      bash: '/bin/bash',
+    }),
+    validateUv: async (path) => {
+      if (path === uvBin) return { path, version: '0.11.6' };
       throw new Error('uv_incompatible');
     },
+    ensureKernel: async () => '/py',
     execute: async () => 'studio-shell-ok',
-    ensureKernel: async () => '/python',
+    checkNode: () => {},
   };
-  // Seed a fake discoverCli result via explicit selection after diagnose autoDiscover path:
-  // call applySelection discover with a stubbed list by writing nothing and injecting via env PATH engine.
-  await applySelection(
-    { dataRoot, paths: { engine: '/found-engine', python: '/python' } },
+  const env = { PATH: dataRoot };
+  const result = await resetComponent({ dataRoot, component: 'uv', env }, deps);
+  assert.equal(result.selection.uv, uvBin);
+  assert.equal(result.selection.engine, '/old-engine');
+});
+
+test('resetting python clears the field and does not soft-fill a bare interpreter', async (t) => {
+  const dataRoot = await fixture(t);
+  const bin = join(dataRoot, 'bin');
+  await mkdir(bin, { recursive: true });
+  const python = join(bin, 'python');
+  await writeFile(python, '#!/bin/sh\necho bare\n');
+  await chmod(python, 0o755);
+  await atomicJson(join(dataRoot, 'engine/selection.json'), {
+    engine: '/engine',
+    uv: '/uv',
+    python,
+  });
+  const deps = {
+    validateEngine: async (path) => ({
+      path: join(path, 'cli.js'),
+      packageDir: path,
+      version: '1.0.0',
+      bash: '/bin/bash',
+    }),
+    validateUv: async (path) => ({ path, version: '0.11.6' }),
+    ensureKernel: async ({ env }) => {
+      if (env.PRIME_AGENT_KERNEL_PYTHON) throw new Error('ModuleNotFoundError: No module named agent_message');
+      return '/managed/python';
+    },
+    execute: async () => 'studio-shell-ok',
+    checkNode: () => {},
+  };
+  const result = await resetComponent(
+    { dataRoot, component: 'python', env: { PATH: bin, HOME: dataRoot } },
     deps,
   );
-  const selection = JSON.parse(await readFile(join(dataRoot, 'engine/selection.json'), 'utf8'));
-  assert.equal(selection.engine, '/found-engine');
-  assert.ok(seen.includes('/found-engine'));
+  assert.equal(result.selection.python, undefined);
+  assert.notEqual(result.components.python?.error, 'python_unprepared');
+});
+
+test('bare external python is reported as python_unprepared', async (t) => {
+  const dataRoot = await fixture(t);
+  await atomicJson(join(dataRoot, 'engine/selection.json'), {
+    engine: '/engine',
+    uv: '/uv',
+    python: '/bare/python',
+  });
+  const deps = {
+    validateEngine: async (path) => ({
+      path: join(path, 'cli.js'),
+      packageDir: path,
+      version: '1.0.0',
+      bash: '/bin/bash',
+    }),
+    validateUv: async (path) => ({ path, version: '0.11.6' }),
+    ensureKernel: async () => {
+      throw new Error('ModuleNotFoundError: No module named agent_message');
+    },
+    execute: async () => 'studio-shell-ok',
+    checkNode: () => {},
+  };
+  const result = await applySelection({ dataRoot, paths: {} }, deps);
+  assert.equal(result.components.python.status, 'error');
+  assert.equal(result.components.python.error, 'python_unprepared');
+});
+
+test('listUvCandidates returns PATH hits that exist', async (t) => {
+  const root = await fixture(t);
+  const uv = join(root, 'uv');
+  await writeFile(uv, 'x');
+  const listed = await listUvCandidates(root, { PATH: root });
+  assert.ok(listed.includes(uv));
 });

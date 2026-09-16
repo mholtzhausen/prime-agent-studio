@@ -63,7 +63,6 @@
     "test:desktop-interactions": "node scripts/test-desktop-interactions.mjs",
     "test:desktop-runtime": "node scripts/test-desktop-runtime.mjs",
     "test:components": "node --test test/desktop-components.test.mjs && node scripts/test-components-ui.mjs",
-    "test:components:download": "node scripts/test-components-download.mjs --download",
     "test:mcp:packaged": "node scripts/test-mcp-packaged.mjs",
     "start:silent": "bash scripts/start-studio.sh",
     "start:silent:no-browser": "bash scripts/start-studio.sh --no-browser"

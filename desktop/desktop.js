@@ -1,58 +1,5 @@
 const messages = {
   fr: {
-    componentsHeading: 'Composants du Studio',
-    componentsDetails: 'Détails',
-    componentsHideDetails: 'Masquer les détails',
-    componentsNote:
-      'Cette version de Studio utilise Prime Agent 0.9.4. Le bouton télécharge les composants manquants ou la version requise du moteur, npm privé, uv et Python 3.11 si nécessaire. Une connexion Internet est nécessaire. Bash doit être disponible pour les commandes shell.',
-    componentsInstall: 'Installer les composants manquants',
-    componentsDiagnose: 'Vérifier à nouveau',
-    componentsExisting: 'Chemins existants',
-    componentsExistingNote:
-      'Indiquez la racine du paquet Prime Agent (avec package.json), uv ou python, ou utilisez Parcourir. Les variables d’environnement restent prioritaires.',
-    componentsDiscover: 'Détecter les installations',
-    componentsApply: 'Appliquer',
-    componentsBrowse: 'Parcourir',
-    componentsLater: 'Plus tard — ouvrir le Studio',
-    componentsReady: 'Tous les composants sont prêts.',
-    componentsVersionWarn:
-      'Version différente de la politique Studio ; les contrôles de compatibilité ont réussi.',
-    componentsDeferred:
-      'Préparation enregistrée. Activation différée : attendez la fin des agents puis utilisez Redémarrer le serveur. Un serveur externe doit être arrêté depuis son lanceur.',
-    componentsBusy: 'Une préparation est déjà en cours. Réessayez après sa fin.',
-    componentsFailed: 'La préparation a échoué. Réessayez ; les composants déjà validés sont conservés.',
-    componentsExplicit:
-      'Le chemin explicitement configuré est invalide ou incompatible. Corrigez la variable d’environnement ou choisissez une autre installation.',
-    componentsBash:
-      'Bash est requis pour les commandes shell. Installez bash, ou configurez shellPath dans les réglages Prime Agent, puis vérifiez à nouveau.',
-    componentsUnsupported:
-      'Cette préparation nécessite Linux x64 et le Node compatible fourni avec Studio.',
-    componentsChecksum:
-      'L’intégrité ou la structure du téléchargement est invalide. Aucun composant altéré n’est activé.',
-    componentsCancelled: 'Préparation annulée. Vous pouvez réessayer.',
-    componentsEngineVersion:
-      'Ce paquet Prime Agent est incompatible (structure, modules ou probe). Installez la version proposée, ou choisissez un autre chemin.',
-    componentsNetwork: 'Le téléchargement a échoué. Vérifiez la connexion réseau et réessayez.',
-    componentsDisk:
-      'L’espace disque est insuffisant. Libérez de l’espace dans le dossier de données du Studio, puis réessayez.',
-    componentsWrite:
-      'Écriture refusée dans le dossier de préparation. Vérifiez ses autorisations, puis réessayez.',
-    componentStates: {
-      ready: 'Validé',
-      missing: 'Manquant',
-      error: 'À configurer',
-      pending: 'À vérifier après le moteur',
-      not_required: 'Non nécessaire',
-    },
-    componentStages: {
-      download: 'Téléchargement',
-      verify: 'Vérification de l’empreinte',
-      install: 'Installation',
-      python: 'Préparation de Python et des skills',
-      validation: 'Validation des intégrations',
-      opening: 'Ouverture du Studio',
-      error: 'Échec',
-    },
     restartAfter: 'Redémarrer le serveur après l’installation',
     serverHeading: 'Serveur du Studio',
     serverVersion: 'Version active : {version}',
@@ -111,57 +58,6 @@ const messages = {
     updateInstallFailed: 'L’installation n’a pas pu démarrer. Vous pouvez réessayer.',
   },
   en: {
-    componentsHeading: 'Studio components',
-    componentsDetails: 'Details',
-    componentsHideDetails: 'Hide details',
-    componentsNote:
-      'This Studio version uses Prime Agent 0.9.4. The button downloads missing components or the required engine version, private npm, uv and Python 3.11 when needed. An Internet connection is required. Bash must be available for shell commands.',
-    componentsInstall: 'Install missing components',
-    componentsDiagnose: 'Check again',
-    componentsExisting: 'Existing paths',
-    componentsExistingNote:
-      'Enter the Prime Agent package root (with package.json), uv or python, or use Browse. Environment variable paths take precedence.',
-    componentsDiscover: 'Detect installed',
-    componentsApply: 'Apply',
-    componentsBrowse: 'Browse',
-    componentsLater: 'Later — open Studio',
-    componentsReady: 'All components are ready.',
-    componentsVersionWarn:
-      'Version differs from Studio policy; compatibility checks passed.',
-    componentsDeferred:
-      'Preparation saved. Activation deferred: wait for agents to finish, then use Restart server. Stop an external server through its own launcher.',
-    componentsBusy: 'Another preparation is in progress. Try again when it finishes.',
-    componentsFailed: 'Preparation failed. Try again; validated components are preserved.',
-    componentsExplicit:
-      'The explicitly configured path is invalid or incompatible. Correct the environment variable or choose another installation.',
-    componentsBash:
-      'Bash is required for shell commands. Install bash, or configure shellPath in Prime Agent settings, then check again.',
-    componentsUnsupported: 'Setup requires Linux x64 and the compatible Node supplied with Studio.',
-    componentsChecksum:
-      'The download integrity or archive structure is invalid. No altered component is activated.',
-    componentsCancelled: 'Preparation cancelled. You can try again.',
-    componentsEngineVersion:
-      'This Prime Agent package is incompatible (layout, modules, or probe). Install the proposed version, or choose another path.',
-    componentsNetwork: 'Download failed. Check your network connection and try again.',
-    componentsDisk:
-      'There is not enough disk space. Free space in the Studio data directory, then try again.',
-    componentsWrite: 'Writing to the setup directory was denied. Check its permissions, then try again.',
-    componentStates: {
-      ready: 'Validated',
-      missing: 'Missing',
-      error: 'Needs setup',
-      pending: 'Check after engine setup',
-      not_required: 'Not needed',
-    },
-    componentStages: {
-      download: 'Downloading',
-      verify: 'Verifying checksum',
-      install: 'Installing',
-      python: 'Preparing Python and skills',
-      validation: 'Validating integrations',
-      opening: 'Opening Studio',
-      error: 'Failed',
-    },
     restartAfter: 'Restart the server after installation',
     serverHeading: 'Studio server',
     serverVersion: 'Running version: {version}',
@@ -228,12 +124,6 @@ for (const [id, key] of Object.entries({
   title: settings ? 'settingsTitle' : 'title',
   description: settings ? 'settingsNote' : 'description',
   'startup-label': 'startup',
-  'components-heading': 'componentsHeading',
-  'components-note': 'componentsNote',
-  'components-install': 'componentsInstall',
-  'components-diagnose': 'componentsDiagnose',
-  'components-discover': 'componentsDiscover',
-  'components-cancel': 'restartCancel',
   'startup-note': 'startupNote',
   import: 'import',
   'import-note': 'importNote',
@@ -256,178 +146,7 @@ for (const [id, key] of Object.entries({
   'restart-proceed': 'restartProceed',
 }))
   $(id).textContent = t[key];
-for (const name of ['engine', 'uv', 'python']) {
-  $('components-' + name).textContent = t.componentsBrowse;
-  $('components-apply-' + name).textContent = t.componentsApply;
-}
 const invoke = window.__TAURI__?.core?.invoke;
-let componentsBusy = false;
-let latestComponents;
-let serverAlreadyRunning = false;
-const componentNames = {
-  engine: 'Prime Agent',
-  uv: 'uv',
-  python: 'Python',
-  node: 'Node (Studio)',
-  npm: 'npm',
-  bash: 'Bash',
-  studio: 'Studio',
-};
-function componentError(code) {
-  if (code === 'engine_incompatible') return t.componentsEngineVersion;
-  if (code === 'download_failed') return t.componentsNetwork;
-  if (code === 'disk_full') return t.componentsDisk;
-  if (code === 'write_denied') return t.componentsWrite;
-  if (code === 'explicit_invalid') return t.componentsExplicit;
-  if (code === 'bash_missing') return t.componentsBash;
-  if (['architecture_unsupported', 'node_incompatible'].includes(code)) return t.componentsUnsupported;
-  if (['checksum_mismatch', 'checksum_missing', 'unsafe_archive'].includes(code)) return t.componentsChecksum;
-  if (code === 'cancelled') return t.componentsCancelled;
-  if (code === 'setup_busy') return t.componentsBusy;
-  return t.componentsFailed;
-}
-function pathFor(result, key) {
-  const info = result?.components?.[key];
-  if (info?.path) return info.path;
-  if (key === 'engine' && info?.packageDir) return info.packageDir;
-  return result?.selection?.[key] || '';
-}
-function iconState(info) {
-  if (!info || info.status === 'missing' || info.status === 'pending' || info.status === 'error') return 'error';
-  if (info.status === 'ready' && info.warning) return 'warn';
-  if (info.status === 'ready' || info.status === 'not_required') return 'ready';
-  return 'error';
-}
-function renderComponents(result) {
-  if (!result || result.cancelled) {
-    latestComponents = undefined;
-    return;
-  }
-  if (result.failure) {
-    latestComponents = undefined;
-    $('components-status').textContent =
-      `${componentNames[result.failure.component] || ''} : ${componentError(result.failure.error)}`;
-    return;
-  }
-  latestComponents = result;
-  $('components-list').replaceChildren();
-  $('components-detail-list').replaceChildren();
-  for (const [key, info] of Object.entries(result.components || {})) {
-    const stateLabel = t.componentStates[info.status] || info.status;
-    const chip = document.createElement('li');
-    chip.className = 'component-chip';
-    chip.dataset.state = info.status;
-    chip.textContent = `${componentNames[key] || key}${info.version ? ` ${info.version}` : ''}${info.status !== 'ready' ? ` · ${stateLabel}` : ''}`;
-    chip.title = stateLabel;
-    chip.setAttribute('aria-label', `${chip.textContent} — ${stateLabel}`);
-    $('components-list').append(chip);
-    const row = document.createElement('li');
-    row.textContent = `${componentNames[key] || key} — ${t.componentStates[info.status] || info.status}${info.version ? ` · ${info.version}` : ''}`;
-    if (info.path) {
-      const path = document.createElement('small');
-      path.textContent = info.path;
-      row.append(path);
-    }
-    if (info.provenance) {
-      const source = document.createElement('small');
-      source.textContent = info.provenance;
-      row.append(source);
-    }
-    if (info.warning) {
-      const warn = document.createElement('small');
-      warn.textContent = t.componentsVersionWarn;
-      row.append(warn);
-    }
-    if (info.error && info.error !== 'missing') {
-      const error = document.createElement('small');
-      error.textContent = componentError(info.explicit ? 'explicit_invalid' : info.error);
-      row.append(error);
-    }
-    $('components-detail-list').append(row);
-  }
-  for (const key of ['engine', 'uv', 'python']) {
-    const row = document.querySelector(`.components-path-row[data-component="${key}"]`);
-    if (!row) continue;
-    const input = $('components-path-' + key);
-    const icon = row.querySelector('.components-status-icon');
-    const info = result.components?.[key];
-    if (input && document.activeElement !== input) input.value = pathFor(result, key);
-    if (icon) icon.dataset.state = iconState(info);
-  }
-  $('components-status').textContent =
-    result.activation === 'deferred'
-      ? t.componentsDeferred
-      : result.ready
-        ? t.componentsReady
-        : Object.entries(result.components || {})
-            .filter(([, info]) => info.error && info.error !== 'missing')
-            .map(
-              ([key, info]) =>
-                `${componentNames[key] || key} : ${componentError(info.explicit ? 'explicit_invalid' : info.error)}`,
-            )
-            .join(' ');
-  $('components-install').hidden = result.ready;
-  $('start').textContent = result.ready ? t.start : t.componentsLater;
-}
-$('components-toggle').textContent = t.componentsHideDetails;
-$('components-details').hidden = false;
-$('components-toggle').onclick = () => {
-  const open = !$('components-details').hidden;
-  $('components-details').hidden = open;
-  $('components-toggle').setAttribute('aria-expanded', String(!open));
-  $('components-toggle').textContent = open ? t.componentsDetails : t.componentsHideDetails;
-};
-async function componentsAction(action, component, path) {
-  if (componentsBusy) return;
-  componentsBusy = true;
-  $('components').hidden = false;
-  for (const el of $('components').querySelectorAll('button')) el.disabled = true;
-  $('components-cancel').hidden = action !== 'install';
-  $('components-cancel').disabled = false;
-  $('start').disabled = true;
-  let result;
-  try {
-    result = await invoke('desktop_components', {
-      action,
-      component: component || null,
-      path: path || null,
-    });
-    renderComponents(result);
-    if (action === 'install' && result.ready && result.activation === 'active') await start();
-    return result;
-  } catch (error) {
-    latestComponents = undefined;
-    $('components-status').textContent = componentError(String(error));
-  } finally {
-    componentsBusy = false;
-    for (const el of $('components').querySelectorAll('button')) el.disabled = false;
-    $('components-cancel').hidden = true;
-    $('start').disabled = false;
-  }
-}
-$('components-install').onclick = () => componentsAction('install');
-$('components-diagnose').onclick = () => componentsAction('diagnose');
-$('components-discover').onclick = () => componentsAction('discover');
-$('components-cancel').onclick = () => invoke('desktop_components_cancel');
-for (const name of ['engine', 'uv', 'python']) {
-  $('components-' + name).onclick = () => componentsAction('select', name);
-  $('components-apply-' + name).onclick = () => {
-    const value = $('components-path-' + name).value.trim();
-    if (!value) {
-      $('components-status').textContent = t.componentsExistingNote;
-      return;
-    }
-    void componentsAction('select', name, value);
-  };
-}
-void window.__TAURI__?.event?.listen('components-progress', ({ payload }) => {
-  const received =
-    payload.received === undefined
-      ? ''
-      : ` · ${payload.received.toLocaleString(language)} ${language === 'fr' ? 'octets reçus' : 'bytes received'}${payload.total ? ` / ${payload.total.toLocaleString(language)}` : ''}`;
-  $('components-status').textContent =
-    `${componentNames[payload.component] || ''} — ${t.componentStages[payload.stage] || ''}${received}`;
-});
 // Launcher has no vendor marked/DOMPurify bundle. Escape first, then allow a
 // small markdown subset (headings, lists, bold, code, allowlisted links).
 // Raw HTML such as <img onerror=...> stays inert text, never an element.
@@ -636,8 +355,6 @@ async function start() {
   $('import').disabled = true;
   $('progress').hidden = false;
   try {
-    if (latestComponents?.ready && !serverAlreadyRunning)
-      await invoke('desktop_components', { action: 'activate', component: null });
     await invoke('desktop_start');
     if (settings) {
       $('progress').hidden = true;
@@ -717,7 +434,6 @@ $('import').onclick = async () => {
     }
     serverAlreadyRunning = Boolean(state.started);
     const background = new URLSearchParams(location.search).has('background');
-    if (!background) await componentsAction('diagnose');
     if ((background || serverAlreadyRunning) && !settings) {
       $('title').textContent = t.connectingTitle;
       $('description').textContent = t.connectingNote;

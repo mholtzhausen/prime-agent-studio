@@ -9,7 +9,7 @@ SHELL := /bin/bash
 NPM ?= npm
 NODE ?= node
 
-.PHONY: help init install setup-runtime dev start start-silent stop check test test-ui format docs-check docs-sync desktop-dev desktop-build desktop-build-unsigned desktop-release-bootstrap desktop-release-check desktop-manifest clean version
+.PHONY: help init install setup-runtime dev start start-silent stop check test test-ui format docs-check docs-sync build build-release desktop-dev desktop-build desktop-build-unsigned desktop-release-bootstrap desktop-release-check desktop-manifest clean version
 
 help: ## Show this help
 	@awk 'BEGIN {FS = ":.*?## "; printf "\nPrime Agent Studio Nix — local GUI for Prime Agent\n\nUsage: make <target>\n\n"} \
@@ -61,10 +61,22 @@ docs-sync: ## Record doc review fingerprints (pass ID: make docs-sync ID=…)
 desktop-dev: ## Run the Linux Tauri desktop shell (needs Rust + WebKitGTK)
 	cd "$(ROOT)" && $(NPM) run desktop:dev
 
-desktop-build: ## Build signed Linux AppImage and deb (needs ~/.tauri/prime-agent-studio-nix.key)
+build: ## Build Linux AppImage/deb without updater signatures (finished local packages)
+	cd "$(ROOT)" && $(NPM) run desktop:build -- --unsigned
+
+build-release: ## Ensure signing key, build signed AppImage/deb, prepare release catalog
+	cd "$(ROOT)" && $(NPM) run desktop:release:bootstrap -- $(if $(filter 1 true yes,$(SET_SECRETS)),--set-github-secrets,)
+	cd "$(ROOT)" && $(NPM) run desktop:build
+	@if [ -n "$(NOTES)" ]; then \
+		cd "$(ROOT)" && $(NPM) run desktop:manifest -- "$(NOTES)"; \
+	else \
+		cd "$(ROOT)" && $(NPM) run desktop:manifest; \
+	fi
+
+desktop-build: ## Alias: signed AppImage/deb only (prefer make build-release for a full release tree)
 	cd "$(ROOT)" && $(NPM) run desktop:build
 
-desktop-build-unsigned: ## Build Linux AppImage and deb without updater signatures (local use)
+desktop-build-unsigned: ## Alias for make build
 	cd "$(ROOT)" && $(NPM) run desktop:build -- --unsigned
 
 desktop-release-bootstrap: ## Sync nix signing key pubkey + updater URLs (optional: SET_SECRETS=1)

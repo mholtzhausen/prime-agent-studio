@@ -30,10 +30,6 @@
   background: var(--success, #2f9e44);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--success, #2f9e44) 25%, transparent);
 }
-.components-status-icon[data-state='warn'] {
-  background: var(--warning, #c98a1a);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--warning, #c98a1a) 25%, transparent);
-}
 .components-row input[type='text'] {
   width: 100%;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -44,14 +40,18 @@
   background: var(--panel, var(--surface));
   color: var(--text);
 }
-.components-row-actions,
-.components-toolbar {
+.components-row-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
-.components-row-error,
-.components-row-warn {
+.components-reset {
+  min-width: 2.5rem;
+  font-size: 1.1rem;
+  line-height: 1;
+  padding-inline: 0.65rem;
+}
+.components-row-error {
   margin: 0;
   font-size: 12px;
 }
