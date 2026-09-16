@@ -4,7 +4,7 @@ Guidance for LLM / coding agents working in this repository.
 
 ## Project summary
 
-**Prime Agent Studio Nix** (v4.0.0) is a local French/English workspace UI around [Prime Agent](https://github.com/PrimeIntellect-ai/prime-agent). It serves a vanilla browser client from this repo, drives the installed Prime Agent CLI/supervisor, and optionally wraps that stack in a Linux Tauri app (AppImage/deb).
+**Prime Agent Studio Nix** (v4.1.0) is a local French/English workspace UI around [Prime Agent](https://github.com/PrimeIntellect-ai/prime-agent). It serves a vanilla browser client from this repo, drives the installed Prime Agent CLI/supervisor, and optionally wraps that stack in a Linux Tauri app (AppImage/deb).
 
 Canonical product docs: [README.md](README.md) · internals: [docs/en/development.md](docs/en/development.md) · system map: [ARCHITECTURE.md](ARCHITECTURE.md).
 

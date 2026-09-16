@@ -4,6 +4,13 @@
 
 Changes by version. See [GitHub releases](https://github.com/mholtzhausen/prime-agent-studio/releases) for installers and source archives.
 
+## 4.1.0
+
+- **System components in Preferences**: choose the Prime Agent binary under Preferences → System (same UX in the browser and the Linux desktop webview). Empty path soft-discovers from PATH and well-known directories; capability validation only — Studio no longer manages downloads of Prime Agent, uv, or Python.
+- **Prime Agent owns the kernel**: removed Studio-managed runtime/kernel prep (`setup-runtime` is a no-op). Optional advanced env remains `PRIME_AGENT_KERNEL_PYTHON` on the Prime Agent side.
+- **Leaner desktop component stack**: storage stays under `componentsDataRoot()` (`engine/selection.json` + `installation.json`); loopback-only `/api/system/components*` routes; docs and tests updated for the simplified path.
+- **After installation**: restart the server from preferences once your agents have finished.
+
 ## 4.0.0
 
 - **Linux Nix desktop identity**: product **Prime Agent Studio Nix**, package `prime-agent-studio-nix`, app id `com.primeagent.studio.nix`, and data under `~/.local/share/com.primeagent.studio.nix`. AppImage/deb artifacts use the `Prime-Agent-Studio-Nix_*` names. Previous Windows packaging is out of scope on this line.

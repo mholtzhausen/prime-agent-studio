@@ -4,6 +4,13 @@
 
 Les changements par version. Retrouvez les installateurs et les archives du code source dans les [releases GitHub](https://github.com/mholtzhausen/prime-agent-studio/releases).
 
+## 4.1.0
+
+- **Composants système dans Préférences** : choisissez le binaire Prime Agent sous Préférences → Système (même interface dans le navigateur et le webview du bureau Linux). Un chemin vide se découvre depuis le PATH et des répertoires connus ; validation des capacités uniquement — Studio ne gère plus le téléchargement de Prime Agent, uv ou Python.
+- **Noyau porté par Prime Agent** : préparation runtime/noyau gérée par Studio retirée (`setup-runtime` ne fait plus rien). L’env avancée optionnelle reste `PRIME_AGENT_KERNEL_PYTHON` côté Prime Agent.
+- **Pile de composants bureau allégée** : stockage sous `componentsDataRoot()` (`engine/selection.json` + `installation.json`) ; routes `/api/system/components*` en loopback uniquement ; documentation et tests alignés.
+- **Après installation** : redémarrez le serveur depuis les préférences une fois les agents terminés.
+
 ## 4.0.0
 
 - **Identité bureau Linux Nix** : produit **Prime Agent Studio Nix**, paquet `prime-agent-studio-nix`, identifiant `com.primeagent.studio.nix`, données sous `~/.local/share/com.primeagent.studio.nix`. Les artefacts AppImage/deb utilisent les noms `Prime-Agent-Studio-Nix_*`. Le packaging Windows n’est pas dans le périmètre de cette ligne.
