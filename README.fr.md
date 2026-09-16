@@ -109,7 +109,7 @@ Sur le PC, **Préférences → Accès distant → Changer le code** modifie le P
 
 Tapez **`/`** ou utilisez le bouton **/** près des pièces jointes pour rechercher une commande, un skill ou un prompt du projet. Les raccourcis ouvrent les panneaux du Studio ; `/compact`, `/refine`, `/goal` et `/autonomous` sont exécutés par Prime Agent, y compris dans la file d’une session active. `/skill:nom` charge un skill avec vos consignes. Consultez le [guide des commandes, skills et prompts](docs/commands.md) pour les syntaxes et les commandes réservées au terminal.
 
-Les skills Python sont préparées selon les réglages natifs du projet, pour le parent comme pour ses sous-agents. La [configuration du Python et la réparation des anciennes installations](docs/configuration.md#python-et-skills) détaillent la préparation automatique et le cas d’un `PRIME_AGENT_KERNEL_PYTHON` fourni par l’utilisateur.
+Les skills Python sont amorcées par **Prime Agent** selon les réglages natifs du projet, pour le parent comme pour ses sous-agents. Le Studio ne prépare pas de kernels uv. Voir [Python et skills](docs/configuration.md#python-et-skills) pour le remplacement optionnel `PRIME_AGENT_KERNEL_PYTHON`.
 
 ## Session, agents et fichiers
 
@@ -135,7 +135,7 @@ Les tests découvrent les outils sans en exécuter. Les nouveaux réglages s’a
 
 ### Application Linux
 
-Téléchargez l’[AppImage ou le deb](https://github.com/mholtzhausen/prime-agent-studio/releases/latest) pour amd64, puis ouvrez **Prime Agent Studio Nix**. L’AppImage est portable ; le deb installe l’intégration système. Node.js est inclus dans le paquet. Installez **Prime Agent**, **uv** et **Python** vous-même si besoin, puis confirmez leurs chemins dans **Préférences → Système** (les champs vides sont détectés automatiquement). Un `bash` fonctionnel est requis pour les commandes shell du moteur. Configurez ensuite votre fournisseur. Si vous utilisiez déjà un checkout source, choisissez **Reprendre une installation existante**. [Guide complet](docs/desktop.md).
+Téléchargez l’[AppImage ou le deb](https://github.com/mholtzhausen/prime-agent-studio/releases/latest) pour amd64, puis ouvrez **Prime Agent Studio Nix**. L’AppImage est portable ; le deb installe l’intégration système. Node.js est inclus dans le paquet. Installez **Prime Agent** vous-même si besoin, puis confirmez son chemin dans **Préférences → Système** (un champ vide est détecté automatiquement). Un `bash` fonctionnel est requis pour les commandes shell du moteur. Configurez ensuite votre fournisseur. Si vous utilisiez déjà un checkout source, choisissez **Reprendre une installation existante**. [Guide complet](docs/desktop.md).
 
 Les mises à jour portent une signature cryptographique Tauri.
 
@@ -143,13 +143,12 @@ Les mises à jour portent une signature cryptographique Tauri.
 
 ### Depuis le code source
 
-**Prérequis :** Linux, **Node.js 22.8 ou ultérieur**, **uv** et **Prime Agent** installé. Pour le sélecteur de dossier dans l’interface navigateur, installez **zenity** ou **kdialog**. Un fournisseur doit être configuré avant le premier message, depuis le CLI ou le panneau **Fournisseurs** du Studio sur le PC. L’intégration des réglages des sous-agents a été vérifiée avec **Prime Agent 0.9.4**.
+**Prérequis :** Linux, **Node.js 22.8 ou ultérieur**, et **Prime Agent** installé. Pour le sélecteur de dossier dans l’interface navigateur, installez **zenity** ou **kdialog**. Un fournisseur doit être configuré avant le premier message, depuis le CLI ou le panneau **Fournisseurs** du Studio sur le PC. L’intégration des réglages des sous-agents a été vérifiée avec **Prime Agent 0.9.4**.
 
 Téléchargez **Source code (zip)** depuis la [dernière release](https://github.com/mholtzhausen/prime-agent-studio/releases/latest) et extrayez l’archive, ou clonez ce dépôt. Ouvrez ensuite un terminal dans le dossier extrait :
 
 ```sh
 make init            # npm ci
-make setup-runtime   # optionnel ; nécessite Prime Agent + uv
 make start-silent    # serveur en arrière-plan + navigateur → http://127.0.0.1:3088
 ```
 
@@ -157,7 +156,6 @@ make start-silent    # serveur en arrière-plan + navigateur → http://127.0.0.
 
 ```sh
 make init            # npm ci
-make setup-runtime   # optionnel ; nécessite Prime Agent + uv
 make dev             # serveur au premier plan → http://127.0.0.1:3088
 make check && make test
 make build            # optionnel : AppImage/deb Linux sans signatures d’updater
@@ -171,7 +169,7 @@ Le navigateur s’ouvre sur **[127.0.0.1:3088](http://127.0.0.1:3088)**. Les dé
 2. Ouvrez une session existante ou choisissez **Nouvelle session**.
 3. Sélectionnez votre modèle, puis écrivez votre demande.
 
-Le Studio réutilise la configuration de Prime Agent : aucune clé API à coller dans le navigateur. La préparation initiale du moteur Python peut nécessiter une connexion Internet.
+Le Studio réutilise la configuration de Prime Agent : aucune clé API à coller dans le navigateur. Prime Agent peut amorcer son noyau Python à la première utilisation (une connexion Internet peut être nécessaire). Le Studio n’exécute pas `setup:runtime`.
 
 | Commande                   | Utilité                                                             |
 | -------------------------- | ------------------------------------------------------------------- |
@@ -190,13 +188,12 @@ Attendez la fin des exécutions, puis lancez ces commandes dans le dossier du St
 make stop
 git pull --ff-only
 make init
-make setup-runtime
 make start-silent
 ```
 
 Vos réglages locaux et les sessions natives de Prime Agent sont conservés. Pour une installation depuis une archive, remplacez les fichiers du Studio par ceux de la nouvelle release en conservant le dossier `.local`, puis relancez les étapes d’installation.
 
-**Depuis une version 2.3 ou antérieure :** exécutez bien `make init` puis `make setup-runtime` et redémarrez le Studio pour charger le correctif des skills Python. Les kernels déjà ouverts conservent leur environnement jusqu’à leur redémarrage.
+**Depuis une version 2.3 ou antérieure :** exécutez `make init` et redémarrez le Studio. Prime Agent possède les skills Python ; le Studio ne prépare plus de noyau géré.
 
 ## Pendant que l’agent travaille
 

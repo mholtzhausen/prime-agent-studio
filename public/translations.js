@@ -9,8 +9,8 @@ export const messages = {
   'configuration.choose': { fr: 'Choisir un modèle', en: 'Choose a model' },
   'configuration.components': { fr: 'Préférences → Système', en: 'Preferences → System' },
   'configuration.components_hint': {
-    fr: 'Ouvrir Préférences → Système pour indiquer les chemins de Prime Agent, uv et Python.',
-    en: 'Open Preferences → System to set paths for Prime Agent, uv and Python.',
+    fr: 'Ouvrir Préférences → Système pour indiquer le chemin de Prime Agent.',
+    en: 'Open Preferences → System to set the Prime Agent path.',
   },
   'configuration.providerMissing': { fr: 'Aucun fournisseur configuré.', en: 'No provider configured.' },
   'configuration.modelMissing': { fr: 'Aucun modèle sélectionné.', en: 'No model selected.' },
@@ -606,8 +606,8 @@ export const messages = {
   },
   'settings.components': { fr: 'Composants du Studio', en: 'Studio components' },
   'components.note': {
-    fr: 'Chemins locaux pour Prime Agent et uv. Python est préparé automatiquement par uv (noyau Studio). Les champs vides sont détectés automatiquement ; un chemin saisi n’est jamais écrasé.',
-    en: 'Local paths for Prime Agent and uv. Python is prepared automatically by uv (Studio kernel). Empty fields are detected automatically; a path you enter is never overwritten.',
+    fr: 'Chemin local vers Prime Agent. Le noyau Python est préparé automatiquement par Prime Agent. Un champ vide est détecté automatiquement ; un chemin saisi n’est jamais écrasé.',
+    en: 'Local path to Prime Agent. The Python kernel is bootstrapped automatically by Prime Agent. An empty field is detected automatically; a path you enter is never overwritten.',
   },
   'components.remote_only': {
     fr: 'La configuration des binaires se fait uniquement sur le PC local.',
@@ -637,12 +637,12 @@ export const messages = {
   'components.browse': { fr: 'Parcourir', en: 'Browse' },
   'components.reset': { fr: 'Réinitialiser (redétecter)', en: 'Reset to detected' },
   'components.ready': {
-    fr: 'Tous les composants requis sont prêts.',
-    en: 'All required components are ready.',
+    fr: 'Prime Agent est prêt.',
+    en: 'Prime Agent is ready.',
   },
   'components.incomplete': {
-    fr: 'Corrigez les chemins en rouge, ou utilisez Réinitialiser pour redétecter. Installez les binaires vous-même si besoin.',
-    en: 'Fix paths marked in red, or use Reset to rediscover. Install any missing binaries yourself.',
+    fr: 'Indiquez le chemin de Prime Agent, ou utilisez Réinitialiser pour le redétecter.',
+    en: 'Set the Prime Agent path, or use Reset to rediscover it.',
   },
   'components.server_stale': {
     fr: 'Ce serveur ne propose pas encore la configuration des binaires. Quittez l’application de bureau sur le port 3088, ou lancez le code à jour avec PORT=3090 make dev, puis rouvrez les réglages.',
@@ -660,8 +660,8 @@ export const messages = {
     en: 'Validation failed. Check the path and that it is executable.',
   },
   python_unprepared: {
-    fr: 'Le Python externe (PRIME_AGENT_KERNEL_PYTHON) n’a pas le runtime Studio. Retirez la variable pour laisser uv préparer le noyau.',
-    en: 'External Python (PRIME_AGENT_KERNEL_PYTHON) is missing the Studio runtime. Unset that variable so uv can prepare the kernel.',
+    fr: 'Le Python externe (PRIME_AGENT_KERNEL_PYTHON) n’a pas le runtime Studio. Retirez la variable pour laisser Prime Agent préparer le noyau.',
+    en: 'External Python (PRIME_AGENT_KERNEL_PYTHON) is missing the runtime. Unset that variable so Prime Agent can prepare the kernel.',
   },
   uv_incompatible: {
     fr: 'uv incompatible ou illisible (version attendue).',
@@ -4674,8 +4674,8 @@ export const messages = {
     en: 'The configured Python engine was not found. Check the PRIME_AGENT_KERNEL_PYTHON path on this PC.',
   },
   'server.la_preparation_automatique_de_python_a_echoue': {
-    fr: 'La préparation automatique de Python a échoué. Vérifiez que Prime Agent et uv sont installés, puis réessayez.',
-    en: 'Automatic Python setup failed. Check that Prime Agent and uv are installed, then try again.',
+    fr: 'Aucun interpréteur Python utilisable pour le test MCP. Laissez Prime Agent préparer son noyau, ou assurez-vous que python3 est disponible sur ce PC.',
+    en: 'No usable Python interpreter for the MCP test. Let Prime Agent bootstrap its kernel, or ensure python3 is available on this PC.',
   },
   'server.le_test_mcp_a_depasse_le_delai_de_connexion': {
     fr: 'Le test MCP a dépassé le délai de connexion.',
@@ -5134,8 +5134,8 @@ export const messages = {
     en: 'Ambiguous local dependency “{value1}” for {value2}.',
   },
   'server.le_delai_de_s_est_depasse_pour_vous_pouvez_relancer_npm_run_setup': {
-    fr: 'Le délai de {value1} s est dépassé pour {value2}. Vous pouvez relancer « npm run setup:runtime ».',
-    en: 'The {value1} s timeout was exceeded for {value2}. You can run “npm run setup:runtime” again.',
+    fr: 'Le délai de {value1} s est dépassé pour {value2}.',
+    en: 'The {value1} s timeout was exceeded for {value2}.',
   },
   'server.une_autre_preparation_du_noyau_est_toujours_en_cours_reessayez_ap': {
     fr: 'Une autre préparation du noyau est toujours en cours. Réessayez après sa fin.',

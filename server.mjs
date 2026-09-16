@@ -215,10 +215,11 @@ export function createApp(options = {}) {
       if (result.ready) await activateComponents({ dataRoot, result });
     }
     const selected = await selectedEnvironment(dataRoot, process.env);
-    for (const key of ['PRIME_AGENT_CLI', 'PRIME_GUI_UV', 'PRIME_AGENT_KERNEL_PYTHON']) {
+    for (const key of ['PRIME_AGENT_CLI']) {
       if (selected[key]) process.env[key] = selected[key];
       else delete process.env[key];
     }
+    delete process.env.PRIME_GUI_UV;
     process.env.PRIME_STUDIO_COMPONENTS_REQUIRED = selected.PRIME_STUDIO_COMPONENTS_REQUIRED || '0';
     runtime.reloadComponents?.(selected);
     return selected;
@@ -654,15 +655,12 @@ export function createApp(options = {}) {
       if (path === '/api/system/components' && method === 'PUT') {
         const body = await readBody(req);
         const dataRoot = componentsDataRoot();
-        const paths = {};
-        for (const key of ['engine', 'uv']) {
-          if (!(key in body)) continue;
-          if (body[key] !== null && body[key] !== undefined && typeof body[key] !== 'string')
+        const paths = { uv: null, python: null };
+        if ('engine' in body) {
+          if (body.engine !== null && body.engine !== undefined && typeof body.engine !== 'string')
             throw new HttpError(400, tr('server.la_demande_json_est_invalide'));
-          paths[key] = body[key];
+          paths.engine = body.engine;
         }
-        // Python is prepared by uv; ignore legacy clients that still PUT a path (clear only).
-        if ('python' in body) paths.python = null;
         const result = await applySelection({ dataRoot, paths });
         await syncRuntimeComponents(dataRoot);
         return json(res, 200, result);
@@ -670,7 +668,7 @@ export function createApp(options = {}) {
       if (path === '/api/system/components/reset' && method === 'POST') {
         const body = await readBody(req);
         const component = body.component;
-        if (!['engine', 'uv'].includes(component))
+        if (component !== 'engine')
           throw new HttpError(400, tr('server.la_demande_json_est_invalide'));
         const dataRoot = componentsDataRoot();
         const result = await resetComponent({ dataRoot, component });
@@ -680,7 +678,7 @@ export function createApp(options = {}) {
       if (path === '/api/system/components/pick' && method === 'POST') {
         const body = await readBody(req);
         const component = body.component;
-        if (!['engine', 'uv'].includes(component))
+        if (component !== 'engine')
           throw new HttpError(400, tr('server.la_demande_json_est_invalide'));
         const controller = new AbortController();
         const abort = () => controller.abort();
@@ -688,18 +686,14 @@ export function createApp(options = {}) {
         if (res.destroyed) abort();
         try {
           const picked = await directoryPicker.pick({
-            mode: component === 'engine' ? 'directory' : 'file',
-            title: tr(
-              component === 'engine' ? 'components.pick_engine' : 'components.pick_binary',
-              {},
-              requestLanguage(req.headers),
-            ),
+            mode: 'directory',
+            title: tr('components.pick_engine', {}, requestLanguage(req.headers)),
             signal: controller.signal,
           });
           if (!picked.path && !picked.cwd) return json(res, 200, { cancelled: true });
-          const pathValue = component === 'engine' ? picked.cwd || picked.path : picked.path;
+          const pathValue = picked.cwd || picked.path;
           const dataRoot = componentsDataRoot();
-          const result = await applySelection({ dataRoot, paths: { [component]: pathValue } });
+          const result = await applySelection({ dataRoot, paths: { engine: pathValue } });
           await syncRuntimeComponents(dataRoot);
           return json(res, 200, result);
         } finally {

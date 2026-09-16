@@ -10,7 +10,7 @@ Une indication sous chaque titre rappelle la portée sans ajouter de contrôles 
 
 **Apparence → Densité** choisit l’espacement Confortable, Compacte (par défaut) ou Serrée pour la coque, la conversation et l’inspecteur. Le choix est enregistré dans `prime-studio.preferences` avec le thème et s’applique immédiatement via l’attribut `data-density` sur la racine du document, sans rechargement.
 
-**Outils** donne accès aux MCP et aux catalogues Skills/Prompts, avec leurs dossiers globaux et du projet sélectionné. **Accès distant**, réservé au PC, active le LAN et Tailscale sans interrompre les agents et propose les liens et QR codes : voir [le guide mobile](lan.md). **Système** affiche les versions, la disponibilité du moteur et le nombre d’agents en cours ; le diagnostic copiable exclut les clés et conversations. L’ouverture des journaux est réservée au PC. Sur le Studio local (navigateur ou application Linux), **Système** permet aussi de régler les chemins de **Prime Agent** et **uv**. Les champs vides sont détectés automatiquement (PATH et emplacements usuels) ; un chemin saisi n’est jamais écrasé. **Python** est préparé par `uv` dans le noyau géré du Studio (indicateur d’état seulement) ; les hôtes avancés peuvent définir `PRIME_AGENT_KERNEL_PYTHON` vers un interpréteur déjà équipé. Les changements s’appliquent immédiatement avec un indicateur vert/rouge ; **Réinitialiser** vide un champ et le redétecte. Installez vous-même les binaires manquants — Studio ne les télécharge pas. Les variables d’environnement l’emportent sur les chemins enregistrés au démarrage. Ces routes sont réservées au loopback et absentes de la passerelle LAN.
+**Outils** donne accès aux MCP et aux catalogues Skills/Prompts, avec leurs dossiers globaux et du projet sélectionné. **Accès distant**, réservé au PC, active le LAN et Tailscale sans interrompre les agents et propose les liens et QR codes : voir [le guide mobile](lan.md). **Système** affiche les versions, la disponibilité du moteur et le nombre d’agents en cours ; le diagnostic copiable exclut les clés et conversations. L’ouverture des journaux est réservée au PC. Sur le Studio local (navigateur ou application Linux), **Système** permet aussi de régler le chemin de **Prime Agent** (plus la capacité bash pour le shell). Un champ vide est détecté automatiquement (PATH et emplacements usuels) ; un chemin saisi n’est jamais écrasé. Le Studio ne gère ni uv ni Python — Prime Agent possède le noyau des skills (les hôtes avancés peuvent définir la variable d’environnement Prime Agent `PRIME_AGENT_KERNEL_PYTHON`). Les changements s’appliquent immédiatement avec un indicateur vert/rouge ; **Réinitialiser** vide le champ et le redétecte. Installez vous-même le binaire manquant — Studio ne le télécharge pas. Les variables d’environnement l’emportent sur le chemin enregistré au démarrage. Ces routes sont réservées au loopback et absentes de la passerelle LAN.
 
 La carte **Tailscale HTTPS** configure aussi l’adresse privée nécessaire à [l’installation PWA](pwa.md), avec un lien d’autorisation Tailscale si nécessaire et une nouvelle tentative depuis le panneau. Elle conserve le PIN et les autres accès.
 
@@ -72,8 +72,7 @@ Le [gestionnaire MCP](mcp.md), distinct du configurateur de modèles, est égale
 | `~/.prime/agent/settings.json`, `models.json`, `auth.json` | Configuration du moteur ; le configurateur peut écrire `models.json` et les valeurs par défaut de `settings.json`, sans transmettre les secrets à l’interface |
 | `.local/workspace.json`                                    | Projets, titres, épingles et archives du GUI                                                                                                                  |
 | `.local/subagent-defaults.json`                            | Modèle et réflexion des sous-agents : valeurs globales et exceptions par projet                                                                               |
-| `.local/kernel-venv/`                                      | Environnements Python par configuration de skills, avec marqueurs de validation ; les générations précédentes restent disponibles                             |
-| `.local/kernel-ready.json`                                 | Chemin du dernier Python entièrement préparé et vérifié par le Studio                                                                                         |
+| `.local/kernel-venv/`, `.local/kernel-ready.json`          | Marqueurs hérités / optionnels pouvant exister si Prime Agent (ou une ancienne version du Studio) les a écrits ; le Studio ne gère plus les kernels           |
 | `.local/attachments/`                                      | Fichiers joints originaux et métadonnées de téléchargement ; à conserver pour pouvoir les relire depuis les sessions                                          |
 | `~/.prime/agent/sessions/.studio-images/`                  | Images transmises au CLI, également enregistrées dans les messages natifs                                                                                     |
 | IndexedDB du navigateur                                    | Pièces jointes des brouillons, séparées par session ou nouveau projet                                                                                         |
@@ -91,23 +90,14 @@ Le [gestionnaire MCP](mcp.md), distinct du configurateur de modèles, est égale
 | `PRIME_AGENT_SESSION_DIR`      | Dossier des sessions à lire et à créer                                                                        |
 | `PRIME_AGENT_GUI_DATA_DIR`     | Dossier des métadonnées GUI, `.local` par défaut                                                              |
 | `PRIME_AGENT_GUI_NODE`         | Exécutable Node utilisé par le lanceur VBS                                                                    |
-| `PRIME_AGENT_KERNEL_PYTHON`    | Python externe déjà préparé : runtime, bibliothèques et skills Python ; vérifié sans installation automatique |
-| `PRIME_GUI_UV`                 | Chemin de l’exécutable `uv` utilisé pour préparer les environnements du Studio                                |
+| `PRIME_AGENT_KERNEL_PYTHON`    | Remplacement optionnel Prime Agent : Python externe déjà préparé pour les skills ; le Studio n’y installe rien |
 
 ### Python et skills
 
-Sans Python externe configuré, le Studio prépare sous Windows le runtime et les skills Python activées pour le projet. La découverte suit les réglages de Prime Agent, y compris les chemins supplémentaires et les skills désactivées. Les parents et leurs sous-agents utilisent cette préparation, y compris après reprise.
+Le Studio ne prépare pas de kernels Python, n’exécute pas `uv` et ne gère pas `.local/kernel-venv/`. **Prime Agent** amorce lui-même les skills Python selon les réglages natifs du projet. Les parents et sous-agents utilisent cet environnement du moteur.
 
-Pour réparer une ancienne installation où `agent_message` manque, lancez sur le PC :
+Les hôtes avancés peuvent définir `PRIME_AGENT_KERNEL_PYTHON` comme variable d’environnement **Prime Agent** vers un interpréteur déjà préparé. Vous gérez les packages de ce Python ; le Studio n’y installe rien. Voir la [documentation native](https://github.com/PrimeIntellect-ai/prime-agent/blob/main/packages/coding-agent/docs/skills.md#python-backed-skills).
 
-```powershell
-npm run setup:runtime
-npm stop
-npm run start:silent
-```
-
-Il n’est pas nécessaire de supprimer l’ancien venv. La préparation vérifie les imports et crée automatiquement un environnement complet si nécessaire. Pour un autre projet : `npm run setup:runtime -- "C:\chemin du projet"`. Un kernel déjà ouvert garde son environnement jusqu’à son redémarrage ; l’arrêt du Studio termine aussi ses exécutions en cours, mais conserve les conversations.
-
-Si `PRIME_AGENT_KERNEL_PYTHON` est défini, vous gérez les packages de ce Python. Le Studio n’y installe rien et indique précisément les imports manquants. Le runtime et la messagerie activée sont obligatoires ; une autre skill indisponible est signalée comme optionnelle. Un message de préparation réussie n’est émis pour un environnement géré qu’après vérification complète.
+`npm run setup:runtime` / `make setup-runtime` est un reste sans effet et n’est pas requis.
 
 Le serveur de commande écoute uniquement sur `127.0.0.1`. L’accès mobile facultatif passe par une passerelle authentifiée qui autorise les commandes selon son mode. Les origines externes et les noms d’hôte inconnus sont refusés ; seuls les fichiers de l’interface et les routes autorisées sont servis. Ne l’exposez pas via un proxy public : c’est une application personnelle locale.

@@ -1,18 +1,9 @@
-import { discoverCli, agentEnvironment } from '../lib/agent.mjs';
-import { ensureLocalKernel } from '../lib/kernel.mjs';
-
-try {
-  const cli = discoverCli();
-  if (!cli?.packageDir) throw new Error('Prime Agent introuvable. Définissez PRIME_AGENT_CLI vers cli.js.');
-  const python = await ensureLocalKernel({
-    packageDir: cli.packageDir,
-    root: process.env.PRIME_AGENT_GUI_KERNEL_ROOT,
-    env: agentEnvironment(),
-    cwd: process.argv[2] || process.cwd(),
-    onProgress: (message) => console.log(message),
-  });
-  console.log(`Python vérifié : ${python}`);
-} catch (error) {
-  console.error(error.message);
-  process.exitCode = 1;
-}
+#!/usr/bin/env node
+/**
+ * Formerly prepared Studio's private uv Python kernel.
+ * Prime Agent now bootstraps its own kernel on first use — nothing to do here.
+ */
+console.log(
+  'setup:runtime is no longer required. Prime Agent bootstraps its Python kernel automatically.\n' +
+    'Install and configure Prime Agent only (Preferences → System, or PRIME_AGENT_CLI).',
+);

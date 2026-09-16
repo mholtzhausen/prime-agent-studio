@@ -23,7 +23,7 @@ Les options avancées permettent de définir les délais de démarrage et d’ap
 
 **Tester** utilise le véritable client MCP du moteur Python de Prime Agent. Il initialise la connexion et récupère le catalogue, avec les noms, descriptions et schémas des outils autorisés. Il n’appelle aucun outil métier. Un test réussi confirme la connexion et la découverte à cet instant ; les autorisations d’un appel ultérieur peuvent différer.
 
-Dans l’application Windows, le test retrouve le Python du dossier persistant, conservé entre les mises à jour. S’il n’existe pas encore, le Studio le prépare automatiquement avec Prime Agent et uv ; ce premier test peut donc prendre plus de temps. Aucune commande manuelle de préparation n’est nécessaire. Une configuration Python explicitement définie reste prioritaire.
+Le test résout son interpréteur via `PRIME_AGENT_KERNEL_PYTHON`, un marqueur de kernel existant, ou `python3` dans le PATH. Le Studio ne prépare pas de kernels uv pour cette probe.
 
 Vous pouvez rechercher, modifier, activer, désactiver ou supprimer les serveurs ajoutés. Une suppression demande confirmation et retire aussi les identifiants OAuth de ce seul serveur. Linear et Notion sont les intégrations natives de Prime Agent : connectez-les ou déconnectez-les depuis leur carte. Leurs noms sont réservés.
 

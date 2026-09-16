@@ -10,7 +10,7 @@ A note below each title explains scope without adding controls: appearance and t
 
 **Appearance → Density** chooses Comfortable, Compact (default) or Dense spacing for the shell, conversation and inspector. The choice is stored in `prime-studio.preferences` with the theme and applies immediately via the `data-density` attribute on the document root—no reload.
 
-**Tools** opens MCP and Skills/Prompts catalogs, with their global and selected-project folders. **Remote access**, restricted to the PC, enables LAN and Tailscale without interrupting agents and provides links and QR codes: see [the mobile guide](lan.md). **System** shows versions, engine availability and the running agent count; copied diagnostics exclude keys and conversations. Opening logs is restricted to the PC. On the local Studio (browser or Linux desktop), **System** also edits paths for **Prime Agent** and **uv**. Empty fields soft-default from PATH and well-known user dirs (pyenv/nvm/`~/.local`); a path you type is never overwritten. **Python** is prepared by `uv` into Studio’s managed kernel (status chip only); advanced hosts may set `PRIME_AGENT_KERNEL_PYTHON` to an already-prepared interpreter. Changes apply immediately with live green/red status; **Reset** clears one field and rediscovers it. Install any missing binaries yourself — Studio does not download them. Environment variables win over saved paths at launch. These routes are loopback-only and absent from the LAN gateway.
+**Tools** opens MCP and Skills/Prompts catalogs, with their global and selected-project folders. **Remote access**, restricted to the PC, enables LAN and Tailscale without interrupting agents and provides links and QR codes: see [the mobile guide](lan.md). **System** shows versions, engine availability and the running agent count; copied diagnostics exclude keys and conversations. Opening logs is restricted to the PC. On the local Studio (browser or Linux desktop), **System** also edits the **Prime Agent** path (plus bash capability for shell). An empty field soft-defaults from PATH and well-known user dirs; a path you type is never overwritten. Studio does not manage uv or Python paths — Prime Agent owns the skill kernel (advanced hosts may set the Prime Agent env `PRIME_AGENT_KERNEL_PYTHON`). Changes apply immediately with live green/red status; **Reset** clears the field and rediscovers it. Install any missing binary yourself — Studio does not download it. Environment variables win over the saved path at launch. These routes are loopback-only and absent from the LAN gateway.
 
 The **Tailscale HTTPS** card also configures the private address needed for [PWA installation](pwa.md), with a Tailscale approval link when needed and a retry action in the panel. It preserves the PIN and other access channels.
 
@@ -72,8 +72,7 @@ The [MCP manager](mcp.md), separate from the model configurator, is also availab
 | `~/.prime/agent/settings.json`, `models.json`, `auth.json` | Engine configuration; the configurator can write `models.json` and defaults in `settings.json` without sending secrets to the interface |
 | `.local/workspace.json`                                    | GUI projects, titles, pins and archives                                                                                                 |
 | `.local/subagent-defaults.json`                            | Subagent model and reasoning: global defaults and project overrides                                                                     |
-| `.local/kernel-venv/`                                      | Python environments per skill configuration, with validation markers; previous generations remain available                             |
-| `.local/kernel-ready.json`                                 | Path of the latest Python fully prepared and verified by Studio                                                                         |
+| `.local/kernel-venv/`, `.local/kernel-ready.json`          | Legacy / optional markers that may exist if Prime Agent (or an older Studio) wrote them; Studio no longer manages kernels               |
 | `.local/attachments/`                                      | Original attached files and download metadata; keep them to reopen files from sessions                                                  |
 | `~/.prime/agent/sessions/.studio-images/`                  | Images passed to the CLI, also recorded in native messages                                                                              |
 | Browser IndexedDB                                          | Draft attachments, separated by session or new project                                                                                  |
@@ -91,23 +90,14 @@ The [MCP manager](mcp.md), separate from the model configurator, is also availab
 | `PRIME_AGENT_SESSION_DIR`      | Folder for reading and creating sessions                                                                            |
 | `PRIME_AGENT_GUI_DATA_DIR`     | GUI metadata folder; defaults to `.local`                                                                           |
 | `PRIME_AGENT_GUI_NODE`         | Node executable used by the VBS launcher                                                                            |
-| `PRIME_AGENT_KERNEL_PYTHON`    | Already-prepared external Python with runtime, libraries and Python skills; verified without automatic installation |
-| `PRIME_GUI_UV`                 | Path to the `uv` executable used to prepare Studio environments                                                     |
+| `PRIME_AGENT_KERNEL_PYTHON`    | Optional Prime Agent override: already-prepared external Python for skills; Studio does not install into it         |
 
 ### Python and skills
 
-When no external Python is configured, Studio prepares the runtime and enabled project Python skills on Windows. Discovery follows Prime Agent settings, including extra paths and disabled skills. Parents and their subagents use this preparation, including after resuming.
+Studio does not prepare Python kernels, run `uv`, or manage `.local/kernel-venv/`. **Prime Agent** bootstraps Python skills itself according to native project settings. Parents and subagents use that engine-owned environment.
 
-To repair an older installation missing `agent_message`, run on the PC:
+Advanced hosts may set `PRIME_AGENT_KERNEL_PYTHON` as a **Prime Agent** environment variable to an already-prepared interpreter. You manage that Python’s packages; Studio installs nothing into it. See the [native documentation](https://github.com/PrimeIntellect-ai/prime-agent/blob/main/packages/coding-agent/docs/skills.md#python-backed-skills).
 
-```powershell
-npm run setup:runtime
-npm stop
-npm run start:silent
-```
-
-You do not need to delete the old venv. Setup checks imports and automatically creates a complete environment when needed. For another project: `npm run setup:runtime -- "C:\project path"`. An already-open kernel keeps its environment until restarted; stopping Studio also ends active runs but preserves conversations.
-
-If `PRIME_AGENT_KERNEL_PYTHON` is set, you manage that Python’s packages. Studio installs nothing into it and reports missing imports precisely. The runtime and enabled messaging skill are required; other unavailable skills are reported as optional. A managed environment is reported as successfully prepared only after complete verification.
+`npm run setup:runtime` / `make setup-runtime` is a leftover no-op and is not required.
 
 The control server listens only on `127.0.0.1`. Optional mobile access goes through an authenticated gateway that allows commands according to its mode. External origins and unknown hostnames are rejected; only interface files and allowed routes are served. Do not expose it through a public proxy: this is a personal local application.

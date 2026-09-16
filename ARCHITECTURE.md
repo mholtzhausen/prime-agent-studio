@@ -16,7 +16,7 @@ It does **not** replace Prime Agent. Conversations, auth, models, and most tools
 | Server | `node:http` in `server.mjs` — no Express/Fastify |
 | Client | Vanilla JS/CSS in `public/` + `index.html` (no bundler) |
 | Engine | Installed Prime Agent CLI / supervisor (external) |
-| Python skills | Managed venvs via `uv` under `.local/kernel-venv/` |
+| Python skills | Owned by Prime Agent (auto-bootstrap); Studio does not provision uv kernels |
 | Desktop | Tauri 2 (`src-tauri/`) for Linux AppImage/deb / tray / updater |
 | Tests | `node --test` + Playwright UI scripts under `scripts/` |
 
@@ -56,7 +56,7 @@ flowchart TB
     Supervisor["Private supervisor"]
     Sessions["~/.prime/agent/sessions"]
     Auth["auth.json / settings.json"]
-    Kernel["Python skill venvs"]
+    Kernel["Python skills (PA bootstrap)"]
   end
 
   Browser --> Server
@@ -66,7 +66,7 @@ flowchart TB
   Lib --> Supervisor
   Lib --> Sessions
   Lib --> Auth
-  Lib --> Kernel
+  Supervisor --> Kernel
   Supervisor --> Runtime
 ```
 
@@ -103,7 +103,7 @@ flowchart TB
 | Live messaging | `lib/live-messages.mjs`, `lib/live-session-client.mjs` |
 | Attachments | `lib/images.mjs`, `lib/files.mjs` |
 | Inspector / files | `lib/session-inspector.mjs`, `lib/project-files.mjs` |
-| Commands / skills | `lib/commands.mjs`, `runtime/kernel-loader.mjs` |
+| Commands / skills | `lib/commands.mjs`; `lib/kernel.mjs` (legacy helpers; unused for Studio kernel prep) |
 | MCP | `lib/mcp-config.mjs`, `lib/mcp-service.mjs` |
 | Providers | `lib/provider-service.mjs`, `lib/provider-auth.mjs` |
 | Remote / PWA | `lib/lan.mjs`, `lib/remote-network.mjs`, `lib/pwa.mjs`, `lib/tailscale-https.mjs` |
@@ -115,7 +115,7 @@ flowchart TB
 | Location | Contents |
 | --- | --- |
 | `~/.prime/agent/` | Native settings, models, auth, sessions |
-| `.local/` | Studio workspace, LAN PIN hash, attachments, kernel venvs, subagent defaults |
+| `.local/` | Studio workspace, LAN PIN hash, attachments, subagent defaults; legacy kernel markers may exist if Prime Agent wrote them |
 | `~/.local/share/com.primeagent.studio.nix/` | Linux desktop app data (Tauri): engine copies, webview storage, `desktop.json` |
 | Browser storage | Drafts, theme, language, favorites (device-local) |
 | Env vars | `PORT`, `PRIME_AGENT_CLI`, `PRIME_AGENT_*` paths — see [docs/en/configuration.md](docs/en/configuration.md) |
@@ -124,7 +124,7 @@ flowchart TB
 
 - **No compile step** for the web UI; edit and refresh. Use a separate worktree if a live Studio is serving the same checkout.
 - **Desktop builds**: `make build` produces unsigned Linux AppImage/deb; `make build-release` bootstraps the nix signing key, builds signed packages, and writes the updater catalog under `.local/desktop-release/`. Updates use Tauri minisign against `mholtzhausen/prime-agent-studio`.
-- **Component binaries** (Prime Agent / uv / Python) are configured under Preferences → System only via shared HTTP APIs (`/api/system/components*`, loopback-only) and `engine/selection.json` under `componentsDataRoot()`. The desktop launcher does not host a separate setup panel.
+- **Component binaries** (Prime Agent path only; plus bash capability for shell) are configured under Preferences → System via shared HTTP APIs (`/api/system/components*`, loopback-only) and `engine/selection.json` under `componentsDataRoot()`. The desktop launcher does not host a separate setup panel.
 - **Checks**: `make check` covers JS syntax, translation table integrity, and bilingual doc fingerprints.
 - **Platform**: end-user product targets Linux; the Node server and unit tests also run on that host.
 

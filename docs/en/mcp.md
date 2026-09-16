@@ -23,7 +23,7 @@ Advanced options set startup and call timeouts, an allowlist of tools, a denylis
 
 **Test** uses the real MCP client from Prime Agent’s Python engine. It initializes the connection and retrieves the catalog, including allowed tools’ names, descriptions and schemas. It invokes no business tools. A successful test confirms connection and discovery at that moment; permissions for a later call may differ.
 
-In the Windows application, the test finds Python in the persistent data folder retained across updates. If it has not been prepared yet, Studio sets it up automatically using Prime Agent and uv, so the first test may take longer. No manual setup command is needed. An explicitly configured Python path retains priority.
+The test resolves its interpreter via `PRIME_AGENT_KERNEL_PYTHON`, an existing kernel marker, or `python3` on PATH. Studio does not prepare uv kernels for this probe.
 
 You can search, edit, enable, disable or remove added servers. Removal requires confirmation and also deletes OAuth credentials for that server alone. Linear and Notion are Prime Agent’s native integrations: connect or disconnect them from their cards. Their names are reserved.
 

@@ -109,7 +109,7 @@ On the PC, **Preferences → Remote access → Change code** changes the eight-d
 
 Type **`/`** or use the **/** button beside attachments to find a command, skill or project prompt. Shortcuts open Studio panels; `/compact`, `/refine`, `/goal` and `/autonomous` run through Prime Agent, including in an active session’s queue. `/skill:name` loads a skill with your instructions. See the [commands, skills and prompts guide](docs/en/commands.md) for syntax and terminal-only commands.
 
-Python skills are prepared according to the project’s native settings, for both the parent and its subagents. [Python configuration and repair of older installations](docs/en/configuration.md#python-and-skills) covers automatic setup and user-supplied `PRIME_AGENT_KERNEL_PYTHON` environments.
+Python skills are bootstrapped by **Prime Agent** according to the project’s native settings, for both the parent and its subagents. Studio does not prepare uv kernels. See [Python and skills](docs/en/configuration.md#python-and-skills) for the optional `PRIME_AGENT_KERNEL_PYTHON` override.
 
 ## Session, agents and files
 
@@ -135,7 +135,7 @@ Connection tests discover tools without executing them. New settings apply to ne
 
 ### Linux application
 
-Download the [AppImage or deb](https://github.com/mholtzhausen/prime-agent-studio/releases/latest) for amd64, then open **Prime Agent Studio Nix**. The AppImage is portable; the deb installs system integration. Node.js is included in the package. Install **Prime Agent**, **uv** and **Python** yourself if needed, then set or confirm their paths under **Preferences → System** (empty fields are detected automatically). A working `bash` is required for engine shell commands. Configure your provider afterward. If you previously used a source checkout, select **Use an existing installation**. [Full guide](docs/en/desktop.md).
+Download the [AppImage or deb](https://github.com/mholtzhausen/prime-agent-studio/releases/latest) for amd64, then open **Prime Agent Studio Nix**. The AppImage is portable; the deb installs system integration. Node.js is included in the package. Install **Prime Agent** yourself if needed, then set or confirm its path under **Preferences → System** (an empty field is detected automatically). A working `bash` is required for engine shell commands. Configure your provider afterward. If you previously used a source checkout, select **Use an existing installation**. [Full guide](docs/en/desktop.md).
 
 Updates carry a Tauri cryptographic signature.
 
@@ -143,13 +143,12 @@ Updates carry a Tauri cryptographic signature.
 
 ### From source
 
-**Requirements:** Linux, **Node.js 22.8 or later**, **uv**, and **Prime Agent** installed. For the folder picker in the browser UI, install **zenity** or **kdialog**. Configure a provider before the first message, through the CLI or Studio’s desktop **Providers** panel. Subagent settings integration has been verified with **Prime Agent 0.9.4**.
+**Requirements:** Linux, **Node.js 22.8 or later**, and **Prime Agent** installed. For the folder picker in the browser UI, install **zenity** or **kdialog**. Configure a provider before the first message, through the CLI or Studio’s desktop **Providers** panel. Subagent settings integration has been verified with **Prime Agent 0.9.4**.
 
 Download **Source code (zip)** from the [latest release](https://github.com/mholtzhausen/prime-agent-studio/releases/latest) and extract it, or clone this repository. Open a terminal in the extracted folder:
 
 ```sh
 make init            # npm ci
-make setup-runtime   # optional; needs Prime Agent + uv
 make start-silent    # background server + browser → http://127.0.0.1:3088
 ```
 
@@ -157,7 +156,6 @@ make start-silent    # background server + browser → http://127.0.0.1:3088
 
 ```sh
 make init            # npm ci
-make setup-runtime   # optional; needs Prime Agent + uv
 make dev             # foreground server → http://127.0.0.1:3088
 make check && make test
 make build            # optional: Linux AppImage/deb without updater signatures
@@ -171,7 +169,7 @@ The browser opens at **[127.0.0.1:3088](http://127.0.0.1:3088)**. Later starts c
 2. Open an existing session or choose **New session**.
 3. Select a model, then write your request.
 
-Studio reuses Prime Agent’s configuration: you do not need to paste an API key into the browser. Initial Python engine setup may require an Internet connection.
+Studio reuses Prime Agent’s configuration: you do not need to paste an API key into the browser. Prime Agent may bootstrap its Python kernel on first use (an Internet connection may be needed). Studio does not run `setup:runtime`.
 
 | Command                  | Purpose                                           |
 | ------------------------ | ------------------------------------------------- |
@@ -190,13 +188,12 @@ Wait for active runs to finish, then run these commands in the Studio folder:
 make stop
 git pull --ff-only
 make init
-make setup-runtime
 make start-silent
 ```
 
 Local settings and native Prime Agent sessions are preserved. For an archive installation, replace Studio’s files with the new release while keeping the `.local` folder, then repeat the installation steps.
 
-**Upgrading from version 2.3 or earlier:** run `make init`, then `make setup-runtime`, and restart Studio to load the Python skills fix. Already-open kernels keep their environment until restarted.
+**Upgrading from version 2.3 or earlier:** run `make init` and restart Studio. Prime Agent owns Python skills; Studio no longer prepares a managed kernel.
 
 ## While the agent is working
 

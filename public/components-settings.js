@@ -1,15 +1,10 @@
 import { t as tr, bindText, translateKnown } from './i18n.js';
 
-/** User-editable paths. Python is prepared by uv — shown as a status chip only. */
-const TOOLS = [
-  { id: 'engine', labelKey: 'components.engine', pathKey: 'engine' },
-  { id: 'uv', labelKey: 'components.uv', pathKey: 'uv' },
-];
+/** User-editable path: Prime Agent only. Python kernel is owned by Prime Agent. */
+const TOOLS = [{ id: 'engine', labelKey: 'components.engine', pathKey: 'engine' }];
 
 function statusOf(components, id) {
   if (id === 'engine') return components?.engine;
-  if (id === 'uv') return components?.uv;
-  if (id === 'python') return components?.python;
   return null;
 }
 
@@ -25,21 +20,6 @@ function iconState(info) {
   if (info.status === 'error') return 'error';
   if (info.status === 'ready' || info.status === 'not_required') return 'ready';
   return 'error';
-}
-
-function chipLabel(key, info) {
-  if (key === 'node') return `${tr('components.node')}${info.version ? ` ${info.version}` : ''}`;
-  if (key === 'bash') return tr('components.bash');
-  if (key === 'python') {
-    if (info.status === 'ready')
-      return info.source === 'explicit'
-        ? tr('components.python_external')
-        : tr('components.python_managed');
-    if (info.status === 'pending' || info.status === 'missing') return tr('components.python_pending');
-    if (info.error) return `${tr('components.python')} · ${translateKnown(info.error)}`;
-    return tr('components.python');
-  }
-  return key;
 }
 
 /**
@@ -107,7 +87,7 @@ export function createComponentsSettings({
     reset.className = 'secondary-button components-reset';
     reset.title = tr('components.reset');
     reset.setAttribute('aria-label', tr('components.reset'));
-    reset.textContent = '↺';
+    reset.textContent = '↻';
 
     const actions = document.createElement('div');
     actions.className = 'components-row-actions';
@@ -163,13 +143,14 @@ export function createComponentsSettings({
       }
     }
     chips.innerHTML = '';
-    for (const key of ['node', 'bash', 'python']) {
+    for (const key of ['node', 'bash']) {
       const info = result?.components?.[key];
       if (!info) continue;
       const li = document.createElement('li');
       li.dataset.state = iconState(info);
-      if (info.error) li.title = translateKnown(info.error);
-      li.textContent = chipLabel(key, info);
+      li.textContent = `${key === 'node' ? tr('components.node') : tr('components.bash')}${
+        info.version ? ` ${info.version}` : ''
+      }`;
       chips.appendChild(li);
     }
     bindText(live, () => (result?.ready ? tr('components.ready') : tr('components.incomplete')));

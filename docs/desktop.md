@@ -8,9 +8,9 @@ L’application **Prime Agent Studio Nix**, construite avec Tauri 2, ouvre le St
 
 Téléchargez l’[AppImage](https://github.com/mholtzhausen/prime-agent-studio/releases/latest) ou le [deb](https://github.com/mholtzhausen/prime-agent-studio/releases/latest) amd64 depuis la dernière release. L’AppImage est portable ; le deb installe l’intégration bureau. Node.js est inclus. Les paquets s’appuient sur WebKitGTK du système — aucun runtime de navigateur séparé n’est à installer.
 
-Les builds avec préparation guidée téléchargent **Prime Agent, npm privé, uv et Python** à la demande. Ces composants ne sont pas inclus dans le paquet. Aucune installation antérieure de Node, npm ou Python, modification du PATH ou commande de terminal n’est nécessaire. Une connexion réseau initiale est requise. **Un `bash` fonctionnel reste un prérequis distinct** pour les commandes shell du moteur ; son absence est signalée.
+Installez **Prime Agent** vous-même s’il n’est pas déjà disponible ; le Studio ne télécharge ni Prime Agent, ni npm, ni uv, ni Python. **Un `bash` fonctionnel reste un prérequis distinct** pour les commandes shell du moteur ; son absence est signalée.
 
-Au premier lancement, consultez l’état des composants puis choisissez **Installer les composants manquants**, **Choisir une installation existante** ou **Plus tard — ouvrir le Studio**. Le téléchargement nécessite le clic explicite sur le bouton d’installation. « Plus tard » conserve les réglages et l’historique ; les actions du moteur demandent de terminer la préparation. Après validation, configurez un fournisseur dans **Connexions** : la préparation ne connecte aucun compte et n’envoie aucun prompt payant. Si vous utilisiez déjà un checkout source, choisissez **Reprendre une installation existante** et sélectionnez son dossier, celui qui contient `server.mjs` et `.local`.
+Au premier lancement, consultez l’état des composants, puis choisissez **Choisir une installation existante** ou **Plus tard — ouvrir le Studio** selon le besoin. Après validation, configurez un fournisseur dans **Connexions**. Si vous utilisiez déjà un checkout source, choisissez **Reprendre une installation existante** et sélectionnez son dossier, celui qui contient `server.mjs` et `.local`.
 
 La migration copie les projets, les défauts des sous-agents, les pièces jointes et les réglages d’accès distant, y compris le PIN. L’installation d’origine reste intacte. Si son serveur tourne, l’application s’y connecte immédiatement et reporte la copie au premier lancement où ce serveur est arrêté. Elle n’interrompt aucune exécution. Les sessions Prime Agent restent à leur emplacement habituel. Après migration, utilisez l’application pour ouvrir le Studio ; l’ancien lanceur conserve sa propre copie des réglages.
 
@@ -18,13 +18,13 @@ Les préférences d’apparence et les brouillons du navigateur ne sont pas copi
 
 ## Préparation, réparation et compatibilité
 
-**Préférences → Système** est le seul éditeur de chemins pour Prime Agent, `uv` et Python (identique dans le navigateur et le webview Studio de bureau). Le lanceur de bureau n’héberge plus de panneau de configuration des composants. Les champs vides sont détectés automatiquement (PATH et emplacements usuels : `~/.local`, pyenv, nvm) ; un chemin enregistré ou saisi n’est jamais écrasé. Les changements s’appliquent immédiatement avec un indicateur de statut ; **Réinitialiser** vide un champ et le redétecte. Installez les binaires vous-même — Studio ne télécharge ni Prime Agent, ni npm, ni uv.
+**Préférences → Système** est le seul éditeur de chemin pour **Prime Agent** (identique dans le navigateur et le webview Studio de bureau). Le lanceur de bureau n’héberge plus de panneau de configuration des composants. Un champ vide est détecté automatiquement (PATH et emplacements usuels : `~/.local`, nvm) ; un chemin enregistré ou saisi n’est jamais écrasé. Les changements s’appliquent immédiatement avec un indicateur de statut ; **Réinitialiser** vide le champ et le redétecte. Installez Prime Agent vous-même — Studio ne le télécharge pas.
 
-`PRIME_AGENT_CLI`, `PRIME_GUI_UV` et `PRIME_AGENT_KERNEL_PYTHON` ont priorité, suivis des sélections dans `engine/selection.json`. Un chemin explicite invalide doit être corrigé ; il n’est jamais remplacé en silence. Les contrôles de capacité couvrent la structure et les probes du moteur, et `uv --version` pour uv (les shims pyenv/shell sont acceptés s’ils fonctionnent). Un diagnostic prêt écrit `installation.json` (activation) et lève la barrière des composants requis.
+`PRIME_AGENT_CLI` a priorité, suivi de la sélection dans `engine/selection.json`. Un chemin explicite invalide doit être corrigé ; il n’est jamais remplacé en silence. Les contrôles de capacité couvrent la structure et les probes du moteur (les shims pyenv/shell sont acceptés s’ils fonctionnent). `PRIME_AGENT_KERNEL_PYTHON` optionnel est un remplacement d’environnement **Prime Agent** uniquement, pas un champ Système du Studio. Un diagnostic prêt écrit `installation.json` (activation) et lève la barrière des composants requis.
 
 Le packaging cible Linux x86_64 avec Node 22 ≥ 22.16 ou Node 24 ; le moteur exige ≥ 22.8. Aucun suivi périodique ni mise à jour automatique des installations externes.
 
-Les kernels restent sous `.local` via `ensureLocalKernel` lorsque uv est disponible et qu’aucun Python externe n’est sélectionné.
+Le Studio n’exécute pas `ensureLocalKernel` et ne provisionne pas Python sous `.local`. Prime Agent possède son noyau de skills.
 
 ## Fenêtre et travail en arrière-plan
 
@@ -45,7 +45,7 @@ Les données de bureau utilisent le dossier de données d’application XDG / Ta
 | Emplacement    | Contenu                                                                  |
 | -------------- | ------------------------------------------------------------------------ |
 | `data`         | Projets, pièces jointes, PIN haché, réglages réseau et journaux serveur  |
-| `.local`       | Kernels Python persistants                                               |
+| `.local`       | Données Studio ; des marqueurs de kernel hérités peuvent exister ; Prime Agent possède son noyau |
 | `versions`     | Copies immuables des fichiers serveur et de Node.js                      |
 | `webview`      | Préférences et stockage de la fenêtre                                    |
 | `desktop.json` | Préférences du lanceur et installation à migrer                          |
@@ -83,7 +83,7 @@ Les paquets se trouvent dans `src-tauri/target/release/bundle/appimage` et `…/
 
 La construction vérifie les références des modules, workers et assistants natifs avant de créer les paquets. `npm run test:desktop-runtime` teste les ressources préparées dans `.desktop-build` avec les vrais workers Prime Agent, un projet et des comptes isolés : skills Python, prompts et fournisseurs.
 
-`npm run test:desktop` vérifie le binaire debug préalablement compilé : ressources extraites par l’exécutable, messages et noyau Python avec un modèle HTTP local simulé, API des fournisseurs et commandes, réutilisation d’un serveur avec un agent simulé actif, démarrage réel du serveur inclus, instance unique et survie du serveur à la fermeture du processus Tauri. Prime Agent et uv doivent être disponibles. Passez le chemin du binaire après `--` pour tester une autre compilation. `npm run test:desktop-ui` vérifie les adaptations de présentation dans Chrome/Chromium. Les tests ne lancent aucun appel payant à un modèle.
+`npm run test:desktop` vérifie le binaire debug préalablement compilé : ressources extraites par l’exécutable, messages et skills Python avec un modèle HTTP local simulé, API des fournisseurs et commandes, réutilisation d’un serveur avec un agent simulé actif, démarrage réel du serveur inclus, instance unique et survie du serveur à la fermeture du processus Tauri. Prime Agent doit être disponible. Passez le chemin du binaire après `--` pour tester une autre compilation. `npm run test:desktop-ui` vérifie les adaptations de présentation dans Chrome/Chromium. Les tests ne lancent aucun appel payant à un modèle.
 
 Pour les tests isolés, `PRIME_STUDIO_DESKTOP_DATA_ROOT` et `PRIME_STUDIO_DESKTOP_PORT` changent respectivement le dossier de données et le port. Ne les définissez pas pour un usage normal. Les installations depuis les sources peuvent utiliser `scripts/start-studio.sh` / `make start-silent`.
 

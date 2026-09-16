@@ -16,14 +16,13 @@ help: ## Show this help
 		/^[a-zA-Z0-9_-]+:.*?## / {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2} \
 		END {printf "\n"}' $(MAKEFILE_LIST)
 
-init: install ## First-time setup: install deps (run setup-runtime when Prime Agent is available)
-	@echo "Dependencies ready. Optional: make setup-runtime (needs Prime Agent + uv)."
-	@echo "Start with: make dev   →  http://127.0.0.1:3088"
+init: install ## First-time setup: install deps
+	@echo "Dependencies ready. Install Prime Agent, then: make dev   →  http://127.0.0.1:3088"
 
 install: ## Install npm dependencies (frozen lockfile)
 	cd "$(ROOT)" && $(NPM) ci
 
-setup-runtime: ## Prepare Python kernel / skills runtime for the current directory
+setup-runtime: ## Obsolete: Prime Agent bootstraps its own Python kernel
 	cd "$(ROOT)" && $(NPM) run setup:runtime
 
 dev: ## Start the local server in the foreground (logs in terminal)

@@ -8,9 +8,9 @@ The **Prime Agent Studio Nix** application, built with Tauri 2, opens Studio in 
 
 Download the amd64 [AppImage](https://github.com/mholtzhausen/prime-agent-studio/releases/latest) or [deb](https://github.com/mholtzhausen/prime-agent-studio/releases/latest) from the latest release. The AppImage is portable; the deb installs desktop integration. Node.js is bundled. Packages use the system WebKitGTK stack—no separate browser runtime installer is required.
 
-Builds containing guided setup download **Prime Agent, private npm, uv and Python** on demand. These components are not bundled in the package. No previous Node, npm or Python installation, PATH changes or terminal commands are needed. An initial network connection is required. **A working `bash` remains a separate prerequisite** for engine shell commands; its absence is reported.
+Install **Prime Agent** yourself if it is not already available; Studio does not download Prime Agent, npm, uv or Python. **A working `bash` remains a separate prerequisite** for engine shell commands; its absence is reported.
 
-On first launch, review component states, then choose **Install missing components**, **Choose an existing installation** or **Later — open Studio**. Downloads require an explicit click on the install button. “Later” preserves access to settings and history; engine actions ask you to finish setup. After validation, configure a provider in **Connections**: preparation neither signs into an account nor sends a paid prompt. If you previously used a source checkout, select **Use an existing installation** and choose its folder containing `server.mjs` and `.local`.
+On first launch, review component status, then choose **Choose an existing installation** or **Later — open Studio** as needed. After validation, configure a provider in **Connections**. If you previously used a source checkout, select **Use an existing installation** and choose its folder containing `server.mjs` and `.local`.
 
 Migration copies projects, subagent defaults, attachments and remote access settings, including the PIN. The original installation remains intact. If its server is running, the application connects immediately and postpones copying until the first launch when that server is stopped. It interrupts no runs. Prime Agent sessions remain in their usual location. After migration, use the application to open Studio; the old launcher retains its own copy of the settings.
 
@@ -18,13 +18,13 @@ Browser appearance preferences and drafts are not copied: the Tauri window has i
 
 ## Preparation, repair and compatibility
 
-**Preferences → System** is the only path editor for Prime Agent, `uv` and Python (identical in the browser and the desktop Studio webview). The desktop launcher no longer hosts a component setup panel. Empty fields soft-default from PATH and well-known locations (`~/.local`, pyenv, nvm); a saved or typed path is never overwritten. Changes apply immediately with live status; **Reset** clears one field and rediscovers it. Install binaries yourself — Studio does not download Prime Agent, npm or uv.
+**Preferences → System** is the only path editor for **Prime Agent** (identical in the browser and the desktop Studio webview). The desktop launcher no longer hosts a component setup panel. An empty field soft-defaults from PATH and well-known locations (`~/.local`, nvm); a saved or typed path is never overwritten. Changes apply immediately with live status; **Reset** clears the field and rediscovers it. Install Prime Agent yourself — Studio does not download it.
 
-`PRIME_AGENT_CLI`, `PRIME_GUI_UV` and `PRIME_AGENT_KERNEL_PYTHON` take precedence, followed by saved selections in `engine/selection.json`. Invalid explicit paths must be corrected; they are never silently replaced. Capability checks cover package layout and probes for the engine, and `uv --version` for uv (shell/pyenv shims are accepted when they work). A successful diagnosis that is ready writes `installation.json` (activate) so Studio clears the components-required gate.
+`PRIME_AGENT_CLI` takes precedence, followed by the saved selection in `engine/selection.json`. Invalid explicit paths must be corrected; they are never silently replaced. Capability checks cover package layout and probes for the engine (shell/pyenv shims are accepted when they work). Optional `PRIME_AGENT_KERNEL_PYTHON` is a **Prime Agent** environment override only, not a Studio System field. A successful diagnosis that is ready writes `installation.json` (activate) so Studio clears the components-required gate.
 
 Packaging targets Linux x86_64 with Node 22 ≥ 22.16 or Node 24; the engine requires ≥ 22.8. There is no periodic monitoring or automatic update of external installations.
 
-Kernels remain under `.local` via `ensureLocalKernel` when uv is available and no external Python is selected.
+Studio does not run `ensureLocalKernel` or provision Python under `.local`. Prime Agent owns its skill kernel.
 
 ## Window and background work
 
@@ -45,7 +45,7 @@ Desktop data uses the XDG / Tauri application data directory, typically `~/.loca
 | Location       | Contents                                                            |
 | -------------- | ------------------------------------------------------------------- |
 | `data`         | Projects, attachments, hashed PIN, network settings and server logs |
-| `.local`       | Persistent Python kernels                                           |
+| `.local`       | Studio data; legacy kernel markers may exist; Prime Agent owns its kernel |
 | `versions`     | Immutable copies of server files and Node.js                        |
 | `webview`      | Window preferences and storage                                      |
 | `desktop.json` | Launcher preferences and installation to migrate                    |
@@ -83,7 +83,7 @@ Packages appear under `src-tauri/target/release/bundle/appimage` and `…/bundle
 
 The build validates module, worker and native helper references before creating packages. `npm run test:desktop-runtime` exercises the resources prepared in `.desktop-build` using real Prime Agent workers and an isolated project and account storage: Python skills, prompts and providers.
 
-`npm run test:desktop` tests the previously compiled debug executable: resources extracted by the executable, messages and the Python kernel using a simulated local HTTP model, provider and command APIs, reusing a server with an active simulated agent, starting the bundled server, single instance behavior and server survival when the Tauri process closes. Prime Agent and uv must be available. Pass another executable path after `--` to test a different build. `npm run test:desktop-ui` checks presentation changes in Chrome/Chromium. Tests make no paid model calls.
+`npm run test:desktop` tests the previously compiled debug executable: resources extracted by the executable, messages and Python skills using a simulated local HTTP model, provider and command APIs, reusing a server with an active simulated agent, starting the bundled server, single instance behavior and server survival when the Tauri process closes. Prime Agent must be available. Pass another executable path after `--` to test a different build. `npm run test:desktop-ui` checks presentation changes in Chrome/Chromium. Tests make no paid model calls.
 
 For isolated tests, `PRIME_STUDIO_DESKTOP_DATA_ROOT` and `PRIME_STUDIO_DESKTOP_PORT` override the data folder and port. Leave them unset for normal use. Source installations can use `scripts/start-studio.sh` / `make start-silent`.
 

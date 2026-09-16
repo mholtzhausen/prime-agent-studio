@@ -31,7 +31,6 @@ Canonical product docs: [README.md](README.md) · internals: [docs/en/developmen
 
 ```sh
 make init            # npm ci
-make setup-runtime   # optional; needs Prime Agent + uv
 make dev             # node server.mjs → http://127.0.0.1:3088
 make start-silent    # background server + browser (scripts/start-studio.sh)
 make check           # syntax + translations + docs
@@ -39,6 +38,8 @@ make test            # node --test under test/
 make format          # prettier
 make stop            # shut down server / runs
 ```
+
+`make setup-runtime` / `npm run setup:runtime` is obsolete (no-op); Prime Agent bootstraps its own Python kernel.
 
 Default listen: `127.0.0.1` port `PORT` or **3088**. Product surfaces are Linux-only: Node web server + browser (`make dev`) and the Linux Tauri desktop shell. Background launchers are `scripts/start-studio.sh`, `scripts/stop-studio.sh`, and `make start-silent`. Browser UI tests expect Chrome/Chromium on Linux (override with `PRIME_STUDIO_TEST_BROWSER`). Several `test/*.test.mjs` cases need an installed Prime Agent CLI (expect HTTP 503 / skipped adapters without it).
 
@@ -51,11 +52,11 @@ Default listen: `127.0.0.1` port `PORT` or **3088**. Product surfaces are Linux-
 | `lib/store.mjs` | Native sessions + Studio workspace metadata |
 | `lib/lan.mjs` / `remote-network.mjs` | LAN / Tailscale gateways and PIN auth |
 | `lib/mcp-*.mjs` / `provider-*.mjs` | Native MCP and provider credential flows |
-| `lib/kernel.mjs` | Managed Python skill runtime under `.local/` |
+| `lib/kernel.mjs` | Legacy helpers (`localKernelPython` marker / `execute`); Studio does not prep kernels |
 | `public/app.js` | Main client orchestration |
 | `public/translations.js` | Single FR/EN message table |
 | `runtime/*-loader.mjs` | Env-only hooks for Studio child processes |
-| `.local/` | Studio data (gitignored): workspace, attachments, kernel venvs |
+| `.local/` | Studio data (gitignored): workspace, attachments; legacy kernel markers may exist |
 
 ## Conventions
 
@@ -66,7 +67,7 @@ Default listen: `127.0.0.1` port `PORT` or **3088**. Product surfaces are Linux-
 - **Appearance density**: client-only preference (`comfortable` / `compact` / `dense`, default `compact`) in `prime-studio.preferences`; applied as `html[data-density]` by `public/theme.js` and spacing tokens in CSS. Do not send density to the server.
 - **Extension providers in the model catalog**: opt-in Studio preference `includeExtensionProviders` (server store / `/api/studio-preferences`), toggled on the Providers panel. When on, `scripts/model-catalog-worker.mjs` loads `~/.prime/agent/extensions` via native `discoverAndLoadExtensions` and registers their providers. Default off — extensions are arbitrary code.
 - **Desktop packages**: `make build` → unsigned AppImage/deb; `make build-release` → ensure nix signing key + pubkey sync, signed bundles, and `.local/desktop-release/v*` catalog (`NOTES=path/to/notes.md` optional; `SET_SECRETS=1` uploads GitHub signing secrets). Lower-level aliases remain (`desktop-build`, `desktop-release-bootstrap`, …). Publish from `mholtzhausen/prime-agent-studio`. Cut versions with `/version-bump [major|minor|patch|build]`.
-- **Binary paths (Prime Agent / uv)**: Preferences → System only (`public/components-settings.js`, `/api/system/components*`). Same UX in the browser and desktop app webview. Storage is `engine/selection.json` + `installation.json` under `componentsDataRoot()` (`lib/desktop-components.mjs`). Env vars win at launch; empty slots soft-discover from PATH + well-known dirs. **Python is not a path field** — uv prepares the managed Studio kernel (optional advanced override: `PRIME_AGENT_KERNEL_PYTHON`). Capability validation only (no managed download of Prime Agent/uv). Loopback-only — not on the LAN allowlist.
+- **Binary paths (Prime Agent only)**: Preferences → System only (`public/components-settings.js`, `/api/system/components*`), plus bash capability for shell. Same UX in the browser and desktop app webview. Storage is `engine/selection.json` + `installation.json` under `componentsDataRoot()` (`lib/desktop-components.mjs`). Env vars win at launch; empty Prime Agent path soft-discovers from PATH + well-known dirs. Studio does not manage uv or Python paths — Prime Agent owns the Python skill kernel (optional advanced PA env: `PRIME_AGENT_KERNEL_PYTHON`). Capability validation only (no managed download of Prime Agent). Loopback-only — not on the LAN allowlist.
 - **Tests**: default suite uses temp dirs and simulated engines. Native/Luna smokes are opt-in and may consume model quota — do not run them unless asked.
 - **Active sessions**: Studio serves the checkout live. Prefer a separate git worktree when changing UI while a real Studio instance is running from the same tree.
 
@@ -81,7 +82,7 @@ Default listen: `127.0.0.1` port `PORT` or **3088**. Product surfaces are Linux-
 | Mobile / PWA / Tailscale | `lib/lan.mjs`, `lib/pwa.mjs`, `lib/tailscale-https.mjs` |
 | Roadmap / knowledge | `lib/roadmap.mjs`, `lib/knowledge.mjs` |
 | Desktop shell | `src-tauri/`, [docs/en/desktop.md](docs/en/desktop.md) |
-| Kernel / Python skills | `lib/kernel.mjs`, `runtime/kernel-loader.mjs` |
+| Kernel / Python skills | Owned by Prime Agent; `lib/kernel.mjs` is legacy helpers only |
 
 ## Living documents
 

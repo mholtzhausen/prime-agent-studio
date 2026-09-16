@@ -40,7 +40,7 @@ pub async fn desktop_components(
         ).map_err(|_| "preparation_failed")?;
         if action == "select" {
             let kind = component.as_deref().unwrap_or("engine");
-            if !["engine", "uv", "python"].contains(&kind) { return Err("selection_invalid".into()); }
+            if kind != "engine" { return Err("selection_invalid".into()); }
             let selected = if let Some(value) = path.filter(|p| !p.is_empty()) {
                 Some(std::path::PathBuf::from(value))
             } else {

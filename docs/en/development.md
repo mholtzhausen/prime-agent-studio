@@ -8,7 +8,6 @@ Requirements: **Node.js 22.8 or later** and **Prime Agent 0.9.2** installed. Con
 
 ```sh
 npm ci
-npm run setup:runtime
 npm start
 ```
 
@@ -16,19 +15,9 @@ There is no build step. Markdown libraries are served locally from `node_modules
 
 In the add-project dialog, **Choose folder** opens the Linux folder picker (`zenity`, or `kdialog` if zenity is unavailable) and fills in the path, without adding the project until you submit the form. The picker is available only in local Studio on Linux. `npm run test:folders` covers selection, cancellation, errors and late responses. Browser UI tests prefer Chrome/Chromium on Linux; set `PRIME_STUDIO_TEST_BROWSER` to override the Playwright channel.
 
-The Python engine is provisioned under `.local/kernel-venv/`. Studio prepares the runtime, its libraries and enabled Python skills on the first message or through `npm run setup:runtime`. Initial installation requires Internet access. `scripts/native-skill-resources.mjs` shares native discovery with the command catalog: filters, project priority, configured packages and disabled MCP integrations are respected.
+Studio does not provision Python, run `uv`, manage `.local/kernel-venv/`, or inject `runtime/kernel-loader.mjs` for kernel prep. **Prime Agent** bootstraps Python skills itself. Advanced hosts may set `PRIME_AGENT_KERNEL_PYTHON` as a Prime Agent environment override; Studio does not install into it. See the [native documentation](https://github.com/PrimeIntellect-ai/prime-agent/blob/main/packages/coding-agent/docs/skills.md#python-backed-skills).
 
-`lib/kernel-skills.mjs` reads `pyproject.toml` files with a TOML parser and resolves local dependencies between sibling packages, including helpers without `SKILL.md`. The runtime and all local packages are passed by path in a single `uv pip install --python …` resolution. Packages with matching names on PyPI therefore do not replace local sources. Packages are installed normally, without modifying `sys.path` or creating editable links to an active session’s sources.
-
-`lib/kernel.mjs` keeps a format-2 marker keyed by a fingerprint of the runtime, Python sources, `pyproject.toml` files and expected imports. Every reuse checks actual imports, the runtime protocol and, when the skill is enabled, that `agent_message.send` is callable. The `kernel-setup.lock` lock serializes setup across processes. An old or damaged installation automatically produces a new generation; the previous environment stays intact. No ready marker is published after an installation or validation failure.
-
-`runtime/kernel-loader.mjs` adapts only the bootstrap entry point in processes launched by Studio. The parent, every child and every resumed kernel therefore pass their native skill list to the same setup. The shared supervisor no longer fixes the first project’s Python for all workers. The hook supports the native module and its bundle, and explicitly rejects an incompatible signature; no installed Prime Agent file is modified.
-
-An explicitly supplied `PRIME_AGENT_KERNEL_PYTHON` takes priority and is never modified automatically. Studio verifies compatibility: a missing essential dependency or `agent_message.send` blocks startup with the Python path and import error; an unavailable optional skill produces an explicit warning. The [native documentation](https://github.com/PrimeIntellect-ai/prime-agent/blob/main/packages/coding-agent/docs/skills.md#python-backed-skills) explains why Prime Agent automatically installs nothing into this external Python.
-
-To repair or prepare a specific project, use `npm run setup:runtime -- "/path/to/project"`. Without an argument, the command uses the current folder. Stop and restart Studio to load a new adapter and restart already-open kernels; histories are preserved. Older generations can be retained while their kernels are in use.
-
-`test/kernel.test.mjs` covers installation, migration, imports on every reuse, source/dependency changes, failure followed by retry, concurrency, paths containing spaces, external Python and native discovery. `test:subagents:native` also includes `scripts/test-kernel-messaging-native.mjs`: a simulated localhost provider, real kernels, explicit messages in both directions verified in histories **and** model contexts, then resuming the same parent after engine shutdown. A child-completion notification does not satisfy this test.
+`lib/kernel.mjs` still exposes `localKernelPython` and `execute` helpers for MCP probe discovery and process execution when a marker or PATH interpreter is available. `npm run setup:runtime` / `make setup-runtime` is a leftover no-op. `test/kernel.test.mjs` covers legacy `ensureLocalKernel` helpers if still present. `test:subagents:native` also includes `scripts/test-kernel-messaging-native.mjs`: a simulated localhost provider, real kernels owned by Prime Agent, explicit messages in both directions verified in histories **and** model contexts, then resuming the same parent after engine shutdown. A child-completion notification does not satisfy this test.
 
 ## Long sessions and synchronization
 
@@ -166,7 +155,7 @@ On Linux, `lib/open-directory.mjs` opens project folders with `xdg-open`. The pa
 
 `lib/mcp-service.mjs` owns only its discovery and authorization processes. `scripts/mcp-probe-worker.mjs` and `scripts/mcp-probe.py` use native OAuth storage and the `rlm.mcp` Python client. `scripts/mcp-oauth-worker.mjs` uses the native OAuth provider with full-URL input from another device. Timeouts, cancellations and shutdowns are limited to manager processes. No daemon shutdown or user-session reload is triggered.
 
-`test/mcp.test.mjs` covers concurrent writes with model settings, secrets, conflicts, reserved servers, stdio and HTTP connections with the real Python client, and a complete HTTPS OAuth flow with PKCE and mobile callback. These tests use only temporary servers, files and certificates; no provider account is used. They require Prime Agent installed and, for connections, `npm run setup:runtime`.
+`test/mcp.test.mjs` covers concurrent writes with model settings, secrets, conflicts, reserved servers, stdio and HTTP connections with the real Python client, and a complete HTTPS OAuth flow with PKCE and mobile callback. These tests use only temporary servers, files and certificates; no provider account is used. They require Prime Agent installed and a usable `python3` on PATH for the probe worker when no kernel marker is present.
 
 MCP routes are `/api/mcp` (GET/POST/PATCH/DELETE), `/api/mcp/test`, `/api/mcp/login`, `/api/mcp/disconnect`, `/api/mcp/login/complete` (POST), and `/api/mcp/login/:id` (GET/DELETE). The gateway rejects them in read-only mode. `POST /lan/logout` revokes the current cookie and its proxy connections, including SSE, without stopping runs. `DELETE /api/projects` removes project metadata; a persistent marker prevents immediate reimport from native sessions.
 

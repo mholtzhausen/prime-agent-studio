@@ -93,8 +93,6 @@ export async function startDesktop(
     const startEnv = { ...env, PRIME_STUDIO_DESKTOP_DATA_ROOT: dataRoot };
     const launch = captureComponentLaunchEnv(startEnv) || {
       PRIME_AGENT_CLI: undefined,
-      PRIME_GUI_UV: undefined,
-      PRIME_AGENT_KERNEL_PYTHON: undefined,
     };
     let diagnosed = await diagnoseComponents({ dataRoot, env: startEnv, autoDiscover: true });
     if (diagnosed.ready)
