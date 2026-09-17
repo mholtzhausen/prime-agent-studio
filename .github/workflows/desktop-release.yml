@@ -43,6 +43,9 @@ jobs:
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
       - run: rustup default stable
       - run: npm ci
+      # Several test/*.test.mjs cases need a real CLI (503 / empty adapters without it).
+      - name: Install Prime Agent for integration tests
+        run: npm install -g prime-agent@0.9.5
       - run: node --test --test-concurrency=2 test/*.test.mjs
       - run: npm run check
       - run: cargo test --manifest-path src-tauri/Cargo.toml --locked
