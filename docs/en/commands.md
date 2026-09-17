@@ -6,7 +6,7 @@ Type **`/` at the start of a message**, or press the **/** button beside attachm
 
 Selecting an item prepares the message and leaves room for arguments. Selection alone does not run a command.
 
-A confirmed command becomes a **colored chip** in the input: purple for a skill, blue for a command and green for a prompt. Write arguments beside it, or below it on mobile. **×** removes the chip and keeps the arguments; **Backspace** at the start of the text does the same. On desktop, **Ctrl/Cmd+A**, then copy or cut, includes the command. The draft is stored as plain text, and its chip is restored after reload if the command is still available. Images, documents and messages during a turn remain supported.
+A confirmed command becomes a **colored chip** in the input: teal for a skill, blue for a command and green for a prompt. Write arguments beside it, or below it on mobile. **×** removes the chip and keeps the arguments; **Backspace** at the start of the text does the same. On desktop, **Ctrl/Cmd+A**, then copy or cut, includes the command. The draft is stored as plain text, and its chip is restored after reload if the command is still available. Images, documents and messages during a turn remain supported.
 
 The `/` menu opens immediately with Studio shortcuts. Skills and prompts load in the background, with a loading indicator and retry option. The catalog is prefetched when the project is ready, then kept in memory for 30 seconds per session context. Long lists show 30 items at a time, load more on scroll and remain fully searchable. **Refresh** reads the catalog again from the server.
 

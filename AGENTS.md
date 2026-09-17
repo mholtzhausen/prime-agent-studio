@@ -57,7 +57,7 @@ Default listen: `127.0.0.1` port `PORT` or **3088**. Product surfaces are Linux-
 | `lib/kernel.mjs` | Legacy helpers (`localKernelPython` marker / `execute`); Studio does not prep kernels |
 | `public/app.js` | Main client orchestration |
 | `public/translations.js` | Single FR/EN message table |
-| `runtime/*-loader.mjs` | Env-only hooks for Studio child processes; keep `PRIME_GUI_CLI_ROOT` across PA 0.9.5+ `cli.js` → `cli-node.js` (`runtime/npm-bridge.mjs`) |
+| `runtime/*-loader.mjs` | Env-only hooks for Studio child processes; spawn `cli-node.js` (not `cli.js`) when loaders are needed so PA 0.9.5+ native handoff cannot drop them; keep `PRIME_GUI_CLI_ROOT` across any Node→Node re-exec (`runtime/npm-bridge.mjs`) |
 | `.local/` | Studio data (gitignored): workspace, attachments; legacy kernel markers may exist |
 
 ## Conventions
@@ -67,6 +67,7 @@ Default listen: `127.0.0.1` port `PORT` or **3088**. Product surfaces are Linux-
 - **Remote gateway allowlists** matter: provider/config routes stay loopback-only; do not widen without an explicit security review.
 - **Translations**: add strings to `public/translations.js` (one row, both languages). `make check` validates params and references.
 - **Appearance density**: client-only preference (`comfortable` / `compact` / `dense`, default `compact`) in `prime-studio.preferences`; applied as `html[data-density]` by `public/theme.js` and spacing tokens in CSS. Do not send density to the server.
+- **Theme palette**: seafoam / aqua accents (`--accent` and related tokens in `public/styles.css`) on cool blue-green surfaces for dark and light themes; brand mark in `assets/prime-agent.svg`.
 - **Extension providers in the model catalog**: opt-in Studio preference `includeExtensionProviders` (server store / `/api/studio-preferences`), toggled on the Providers panel. When on, `scripts/model-catalog-worker.mjs` loads `~/.prime/agent/extensions` via native `discoverAndLoadExtensions` and registers their providers. Default off — extensions are arbitrary code.
 - **Desktop packages**: `make build` → unsigned AppImage/deb; `make build-release` → ensure nix signing key + pubkey sync, signed bundles, and `.local/desktop-release/v*` catalog (`NOTES=path/to/notes.md` optional; `SET_SECRETS=1` uploads GitHub signing secrets). Lower-level aliases remain (`desktop-build`, `desktop-release-bootstrap`, …). Publish from `mholtzhausen/prime-agent-studio`. Cut versions with `/version-bump [major|minor|patch|build]`. AppImage AppRun injects `PYTHONHOME`/`PYTHONPATH`; clear them in the desktop shell and component/agent env (Studio ships no Python).
 - **Binary paths (Prime Agent only)**: Preferences → System only (`public/components-settings.js`, `/api/system/components*`), plus bash capability for shell. Same UX in the browser and desktop app webview. Storage is `engine/selection.json` + `installation.json` under `componentsDataRoot()` (`lib/desktop-components.mjs`). Env vars win at launch; empty Prime Agent path soft-discovers from PATH + well-known dirs. Studio does not manage uv or Python paths — Prime Agent owns the Python skill kernel (optional advanced PA env: `PRIME_AGENT_KERNEL_PYTHON`). Capability validation only (no managed download of Prime Agent). Loopback-only — not on the LAN allowlist.

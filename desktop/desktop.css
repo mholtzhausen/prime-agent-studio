@@ -1,7 +1,7 @@
 :root {
   font-family: 'Segoe UI Variable Text', 'Segoe UI', sans-serif;
-  color: #ededea;
-  background: #1b1c1e;
+  color: #e8f0ee;
+  background: #171c1e;
   color-scheme: dark;
   font-synthesis: none;
 }
@@ -39,7 +39,7 @@ header img {
   margin: 54px 0 30px;
 }
 .eyebrow {
-  color: #b7b2e7;
+  color: #7ec9bc;
   font-size: 12px;
   font-weight: 600;
   margin: 0 0 12px;
@@ -102,12 +102,12 @@ h1 {
   transition: transform 0.15s;
 }
 .preference input:checked {
-  background: #b7b2e7;
-  border-color: #b7b2e7;
+  background: #7ec9bc;
+  border-color: #7ec9bc;
 }
 .preference input:checked:before {
   transform: translateX(14px);
-  background: #252431;
+  background: #0f2a27;
 }
 .import {
   margin: 18px 0 26px;
@@ -120,25 +120,25 @@ h1 {
 }
 #source {
   overflow-wrap: anywhere;
-  color: #d4d0f4;
+  color: #b5e4da;
 }
 .text-button {
   border: 0;
   background: none;
   padding: 4px 0;
-  color: #c9c5ed;
+  color: #9ad9cd;
   font: inherit;
   font-size: 12px;
   cursor: pointer;
   text-align: left;
 }
 .text-button:hover {
-  color: #efedff;
+  color: #d2f0e9;
   text-decoration: underline;
 }
 .primary {
-  background: #b7b2e7;
-  color: #22212c;
+  background: #7ec9bc;
+  color: #0f2a27;
   border: 1px solid transparent;
   border-radius: 8px;
   font: inherit;
@@ -149,7 +149,7 @@ h1 {
   min-width: 158px;
 }
 .primary:hover {
-  background: #cbc7f3;
+  background: #9ad9cd;
 }
 button:disabled,
 input:disabled {
@@ -157,7 +157,7 @@ input:disabled {
   cursor: default;
 }
 :focus-visible {
-  outline: 2px solid #d4d0f4;
+  outline: 2px solid #b5e4da;
   outline-offset: 4px;
 }
 .actions {
@@ -200,14 +200,14 @@ footer svg {
   align-items: center;
   gap: 10px;
   font-size: 13px;
-  color: #c5c2df;
+  color: #a8cfc6;
   margin: 26px 0;
 }
 .pulse {
   height: 7px;
   width: 7px;
   border-radius: 50%;
-  background: #b7b2e7;
+  background: #7ec9bc;
   animation: pulse 1.5s ease-in-out infinite;
 }
 @keyframes pulse {
@@ -278,7 +278,7 @@ footer svg {
 }
 .updates summary {
   cursor: pointer;
-  color: #c9c5ed;
+  color: #9ad9cd;
 }
 #update-notes-body {
   overflow-wrap: anywhere;
@@ -310,7 +310,7 @@ footer svg {
   width: 100%;
   height: 5px;
   margin: 8px 0;
-  accent-color: #b7b2e7;
+  accent-color: #7ec9bc;
 }
 @media (prefers-reduced-motion: reduce) {
   * {
@@ -570,5 +570,5 @@ footer svg {
   border: 1px solid #48494f;
   border-radius: 10px;
   background: #242528;
-  color: #ededea;
+  color: #e8f0ee;
 }

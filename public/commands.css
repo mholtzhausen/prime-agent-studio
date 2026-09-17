@@ -24,9 +24,9 @@
   background: var(--chip-bg);
 }
 :is(.composer-command, .command-dot)[data-kind='skill'] {
-  --chip-text: #dbccff;
-  --chip-bg: #39304e;
-  --chip-line: #695185;
+  --chip-text: #9adfec;
+  --chip-bg: #1e3840;
+  --chip-line: #3d6875;
 }
 :is(.composer-command, .command-dot)[data-kind='prompt'] {
   --chip-text: #b0e1ca;
@@ -39,9 +39,9 @@
   --chip-line: #adc5e4;
 }
 [data-theme='light'] :is(.composer-command, .command-dot)[data-kind='skill'] {
-  --chip-text: #694298;
-  --chip-bg: #f0e8fa;
-  --chip-line: #cab4e4;
+  --chip-text: #1f6a7a;
+  --chip-bg: #e3f4f7;
+  --chip-line: #a8d0d8;
 }
 [data-theme='light'] :is(.composer-command, .command-dot)[data-kind='prompt'] {
   --chip-text: #2a654e;

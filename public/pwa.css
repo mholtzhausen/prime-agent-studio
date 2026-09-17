@@ -8,8 +8,8 @@ main > button.pwa-install {
   margin-top: 22px;
   padding: 10px;
   background: transparent;
-  color: #b7b2e7;
-  border: 1px solid #575363;
+  color: #7ec9bc;
+  border: 1px solid #3d4a48;
   border-radius: 10px;
   font: inherit;
   font-size: 14px;
@@ -19,10 +19,10 @@ main > button.pwa-install {
   width: min(460px, calc(100vw - 32px));
   max-height: calc(100dvh - 32px);
   padding: 26px;
-  border: 1px solid #575363;
+  border: 1px solid #3d4a48;
   border-radius: 18px;
-  background: #222326;
-  color: #ededea;
+  background: #1e2427;
+  color: #e8f0ee;
   font:
     15px/1.65 system-ui,
     sans-serif;
@@ -39,7 +39,7 @@ main > button.pwa-install {
   margin: 12px 0;
 }
 .pwa-dialog .pwa-note {
-  color: #aaaab2;
+  color: #8e9895;
   font-size: 13px;
 }
 button.pwa-primary {
@@ -50,8 +50,8 @@ button.pwa-primary {
   border: 0;
   border-radius: 10px;
   padding: 12px 18px;
-  color: #262437;
-  background: #b7b2e7;
+  color: #0f2a27;
+  background: #7ec9bc;
   font:
     600 14px system-ui,
     sans-serif;
@@ -64,8 +64,8 @@ button.pwa-primary {
   min-height: 100dvh;
   display: grid;
   place-items: center;
-  background: #1b1c1e;
-  color: #ededea;
+  background: #171c1e;
+  color: #e8f0ee;
   font:
     16px/1.6 system-ui,
     sans-serif;
@@ -84,13 +84,13 @@ button.pwa-primary {
   letter-spacing: -0.7px;
 }
 .pwa-offline p {
-  color: #aaaab2;
+  color: #8e9895;
 }
 .pwa-offline a {
   display: inline-block;
   padding: 12px 22px;
-  background: #b7b2e7;
-  color: #262437;
+  background: #7ec9bc;
+  color: #0f2a27;
   border-radius: 10px;
   text-decoration: none;
   font-weight: 600;
@@ -98,5 +98,5 @@ button.pwa-primary {
 .pwa-offline small {
   display: block;
   margin-top: 24px;
-  color: #aaaab2;
+  color: #8e9895;
 }

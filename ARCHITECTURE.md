@@ -92,7 +92,7 @@ flowchart TB
 | Origin | Host/Origin checks on local and gateway traffic |
 | Path access | Project file APIs stay inside registered project roots |
 | Remote | Read-only vs full-control permissions; config/provider routes stay off the remote allowlist |
-| Runtime hooks | Applied only to processes Studio spawns; global npm install of Prime Agent is untouched. On prime-agent 0.9.5+, loaders survive the `cli.js` → `cli-node.js` npm bridge re-exec (`runtime/npm-bridge.mjs`). |
+| Runtime hooks | Applied only to processes Studio spawns; global npm install of Prime Agent is untouched. On prime-agent 0.9.5+, Studio spawns `dist/bundle/cli-node.js` (not the `cli.js` npm→native bridge) so `--import` / `--require` loaders stay attached; loaders also keep `PRIME_GUI_CLI_ROOT` across any Node→Node re-exec (`runtime/npm-bridge.mjs`). |
 | PWA cache | Icons, shell, offline page only — never conversations or attachments |
 
 ## Key subsystems
@@ -119,6 +119,7 @@ flowchart TB
 | `.local/` | Studio workspace, LAN PIN hash, attachments, subagent defaults; legacy kernel markers may exist if Prime Agent wrote them |
 | `~/.local/share/com.primeagent.studio.nix/` | Linux desktop app data (Tauri): engine copies, webview storage, `desktop.json` |
 | Browser storage | Drafts, theme, language, favorites (device-local) |
+| Theme tokens | Seafoam / aqua accents and cool blue-green surfaces in `public/styles.css` (`--accent*`, dark + light); brand mark `assets/prime-agent.svg` |
 | Env vars | `PORT`, `PRIME_AGENT_CLI`, `PRIME_AGENT_*` paths — see [docs/en/configuration.md](docs/en/configuration.md) |
 
 ## Operational notes

@@ -182,7 +182,7 @@
   resize: vertical;
   border: 1px solid var(--line);
   border-radius: 7px;
-  background: var(--bg, #1b1c1e);
+  background: var(--bg, #171c1e);
   color: var(--text);
   padding: 9px;
   font: inherit;

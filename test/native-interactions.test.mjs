@@ -7,7 +7,7 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { createNativeInteractions } from '../lib/native-interactions.mjs';
 import { transformStudioRpc } from '../runtime/studio-rpc-hook.mjs';
-import { isPrimeAgentNpmBridge } from '../runtime/npm-bridge.mjs';
+import { isPrimeAgentNpmBridge, resolvePrimeAgentNodeEntry } from '../runtime/npm-bridge.mjs';
 import { discoverCli } from '../lib/agent.mjs';
 import { createProjectFiles } from '../lib/project-files.mjs';
 
@@ -91,6 +91,20 @@ test('npm bridge detection only matches dist/bundle/cli.js', () => {
   assert.equal(isPrimeAgentNpmBridge('/opt/prime-agent/dist/modes/rpc/rpc-mode.js'), false);
 });
 
+test('resolvePrimeAgentNodeEntry prefers cli-node.js beside the npm bridge', async (t) => {
+  const root = await mkdtemp(join(tmpdir(), 'prime-studio-node-entry-'));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const bridgeDir = join(root, 'dist/bundle');
+  await mkdir(bridgeDir, { recursive: true });
+  const bridge = join(bridgeDir, 'cli.js');
+  const realEntry = join(bridgeDir, 'cli-node.js');
+  await writeFile(bridge, 'export {};\n');
+  assert.equal(resolvePrimeAgentNodeEntry(bridge), bridge, 'missing cli-node keeps the bridge path');
+  await writeFile(realEntry, 'export {};\n');
+  assert.equal(resolvePrimeAgentNodeEntry(bridge), realEntry);
+  assert.equal(resolvePrimeAgentNodeEntry(realEntry), realEntry);
+});
+
 test('studio-rpc loader keeps the role marker across cli.js → cli-node.js re-exec', async (t) => {
   const root = await mkdtemp(join(tmpdir(), 'prime-studio-rpc-bridge-'));
   t.after(() => rm(root, { recursive: true, force: true }));
@@ -170,12 +184,13 @@ test(
     }
     await stat(socket);
     const loader = new URL('../runtime/studio-rpc-loader.mjs', import.meta.url).href;
+    const nodeEntry = resolvePrimeAgentNodeEntry(cli.path);
     const child = spawn(
       process.execPath,
       [
         '--import',
         loader,
-        cli.path,
+        nodeEntry,
         '-p',
         '--mode',
         'rpc',
