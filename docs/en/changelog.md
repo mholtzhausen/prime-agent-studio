@@ -4,6 +4,12 @@
 
 Changes by version. See [GitHub releases](https://github.com/mholtzhausen/prime-agent-studio/releases) for installers and source archives.
 
+## 4.1.3
+
+- **Teal theme refresh**: dark and light palettes shift to cooler teal accents, with matching desktop, PWA, and icon assets.
+- **Prime Agent npm bridge**: when `cli.js` would hand off to the native binary (dropping Studio Node loaders), prefer `cli-node.js` so RPC patches such as `studio_wait_for_completion` still apply.
+- **After installation**: restart the server from preferences once your agents have finished.
+
 ## 4.1.2
 
 - **AppImage Python env left empty**: clear `PYTHONHOME`/`PYTHONPATH` (and underscore variants) injected by linuxdeploy AppRun into `$APPDIR`, since Studio does not ship Python. Applied at desktop startup and in component/agent environments so Prime Agent sees the host interpreter.

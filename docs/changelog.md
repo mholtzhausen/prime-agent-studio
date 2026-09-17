@@ -4,6 +4,12 @@
 
 Les changements par version. Retrouvez les installateurs et les archives du code source dans les [releases GitHub](https://github.com/mholtzhausen/prime-agent-studio/releases).
 
+## 4.1.3
+
+- **Rafraîchissement du thème teal** : palettes sombre et claire vers des accents teal plus froids, avec assets bureau, PWA et icônes alignés.
+- **Pont npm Prime Agent** : lorsque `cli.js` basculerait vers le binaire natif (en perdant les chargeurs Node du Studio), préférer `cli-node.js` pour que les correctifs RPC tels que `studio_wait_for_completion` restent appliqués.
+- **Après installation** : redémarrez le serveur depuis les préférences une fois les agents terminés.
+
 ## 4.1.2
 
 - **Env Python AppImage laissée vide** : effacer `PYTHONHOME`/`PYTHONPATH` (et variantes avec tiret bas) injectées par AppRun linuxdeploy dans `$APPDIR`, car Studio ne fournit pas Python. Appliqué au démarrage du bureau et dans les environnements composants/agents pour que Prime Agent voie l’interpréteur hôte.

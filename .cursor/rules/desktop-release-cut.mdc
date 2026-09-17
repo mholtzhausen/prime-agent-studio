@@ -1,0 +1,28 @@
+---
+description: Full-course desktop release cuts through published GitHub artifacts
+alwaysApply: true
+---
+
+# Desktop release cuts
+
+When the user asks to cut a release (any bump type), do **not** stop at version bump + local tag. Run the full course until they have a **link to published release artifacts**.
+
+## Required end state
+
+1. Version bumped (`package.json`, `package-lock.json`, `src-tauri/Cargo.toml` + lock, READMEs, `AGENTS.md`, bilingual `docs/changelog.md` + `docs/en/changelog.md`) via `/version-bump` rules.
+2. Release commit + annotated tag `vX.Y.Z` matching `package.json`.
+3. Branch and tag pushed to `origin` (`git push` and `git push --tags`, or `git push -u origin HEAD --tags`).
+4. GitHub workflow **Linux desktop release** (`.github/workflows/desktop-release.yml`) dispatched with `tag=vX.Y.Z`.
+5. Wait for the workflow to finish successfully.
+6. Publish the draft release (workflow only uploads a draft): `gh release edit vX.Y.Z --draft=false` (or equivalent).
+7. Reply with the **published** release URL and the AppImage/deb (and `latest.json`) download links.
+
+## Do not
+
+- Leave the user with only a local tag or an unpublished draft.
+- Skip push, workflow dispatch, or publish unless they explicitly say to stop short.
+- Overwrite an already-published GitHub release (workflow refuses; do not force).
+
+## Local context
+
+Canonical docs: [docs/en/desktop.md](docs/en/desktop.md) § Prepare an update release. Secrets: `TAURI_SIGNING_PRIVATE_KEY` (and password if encrypted).
