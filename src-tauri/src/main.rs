@@ -340,6 +340,21 @@ fn run_desktop_control(
     serde_json::from_slice(&output.stdout).map_err(|_| "server_status_failed".into())
 }
 
+fn stop_managed_desktop_server(app: &tauri::AppHandle) {
+    let Some(state) = app.try_state::<Desktop>() else {
+        return;
+    };
+    let options = serde_json::json!({
+        "action": "stop",
+        "resourceDir": state.resources,
+        "dataRoot": state.root,
+        "port": state.port,
+    });
+    if let Err(error) = run_desktop_control(&state.resources, &options) {
+        let _ = fs::write(state.root.join("desktop-server-error.log"), error);
+    }
+}
+
 #[tauri::command]
 async fn desktop_update_status(
     window: WebviewWindow,
@@ -584,7 +599,10 @@ fn main() {
                     "settings" => {
                         let _ = show_settings(app);
                     }
-                    "quit" => app.exit(0),
+                    "quit" => {
+                        stop_managed_desktop_server(app);
+                        app.exit(0);
+                    }
                     _ => (),
                 })
                 .on_tray_icon_event(|tray, event| {
@@ -615,6 +633,13 @@ fn main() {
                 }
             }
         })
-        .run(tauri::generate_context!())
-        .expect("Prime Agent Studio Nix desktop failed");
+        .build(tauri::generate_context!())
+        .expect("Prime Agent Studio Nix desktop failed")
+        .run(|app, event| {
+            // Tray Quit and process exit both stop the managed Studio server.
+            // Window close only hides; it does not reach ExitRequested.
+            if let tauri::RunEvent::ExitRequested { .. } = event {
+                stop_managed_desktop_server(app);
+            }
+        });
 }

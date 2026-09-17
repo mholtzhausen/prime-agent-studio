@@ -162,8 +162,6 @@ export function createProjectNavigation({
       if (p.exists === false) bindAttribute(count, 'title', () => t('ui.dossier_introuvable'));
       row.append(count);
       row.onclick = () => {
-        // On phones, the project name is a larger disclosure target in the drawer.
-        if (matchMedia('(max-width: 760px)').matches) return toggle.click();
         setExpanded(p.cwd, true);
         selectProject(p.cwd);
       };

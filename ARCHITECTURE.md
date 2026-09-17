@@ -125,7 +125,7 @@ flowchart TB
 ## Operational notes
 
 - **No compile step** for the web UI; edit and refresh. Use a separate worktree if a live Studio is serving the same checkout.
-- **Desktop builds**: `make build` produces unsigned Linux AppImage/deb; `make build-release` bootstraps the nix signing key, builds signed packages, and writes the updater catalog under `.local/desktop-release/`. Updates use Tauri minisign against `mholtzhausen/prime-agent-studio`. AppImage AppRun injects `PYTHONHOME`/`PYTHONPATH` into `$APPDIR`; Studio clears them at desktop startup and in component/agent env because the package does not ship Python.
+- **Desktop builds**: `make build` produces unsigned Linux AppImage/deb; `make build-release` bootstraps the nix signing key, builds signed packages, and writes the updater catalog under `.local/desktop-release/`. Updates use Tauri minisign against `mholtzhausen/prime-agent-studio`. AppImage AppRun injects `PYTHONHOME`/`PYTHONPATH` into `$APPDIR`; Studio clears them at desktop startup and in component/agent env because the package does not ship Python. Tray **Quit application** stops the managed Studio Node server before exiting Tauri; closing the window only hides the UI (server stays up for LAN/mobile).
 - **Component binaries** (Prime Agent path only; plus bash capability for shell) are configured under Preferences → System via shared HTTP APIs (`/api/system/components*`, loopback-only) and `engine/selection.json` under `componentsDataRoot()`. The desktop launcher does not host a separate setup panel.
 - **Checks**: `make check` covers JS syntax, translation table integrity, and bilingual doc fingerprints.
 - **Platform**: end-user product targets Linux; the Node server and unit tests also run on that host.

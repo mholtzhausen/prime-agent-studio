@@ -417,7 +417,7 @@ p {
   align-items: center;
   gap: 9px;
   padding: var(--new-session-pad);
-  border: 1px solid #79738e45;
+  border: 1px solid color-mix(in srgb, var(--accent) 27%, transparent);
   background: var(--accent-bg);
   color: var(--accent-text);
   font-size: 12px;
@@ -440,7 +440,7 @@ kbd {
 .new-session-button kbd {
   margin-left: auto;
   color: var(--muted);
-  border-color: #aaa5cc30;
+  border-color: color-mix(in srgb, var(--accent) 19%, transparent);
 }
 .search-field {
   display: flex;
@@ -1270,7 +1270,7 @@ kbd {
   min-width: 0;
 }
 .starter-card:hover {
-  border-color: #87809e;
+  border-color: var(--accent);
   background: var(--surface-hover);
 }
 .starter-icon {
@@ -1314,14 +1314,14 @@ kbd {
 .composer-form {
   position: relative;
   background: var(--surface);
-  border: 1px solid #414047;
+  border: 1px solid var(--line);
   border-radius: var(--composer-radius);
   padding: var(--composer-form-pad);
   box-shadow: 0 4px 16px #00000008;
   transition: border-color 0.15s;
 }
 .composer-form:focus-within {
-  border-color: #8f88a9;
+  border-color: var(--accent);
 }
 .composer-context {
   position: absolute;
@@ -2116,7 +2116,7 @@ kbd {
   max-width: calc(100vw - 32px);
   padding: 28px;
   background: var(--surface-raised);
-  border: 1px solid #77717f66;
+  border: 1px solid color-mix(in srgb, var(--line) 40%, transparent);
   border-radius: 15px;
   box-shadow: var(--shadow);
 }

@@ -9,7 +9,7 @@ SHELL := /bin/bash
 NPM ?= npm
 NODE ?= node
 
-.PHONY: help init install setup-runtime dev start start-silent stop check test test-ui format docs-check docs-sync build build-release desktop-dev desktop-build desktop-build-unsigned desktop-release-bootstrap desktop-release-check desktop-manifest clean version
+.PHONY: help init install setup-runtime dev start start-silent stop kill check test test-ui format docs-check docs-sync build build-release desktop-dev desktop-build desktop-build-unsigned desktop-release-bootstrap desktop-release-check desktop-manifest clean version
 
 help: ## Show this help
 	@awk 'BEGIN {FS = ":.*?## "; printf "\nPrime Agent Studio Nix — local GUI for Prime Agent\n\nUsage: make <target>\n\n"} \
@@ -37,6 +37,9 @@ start-silent: ## Start server in the background and open the browser
 
 stop: ## Stop the Studio server and active runs
 	cd "$(ROOT)" && $(NPM) run stop
+
+kill: ## Force-stop leftover Studio servers and desktop clients (not Prime Agent)
+	cd "$(ROOT)" && $(NPM) run kill
 
 check: ## Syntax, translations, and bilingual docs checks
 	cd "$(ROOT)" && $(NPM) run check

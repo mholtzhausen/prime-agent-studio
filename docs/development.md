@@ -11,7 +11,7 @@ npm ci
 npm start
 ```
 
-Il n’y a pas d’étape de compilation. Les bibliothèques Markdown sont servies localement depuis `node_modules`, sans CDN. `npm start` / `make dev` gardent le serveur dans votre terminal ; utilisez `scripts/start-studio.sh` ou `make start-silent` pour un démarrage en arrière-plan qui réutilise une instance déjà ouverte et lance le navigateur.
+Il n’y a pas d’étape de compilation. Les bibliothèques Markdown sont servies localement depuis `node_modules`, sans CDN. `npm start` / `make dev` gardent le serveur dans votre terminal ; utilisez `scripts/start-studio.sh` ou `make start-silent` pour un démarrage en arrière-plan qui réutilise une instance déjà ouverte et lance le navigateur. `make stop` arrête le serveur géré du dépôt ; `make kill` force aussi l’arrêt des serveurs Node Studio orphelins et des clients bureau `prime-agent-studio-nix` (pas le daemon de Prime Agent).
 
 Dans **Un projet à explorer.**, **Choisir un dossier** ouvre le sélecteur de dossier Linux (`zenity`, ou `kdialog` si zenity est absent) et remplit le chemin, sans ajouter le projet avant validation. Ce sélecteur est réservé au Studio local sous Linux. `npm run test:folders` vérifie la sélection, l’annulation, les erreurs et les réponses tardives. Les tests d’interface navigateur privilégient Chrome/Chromium sous Linux ; définissez `PRIME_STUDIO_TEST_BROWSER` pour remplacer le canal Playwright.
 

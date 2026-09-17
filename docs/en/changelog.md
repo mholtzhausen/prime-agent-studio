@@ -4,6 +4,14 @@
 
 Changes by version. See [GitHub releases](https://github.com/mholtzhausen/prime-agent-studio/releases) for installers and source archives.
 
+## 4.2.0
+
+- **Tray Quit stops Studio’s server**: **Quit application** stops the managed Node server before exiting Tauri. Closing the window still only hides the UI. Prime Agent’s own service is not stopped.
+- **`make kill`**: force-stops leftover Studio Node servers and `prime-agent-studio-nix` desktop clients without touching Prime Agent’s daemon (`make stop` remains the graceful ownership-based stop).
+- **Mobile project landing**: tapping a project row opens the project overview (chevron still expands/collapses); the project menu includes **Open project**.
+- **Seafoam leftovers**: remaining purple-tinted UI borders and desktop light accents use teal tokens; PWA login `theme-color` and service-worker cache bumped for icon refresh.
+- **After installation**: restart the server from preferences once your agents have finished.
+
 ## 4.1.3
 
 - **Teal theme refresh**: dark and light palettes shift to cooler teal accents, with matching desktop, PWA, and icon assets.

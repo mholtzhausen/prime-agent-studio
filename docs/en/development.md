@@ -11,7 +11,7 @@ npm ci
 npm start
 ```
 
-There is no build step. Markdown libraries are served locally from `node_modules`, without a CDN. `npm start` / `make dev` keep the server in your terminal; use `scripts/start-studio.sh` or `make start-silent` for background startup that reuses a running instance and opens the browser.
+There is no build step. Markdown libraries are served locally from `node_modules`, without a CDN. `npm start` / `make dev` keep the server in your terminal; use `scripts/start-studio.sh` or `make start-silent` for background startup that reuses a running instance and opens the browser. `make stop` ends the managed checkout server; `make kill` also force-stops leftover Studio Node servers and `prime-agent-studio-nix` desktop clients (not Prime Agent’s daemon).
 
 In the add-project dialog, **Choose folder** opens the Linux folder picker (`zenity`, or `kdialog` if zenity is unavailable) and fills in the path, without adding the project until you submit the form. The picker is available only in local Studio on Linux. `npm run test:folders` covers selection, cancellation, errors and late responses. Browser UI tests prefer Chrome/Chromium on Linux; set `PRIME_STUDIO_TEST_BROWSER` to override the Playwright channel.
 

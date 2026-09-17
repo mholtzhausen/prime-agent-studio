@@ -192,7 +192,7 @@ try {
     .filter({ has: phone.locator('.project-label', { hasText: 'SoundsPerfect' }) })
     .locator('.project-more')
     .click();
-  await expect(phone.locator('#project-menu button:visible')).toHaveCount(1);
+  await expect(phone.locator('#project-menu button:visible')).toHaveCount(2);
   await phone.locator('[data-project-action="knowledge"]').click();
   await phone.locator('[data-kind="memory"]').click();
   await expect(phone.locator('.knowledge-result')).toHaveCount(2);

@@ -30,7 +30,7 @@ Le Studio n’exécute pas `ensureLocalKernel` et ne provisionne pas Python sous
 
 - **Fermer la fenêtre** la masque et conserve l’icône de notification. Les agents, le serveur et l’accès mobile continuent.
 - Un clic sur cette icône ou un nouveau lancement ramène la même fenêtre.
-- Le menu de l’icône propose **Ouvrir le Studio**, **Réglages de l’application** et **Quitter l’application**. Quitter ferme Tauri mais laisse le serveur et les agents travailler.
+- Le menu de l’icône propose **Ouvrir le Studio**, **Réglages de l’application** et **Quitter l’application**. Quitter arrête le serveur Studio géré et ferme Tauri. Fermer la fenêtre ne fait que masquer l’interface ; le serveur continue pour le LAN/mobile jusqu’à Quitter. Le daemon propre à Prime Agent peut continuer indépendamment.
 - Dans **Réglages de l’application**, **Démarrer avec la session** est désactivé par défaut. L’activer lance le Studio en arrière-plan à votre connexion, sans ouvrir sa fenêtre. Une erreur de démarrage affiche la fenêtre pour permettre une nouvelle tentative.
 - Les liens externes s’ouvrent dans votre navigateur habituel. Le LAN, Tailscale, HTTPS et la PWA mobile utilisent toujours le même serveur.
 

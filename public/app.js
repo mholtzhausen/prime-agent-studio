@@ -2514,7 +2514,8 @@ function openProjectMenu(cwd, anchor) {
   menuProjectCwd = cwd;
   projectMenuAnchor = anchor;
   for (const item of $('project-menu').querySelectorAll('[data-project-action]'))
-    item.hidden = state.readOnly && item.dataset.projectAction !== 'knowledge';
+    item.hidden =
+      state.readOnly && !['knowledge', 'view'].includes(item.dataset.projectAction);
   for (const divider of $('project-menu').querySelectorAll('.menu-divider')) divider.hidden = state.readOnly;
   bindText($('project-pin-label'), () => (p.pinned ? tr('ui.desepingler') : tr('ui.epingler')));
   $('project-menu').querySelector('[data-project-action="open"]').disabled = p.exists === false;
@@ -2536,6 +2537,7 @@ async function projectMenuAction(action) {
   const p = state.projects.find((p) => samePath(p.cwd, menuProjectCwd));
   closeProjectMenu();
   if (!p) return;
+  if (action === 'view') return selectProject(p.cwd);
   if (action === 'knowledge') return knowledgeUI.open(p, projectMenuAnchor);
   if (action === 'archive-export') return archivesUI?.openExport(p);
   if (action === 'archive-import') return archivesUI?.openImport(p);

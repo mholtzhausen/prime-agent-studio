@@ -343,10 +343,10 @@ footer svg {
   }
   .eyebrow,
   .text-button {
-    color: #62588f;
+    color: #2d8f82;
   }
   .text-button:hover {
-    color: #40356d;
+    color: #247a6f;
   }
   .preference,
   .preference input,
@@ -367,13 +367,13 @@ footer svg {
     color: #666874;
   }
   .updates summary {
-    color: #62588f;
+    color: #2d8f82;
   }
   .updates .failed {
     color: #963f4e;
   }
   #source {
-    color: #62588f;
+    color: #2d8f82;
   }
   #error {
     background: #fff0f0;
@@ -381,7 +381,7 @@ footer svg {
     border-color: #dec0c6;
   }
   #progress {
-    color: #62588f;
+    color: #2d8f82;
   }
 }
 /* Available even while a previous server version is still running. */
@@ -394,7 +394,7 @@ footer svg {
   margin: 18px 0;
 }
 .restart-option input {
-  accent-color: #b8b0e5;
+  accent-color: #7ec9bc;
   width: 16px;
   height: 16px;
   margin-top: 3px;
@@ -445,7 +445,7 @@ footer svg {
     color: #666874;
   }
   .restart-option input {
-    accent-color: #62588f;
+    accent-color: #2d8f82;
   }
 }
 /* Component states remain readable with long Linux paths and at narrow sizes. */

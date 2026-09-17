@@ -4,7 +4,7 @@ Guidance for LLM / coding agents working in this repository.
 
 ## Project summary
 
-**Prime Agent Studio Nix** (v4.1.3) is a local French/English workspace UI around [Prime Agent](https://github.com/PrimeIntellect-ai/prime-agent). It serves a vanilla browser client from this repo, drives the installed Prime Agent CLI/supervisor, and optionally wraps that stack in a Linux Tauri app (AppImage/deb).
+**Prime Agent Studio Nix** (v4.2.0) is a local French/English workspace UI around [Prime Agent](https://github.com/PrimeIntellect-ai/prime-agent). It serves a vanilla browser client from this repo, drives the installed Prime Agent CLI/supervisor, and optionally wraps that stack in a Linux Tauri app (AppImage/deb).
 
 **Engine compatibility:** Studio expects Prime Agent **0.9.4+** (daemon hello on a private socket; `utils/shell#resolveKernelBashShell`). From **0.9.5** the daemon may fork a supervisor child — Studio accepts that descendant when it listens on the Studio-owned socket. An incompatible engine reports `engine_incompatible` with a probe `check`/`detail`, not a path error.
 
@@ -35,15 +35,16 @@ Canonical product docs: [README.md](README.md) · internals: [docs/en/developmen
 make init            # npm ci
 make dev             # node server.mjs → http://127.0.0.1:3088
 make start-silent    # background server + browser (scripts/start-studio.sh)
+make stop            # shut down managed server / runs (ownership file)
+make kill            # force-stop leftover Studio servers + desktop clients
 make check           # syntax + translations + docs
 make test            # node --test under test/
 make format          # prettier
-make stop            # shut down server / runs
 ```
 
 `make setup-runtime` / `npm run setup:runtime` is obsolete (no-op); Prime Agent bootstraps its own Python kernel.
 
-Default listen: `127.0.0.1` port `PORT` or **3088**. Product surfaces are Linux-only: Node web server + browser (`make dev`) and the Linux Tauri desktop shell. Background launchers are `scripts/start-studio.sh`, `scripts/stop-studio.sh`, and `make start-silent`. Browser UI tests expect Chrome/Chromium on Linux (override with `PRIME_STUDIO_TEST_BROWSER`). Several `test/*.test.mjs` cases need an installed Prime Agent CLI (expect HTTP 503 / skipped adapters without it).
+Default listen: `127.0.0.1` port `PORT` or **3088**. Product surfaces are Linux-only: Node web server + browser (`make dev`) and the Linux Tauri desktop shell. Background launchers are `scripts/start-studio.sh`, `scripts/stop-studio.sh`, and `make start-silent`. Use `make kill` when a detached Studio server or tray client is still running after a crashed/old Quit path; it does not stop Prime Agent’s own daemon. Browser UI tests expect Chrome/Chromium on Linux (override with `PRIME_STUDIO_TEST_BROWSER`). Several `test/*.test.mjs` cases need an installed Prime Agent CLI (expect HTTP 503 / skipped adapters without it).
 
 ## Important paths
 

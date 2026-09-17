@@ -4,7 +4,7 @@ import { mkdtemp, mkdir, writeFile, readFile, copyFile, rm } from 'node:fs/promi
 import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import { join, dirname, resolve } from 'node:path';
-import { desktopServerStatus, restartDesktop } from '../scripts/desktop-control.mjs';
+import { desktopServerStatus, restartDesktop, stopDesktop } from '../scripts/desktop-control.mjs';
 import { startDesktop } from '../scripts/desktop-start.mjs';
 import { stopServer } from '../scripts/stop-server.mjs';
 import { probeHealth } from '../scripts/launcher-common.mjs';
@@ -43,7 +43,7 @@ async function fixture(t) {
     stop: async (input) => {
       assert.equal(input.dataDir, join(options.dataRoot, 'data'));
       assert.equal(input.expectedInstanceId, health.instanceId);
-      await input.beforeStop(health);
+      if (input.beforeStop) await input.beforeStop(health);
       stopped++;
       return { stopped: true };
     },
@@ -60,6 +60,26 @@ test('desktop restart changes the owned idle server to the bundled version', asy
   assert.equal((await desktopServerStatus(f.options, f.deps)).managed, true);
   assert.equal((await restartDesktop(f.options, f.deps)).version, '2.9.3');
   assert.deepEqual(f.counts(), [1, 1]);
+});
+test('desktop stop ends the managed server even when agents are active', async (t) => {
+  const f = await fixture(t);
+  f.setActive(2);
+  assert.deepEqual(await stopDesktop(f.options, f.deps), {
+    stopped: true,
+    managed: true,
+    instanceId: 'owned-instance',
+  });
+  assert.deepEqual(f.counts(), [1, 0]);
+  assert.deepEqual(await stopDesktop(f.options, {
+    ...f.deps,
+    probe: async () => ({ state: 'absent' }),
+  }), { stopped: false, reason: 'already-stopped', managed: true });
+});
+test('desktop stop refuses unmanaged servers', async (t) => {
+  const f = await fixture(t);
+  f.health.instanceId = 'different-instance';
+  await assert.rejects(stopDesktop(f.options, f.deps), /server_not_managed/);
+  assert.deepEqual(f.counts(), [0, 0]);
 });
 test('busy agents need confirmation and are rechecked immediately before stop', async (t) => {
   const f = await fixture(t);

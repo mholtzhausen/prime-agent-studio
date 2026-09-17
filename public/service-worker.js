@@ -1,4 +1,4 @@
-const CACHE = 'prime-studio-pwa-v4';
+const CACHE = 'prime-studio-pwa-v5';
 const PUBLIC_FILES = [
   '/public/offline.html',
   '/public/pwa.css',

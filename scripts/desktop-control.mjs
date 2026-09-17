@@ -33,6 +33,20 @@ export async function desktopServerStatus({ dataRoot, port }, deps = {}) {
   };
 }
 
+export async function stopDesktop(options, deps = {}) {
+  const before = await desktopServerStatus(options, deps);
+  if (!before.running) return { stopped: false, reason: 'already-stopped', managed: before.managed };
+  if (!before.managed) throw new Error('server_not_managed');
+  const dataDir = join(resolve(options.dataRoot), 'data');
+  const stopped = await (deps.stop || stopServer)({
+    root: join(options.resourceDir, 'studio'),
+    dataDir,
+    expectedInstanceId: before.instanceId,
+  });
+  if (!stopped.stopped && stopped.reason !== 'already-stopped') throw new Error('server_not_managed');
+  return { ...stopped, managed: true, instanceId: before.instanceId };
+}
+
 export async function restartDesktop(options, deps = {}) {
   // Confirm the replacement is present before stopping a working server.
   const manifest = JSON.parse(await readFile(join(options.resourceDir, 'desktop-resource.json'), 'utf8'));
@@ -75,7 +89,11 @@ if (isDirectInvocation(import.meta.url)) {
   try {
     const options = JSON.parse(process.argv[2]);
     const result =
-      options.action === 'status' ? await desktopServerStatus(options) : await restartDesktop(options);
+      options.action === 'status'
+        ? await desktopServerStatus(options)
+        : options.action === 'stop'
+          ? await stopDesktop(options)
+          : await restartDesktop(options);
     process.stdout.write(JSON.stringify(result));
   } catch (error) {
     process.stderr.write(error.message);

@@ -30,7 +30,7 @@ Studio does not run `ensureLocalKernel` or provision Python under `.local`. Prim
 
 - **Closing the window** hides it and keeps the tray icon. Agents, the server and mobile access continue.
 - Clicking this icon or launching the shortcut again brings back the same window.
-- The icon’s menu offers **Open Studio**, **App settings** and **Quit application**. Quitting closes Tauri but leaves the server and agents working.
+- The icon’s menu offers **Open Studio**, **App settings** and **Quit application**. Quitting stops the managed Studio server and closes Tauri. Closing the window only hides the UI; the server keeps running for LAN/mobile until you Quit. Prime Agent’s own daemon may continue independently.
 - In **App settings**, **Start with session** is disabled by default. Enabling it starts Studio in the background when you log in, without opening its window. A startup error shows the window so you can retry.
 - External links open in your usual browser. LAN, Tailscale, HTTPS and the mobile PWA still use the same server.
 

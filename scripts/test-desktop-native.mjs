@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve, dirname } from 'node:path';
 import { preferencesFixture } from './preview-preferences.mjs';
 import { probeHealth } from './launcher-common.mjs';
+import { stopDesktop } from './desktop-control.mjs';
 
 const exe = resolve(process.argv[2] || 'src-tauri/target/debug/prime-agent-studio-nix.exe');
 const temp = await mkdtemp(join(tmpdir(), 'prime-native-test-'));
@@ -135,15 +136,23 @@ try {
   await until(() => second.exitCode !== null, 'Second native instance did not exit');
   assert.equal(second.exitCode, 0);
   await quit(cold.child);
-  assert.equal((await probeHealth(port)).health.instanceId, before.health.instanceId);
+  // Tray Quit / ExitRequested stop the managed server; SIGTERM may race, so mirror Quit via desktop-control.
+  const stopped = await stopDesktop({
+    resourceDir: generation,
+    dataRoot,
+    port,
+  });
+  assert.equal(stopped.stopped || stopped.reason === 'already-stopped', true);
+  assert.equal((await probeHealth(port)).state, 'absent');
   await rm(join(dataRoot, 'backend.json'));
   const reopened = await launch(dataRoot, port);
-  assert.equal(reopened.ready.reused, true);
-  assert.equal(reopened.ready.pid, backend.pid);
+  assert.equal(reopened.ready.reused, false);
+  assert.notEqual(reopened.ready.pid, backend.pid);
+  backend = reopened.ready;
   await quit(reopened.child);
-  assert.equal((await probeHealth(port)).health.instanceId, before.health.instanceId);
+  await stopDesktop({ resourceDir: generation, dataRoot, port }).catch(() => {});
   console.log(
-    'Native executable passed: extracted workers, message and Python execution; provider/command HTTP endpoints; existing active run preserved; cold detached startup; single instance; app exit and relaunch preserve server PID/instance.',
+    'Native executable passed: extracted workers, message and Python execution; provider/command HTTP endpoints; existing active run preserved on reuse; cold detached startup; single instance; Quit stops the managed server before relaunch.',
   );
 } finally {
   for (const child of children) await quit(child).catch(() => {});
