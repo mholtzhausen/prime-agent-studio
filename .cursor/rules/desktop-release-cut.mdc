@@ -12,10 +12,10 @@ When the user asks to cut a release (any bump type), do **not** stop at version 
 1. Version bumped (`package.json`, `package-lock.json`, `src-tauri/Cargo.toml` + lock, READMEs, `AGENTS.md`, bilingual `docs/changelog.md` + `docs/en/changelog.md`) via `/version-bump` rules.
 2. Release commit + annotated tag `vX.Y.Z` matching `package.json`.
 3. Branch and tag pushed to `origin` (`git push` and `git push --tags`, or `git push -u origin HEAD --tags`).
-4. GitHub workflow **Linux desktop release** dispatched against the nix fork with the branch that owns the current workflow file (today: `-R mholtzhausen/prime-agent-studio --ref Linux`) and `tag=vX.Y.Z`. Do not default `gh` to `upstream`/`zerr0o` — set `-R` explicitly. If `main`’s workflow still references removed scripts (e.g. `prepare-release-test-engine.mjs`), use the Linux-branch workflow definition.
-5. Wait for the workflow to finish successfully.
-6. Publish the draft release (workflow only uploads a draft): `gh release edit vX.Y.Z --draft=false` (or equivalent).
-7. Reply with the **published** release URL and the AppImage/deb (and `latest.json`) download links.
+4. Prefer GitHub workflow **Linux desktop release** on the nix fork with the branch that owns the current workflow file (today: `-R mholtzhausen/prime-agent-studio --ref Linux`) and `tag=vX.Y.Z`. Do not default `gh` to `upstream`/`zerr0o` — set `-R` explicitly. If `main`’s workflow still references removed scripts (e.g. `prepare-release-test-engine.mjs`), use the Linux-branch workflow definition. CI must install Prime Agent from the public release tarball (`https://pub-728493de92a943e2a9b2d17b4719f318.r2.dev/releases/vX.Y.Z/prime-agent-X.Y.Z.tgz`), not the npm registry.
+5. If the workflow cannot complete, fall back to local `make build-release` (signing key at `~/.tauri/prime-agent-studio-nix.key`), then `gh release create vX.Y.Z -R mholtzhausen/prime-agent-studio --verify-tag --latest` with `.local/desktop-release/vX.Y.Z/*` assets. Do not leave the user on a draft.
+6. Wait for a **published** (non-draft) release with AppImage, `.sig`, `latest.json`, and usually the `.deb`.
+7. Reply with the **published** release URL and direct download links for those artifacts.
 
 ## Do not
 
