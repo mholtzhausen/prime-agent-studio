@@ -79,6 +79,20 @@ test('knowledge bridge settings are never inherited by a Studio launched from an
   assert.equal(env.PRIME_STUDIO_KNOWLEDGE_CONFIG, undefined);
 });
 
+test('AppImage PYTHONHOME/PYTHONPATH are dropped before agent PYTHONPATH injection', () => {
+  const env = agentEnvironment({
+    env: {
+      APPDIR: '/tmp/PrimeAgent.AppDir',
+      PYTHONHOME: '/tmp/PrimeAgent.AppDir/usr',
+      PYTHONPATH: '/tmp/PrimeAgent.AppDir/usr/share/pyshared:/host/extra',
+    },
+  });
+  assert.equal(env.PYTHONHOME, undefined);
+  assert.match(env.PYTHONPATH, /runtime[/\\]python/);
+  assert.doesNotMatch(env.PYTHONPATH, /PrimeAgent\.AppDir/);
+  assert.doesNotMatch(env.PYTHONPATH, /host[/\\]extra/);
+});
+
 test('model-visible refinement truncation is explicit on each snapshot and the whole result', async (t) => {
   const { config, cwd, file } = await fixture(t);
   await appendFile(

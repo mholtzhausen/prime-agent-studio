@@ -66,6 +66,24 @@ test('desktop launch snapshot keeps engine override without uv/python management
   assert.equal(selected.PRIME_GUI_UV, undefined);
 });
 
+test('AppImage PYTHONHOME/PYTHONPATH are cleared; host PYTHONPATH is preserved otherwise', async (t) => {
+  const root = await fixture(t);
+  const appImage = await selectedEnvironment(root, {
+    APPDIR: '/tmp/PrimeAgent.AppDir',
+    PYTHONHOME: '/tmp/PrimeAgent.AppDir/usr',
+    PYTHONPATH: '/tmp/PrimeAgent.AppDir/usr/share/pyshared',
+    PYTHON_HOME: '/tmp/PrimeAgent.AppDir/usr',
+    PYTHON_PATH: '/tmp/PrimeAgent.AppDir/usr/share/pyshared',
+  });
+  assert.equal(appImage.PYTHONHOME, undefined);
+  assert.equal(appImage.PYTHONPATH, undefined);
+  assert.equal(appImage.PYTHON_HOME, undefined);
+  assert.equal(appImage.PYTHON_PATH, undefined);
+  const host = await selectedEnvironment(root, { PYTHONPATH: '/host/site-packages' });
+  assert.equal(host.PYTHONPATH, '/host/site-packages');
+  assert.equal(host.PYTHONHOME, undefined);
+});
+
 test('invalid explicit CLI is reported and never replaced', async (t) => {
   const dataRoot = await fixture(t);
   const deps = {

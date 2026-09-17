@@ -397,7 +397,20 @@ async fn desktop_server_restart(
     result
 }
 
+/// linuxdeploy's AppRun always injects PYTHONHOME/PYTHONPATH into $APPDIR even
+/// when the bundle ships no Python. Clear them so child Node/Prime Agent
+/// processes see the host interpreter instead of a missing AppDir tree.
+fn clear_appimage_python_env() {
+    if std::env::var_os("APPDIR").is_none() && std::env::var_os("APPIMAGE").is_none() {
+        return;
+    }
+    for key in ["PYTHONHOME", "PYTHONPATH", "PYTHON_HOME", "PYTHON_PATH"] {
+        std::env::remove_var(key);
+    }
+}
+
 fn main() {
+    clear_appimage_python_env();
     // The updater enables reqwest's rustls-no-provider feature process-wide,
     // but initializes ring only when checking for updates. The notification
     // client starts earlier (even for HTTP); initialize the same provider now.

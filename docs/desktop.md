@@ -6,7 +6,7 @@ L’application **Prime Agent Studio Nix**, construite avec Tauri 2, ouvre le St
 
 ## Installation et premier lancement
 
-Téléchargez l’[AppImage](https://github.com/mholtzhausen/prime-agent-studio/releases/latest) ou le [deb](https://github.com/mholtzhausen/prime-agent-studio/releases/latest) amd64 depuis la dernière release. L’AppImage est portable ; le deb installe l’intégration bureau. Node.js est inclus. Les paquets s’appuient sur WebKitGTK du système — aucun runtime de navigateur séparé n’est à installer.
+Téléchargez l’[AppImage](https://github.com/mholtzhausen/prime-agent-studio/releases/latest) ou le [deb](https://github.com/mholtzhausen/prime-agent-studio/releases/latest) amd64 depuis la dernière release. L’AppImage est portable ; le deb installe l’intégration bureau. Node.js est inclus. Les paquets s’appuient sur WebKitGTK du système — aucun runtime de navigateur séparé n’est à installer. Le runtime AppImage fixerait autrement `PYTHONHOME`/`PYTHONPATH` sous `$APPDIR` ; le Studio les efface car il ne fournit pas Python.
 
 Installez **Prime Agent** vous-même s’il n’est pas déjà disponible ; le Studio ne télécharge ni Prime Agent, ni npm, ni uv, ni Python. **Un `bash` fonctionnel reste un prérequis distinct** pour les commandes shell du moteur ; son absence est signalée.
 

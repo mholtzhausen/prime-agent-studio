@@ -6,7 +6,7 @@ The **Prime Agent Studio Nix** application, built with Tauri 2, opens Studio in 
 
 ## Installation and first launch
 
-Download the amd64 [AppImage](https://github.com/mholtzhausen/prime-agent-studio/releases/latest) or [deb](https://github.com/mholtzhausen/prime-agent-studio/releases/latest) from the latest release. The AppImage is portable; the deb installs desktop integration. Node.js is bundled. Packages use the system WebKitGTK stack—no separate browser runtime installer is required.
+Download the amd64 [AppImage](https://github.com/mholtzhausen/prime-agent-studio/releases/latest) or [deb](https://github.com/mholtzhausen/prime-agent-studio/releases/latest) from the latest release. The AppImage is portable; the deb installs desktop integration. Node.js is bundled. Packages use the system WebKitGTK stack—no separate browser runtime installer is required. The AppImage runtime would otherwise set `PYTHONHOME`/`PYTHONPATH` under `$APPDIR`; Studio clears them because it does not ship Python.
 
 Install **Prime Agent** yourself if it is not already available; Studio does not download Prime Agent, npm, uv or Python. **A working `bash` remains a separate prerequisite** for engine shell commands; its absence is reported.
 

@@ -4,6 +4,11 @@
 
 Les changements par version. Retrouvez les installateurs et les archives du code source dans les [releases GitHub](https://github.com/mholtzhausen/prime-agent-studio/releases).
 
+## 4.1.2
+
+- **Env Python AppImage laissée vide** : effacer `PYTHONHOME`/`PYTHONPATH` (et variantes avec tiret bas) injectées par AppRun linuxdeploy dans `$APPDIR`, car Studio ne fournit pas Python. Appliqué au démarrage du bureau et dans les environnements composants/agents pour que Prime Agent voie l’interpréteur hôte.
+- **Après installation** : redémarrez le serveur depuis les préférences une fois les agents terminés.
+
 ## 4.1.1
 
 - **Identité du daemon avec superviseur forké** : accepter `daemon_hello` lorsque `supervisorPid` est le processus lancé par Studio ou un de ses descendants, et lorsque le hello annonce la socket privée du Studio. Corrige le démarrage du moteur avec prime-agent 0.9.5+ (« ne correspond pas au processus lancé par le Studio »).
